@@ -17,6 +17,30 @@ interface UploadZoneProps {
   onUploadComplete: (files: { name: string; blobUrl: string }[]) => void;
 }
 
+async function uploadFile(file: File): Promise<string> {
+  // Try local upload first (FormData POST)
+  // If BLOB_READ_WRITE_TOKEN is not set, the server handles it locally
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    if (data.url) return data.url;
+  }
+
+  // Fall back to Vercel Blob client upload
+  const blob = await upload(file.name, file, {
+    access: "public",
+    handleUploadUrl: "/api/upload",
+  });
+  return blob.url;
+}
+
 export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
@@ -44,20 +68,17 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
         );
 
         try {
-          const blob = await upload(entry.file.name, entry.file, {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-          });
+          const url = await uploadFile(entry.file);
 
           setFiles((prev) =>
             prev.map((f) =>
               f.file === entry.file
-                ? { ...f, status: "done", blobUrl: blob.url }
+                ? { ...f, status: "done", blobUrl: url }
                 : f
             )
           );
 
-          completed.push({ name: entry.file.name, blobUrl: blob.url });
+          completed.push({ name: entry.file.name, blobUrl: url });
         } catch (err) {
           setFiles((prev) =>
             prev.map((f) =>

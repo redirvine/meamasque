@@ -7,7 +7,7 @@ import { ImageGrid } from "@/components/gallery/image-grid";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function HomePage() {
-  const [featuredImages, recentStories, allArtists] = await Promise.all([
+  const [featuredImages, recentStories] = await Promise.all([
     db
       .select({
         id: images.id,
@@ -34,9 +34,6 @@ export default async function HomePage() {
       .where(eq(stories.visibility, "public"))
       .orderBy(desc(stories.createdAt))
       .limit(3),
-    db.query.artists.findMany({
-      orderBy: (artists, { asc }) => [asc(artists.name)],
-    }),
   ]);
 
   return (
@@ -64,29 +61,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Featured Artists */}
-      {allArtists.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-16">
-          <h2 className="mb-6 text-2xl font-bold">Our Artists</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {allArtists.map((artist) => (
-              <Link key={artist.id} href={`/artists/${artist.slug}`}>
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold">{artist.name}</h3>
-                    {artist.bio && (
-                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {artist.bio}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Recent Works */}
       {featuredImages.length > 0 && (

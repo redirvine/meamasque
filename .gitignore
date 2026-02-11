@@ -36,6 +36,9 @@ yarn-error.log*
 # local database
 local.db
 
+# local uploads (dev only)
+/public/uploads
+
 # vercel
 .vercel
 
