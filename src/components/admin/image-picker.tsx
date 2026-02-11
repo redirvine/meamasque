@@ -54,7 +54,8 @@ export function ImagePicker({
 
   useEffect(() => {
     setSelected(new Set(selectedIds));
-  }, [selectedIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIds?.join(",")]);
 
   const toggleImage = (id: string) => {
     setSelected((prev) => {

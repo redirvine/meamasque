@@ -53,6 +53,11 @@ export default async function HomePage() {
                 Browse Gallery
               </Button>
             </Link>
+            <Link href="/stories">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Read Stories
+              </Button>
+            </Link>
             <Link href="/artists">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Meet the Artists
