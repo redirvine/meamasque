@@ -48,8 +48,7 @@ export default async function HomePage() {
             Meamasque
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-600">
-            A collection of art and stories spanning three generations —
-            preserving the creative legacy of our family.
+            A collection of art and stories spanning generations.
           </p>
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
             <Link href="/gallery">
@@ -76,11 +75,6 @@ export default async function HomePage() {
                 <Card className="transition-shadow hover:shadow-md">
                   <CardContent className="p-6">
                     <h3 className="font-semibold">{artist.name}</h3>
-                    {artist.relationship && (
-                      <p className="mt-1 text-sm text-gray-500">
-                        {artist.relationship}
-                      </p>
-                    )}
                     {artist.bio && (
                       <p className="mt-2 text-sm text-gray-600 line-clamp-2">
                         {artist.bio}

@@ -23,11 +23,6 @@ export default async function ArtistsPage() {
             <Card className="transition-shadow hover:shadow-lg">
               <CardHeader>
                 <CardTitle>{artist.name}</CardTitle>
-                {artist.relationship && (
-                  <p className="text-sm text-gray-500">
-                    {artist.relationship}
-                  </p>
-                )}
               </CardHeader>
               <CardContent>
                 {artist.bio && (

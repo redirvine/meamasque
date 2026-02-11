@@ -27,7 +27,6 @@ interface Artist {
   name: string;
   slug: string;
   bio: string | null;
-  relationship: string | null;
 }
 
 export default function ArtistsAdminPage() {
@@ -40,7 +39,6 @@ export default function ArtistsAdminPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [bio, setBio] = useState("");
-  const [relationship, setRelationship] = useState("");
   const [saving, setSaving] = useState(false);
 
   const loadArtists = async () => {
@@ -56,7 +54,6 @@ export default function ArtistsAdminPage() {
     setName("");
     setSlug("");
     setBio("");
-    setRelationship("");
   };
 
   const openEdit = (artist: Artist) => {
@@ -64,7 +61,6 @@ export default function ArtistsAdminPage() {
     setName(artist.name);
     setSlug(artist.slug);
     setBio(artist.bio ?? "");
-    setRelationship(artist.relationship ?? "");
   };
 
   const handleSave = async () => {
@@ -78,7 +74,6 @@ export default function ArtistsAdminPage() {
             name,
             slug,
             bio: bio || null,
-            relationship: relationship || null,
           }),
         });
         toast.success("Artist updated");
@@ -90,7 +85,6 @@ export default function ArtistsAdminPage() {
             name,
             slug,
             bio: bio || undefined,
-            relationship: relationship || undefined,
           }),
         });
         toast.success("Artist created");
@@ -161,11 +155,6 @@ export default function ArtistsAdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {artist.relationship && (
-                <p className="mb-2 text-sm text-gray-500">
-                  {artist.relationship}
-                </p>
-              )}
               {artist.bio && (
                 <p className="text-sm text-gray-600">{artist.bio}</p>
               )}
@@ -201,14 +190,6 @@ export default function ArtistsAdminPage() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="url-friendly-name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Relationship</Label>
-              <Input
-                value={relationship}
-                onChange={(e) => setRelationship(e.target.value)}
-                placeholder='e.g. "Mother", "Grandmother"'
               />
             </div>
             <div className="space-y-2">

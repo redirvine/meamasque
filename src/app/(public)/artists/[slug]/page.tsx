@@ -48,9 +48,6 @@ export default async function ArtistPage({
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{artist.name}</h1>
-        {artist.relationship && (
-          <p className="mt-1 text-gray-500">{artist.relationship}</p>
-        )}
         {artist.bio && (
           <p className="mt-4 max-w-2xl text-gray-600">{artist.bio}</p>
         )}
