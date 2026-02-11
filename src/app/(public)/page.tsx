@@ -1,41 +1,64 @@
 import { db } from "@/db";
-import { images, artists } from "@/db/schema";
+import { images, artists, stories } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ImageGrid } from "@/components/gallery/image-grid";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function HomePage() {
-  const featuredImages = await db
-    .select({
-      id: images.id,
-      title: images.title,
-      blobUrl: images.blobUrl,
-      dateCreated: images.dateCreated,
-      artistName: artists.name,
-    })
-    .from(images)
-    .leftJoin(artists, eq(images.artistId, artists.id))
-    .where(eq(images.visibility, "public"))
-    .orderBy(desc(images.createdAt))
-    .limit(8);
+  const [featuredImages, recentStories, allArtists] = await Promise.all([
+    db
+      .select({
+        id: images.id,
+        title: images.title,
+        blobUrl: images.blobUrl,
+        dateCreated: images.dateCreated,
+        artistName: artists.name,
+      })
+      .from(images)
+      .leftJoin(artists, eq(images.artistId, artists.id))
+      .where(eq(images.visibility, "public"))
+      .orderBy(desc(images.createdAt))
+      .limit(8),
+    db
+      .select({
+        id: stories.id,
+        title: stories.title,
+        slug: stories.slug,
+        excerpt: stories.excerpt,
+        coverImageUrl: images.blobUrl,
+      })
+      .from(stories)
+      .leftJoin(images, eq(stories.coverImageId, images.id))
+      .where(eq(stories.visibility, "public"))
+      .orderBy(desc(stories.createdAt))
+      .limit(3),
+    db.query.artists.findMany({
+      orderBy: (artists, { asc }) => [asc(artists.name)],
+    }),
+  ]);
 
   return (
     <div>
-      <section className="bg-gray-50 py-20">
+      {/* Hero */}
+      <section className="bg-gradient-to-b from-gray-50 to-white py-24">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
             Meamasque
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            A collection of art and stories spanning three generations.
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-600">
+            A collection of art and stories spanning three generations —
+            preserving the creative legacy of our family.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
+          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
             <Link href="/gallery">
-              <Button size="lg">Browse Gallery</Button>
+              <Button size="lg" className="w-full sm:w-auto">
+                Browse Gallery
+              </Button>
             </Link>
             <Link href="/artists">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Meet the Artists
               </Button>
             </Link>
@@ -43,18 +66,88 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Featured Artists */}
+      {allArtists.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-16">
+          <h2 className="mb-6 text-2xl font-bold">Our Artists</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {allArtists.map((artist) => (
+              <Link key={artist.id} href={`/artists/${artist.slug}`}>
+                <Card className="transition-shadow hover:shadow-md">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold">{artist.name}</h3>
+                    {artist.relationship && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        {artist.relationship}
+                      </p>
+                    )}
+                    {artist.bio && (
+                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                        {artist.bio}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Recent Works */}
       {featuredImages.length > 0 && (
+        <section className="bg-gray-50 py-16">
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="mb-8 flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Recent Works</h2>
+              <Link
+                href="/gallery"
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                View all &rarr;
+              </Link>
+            </div>
+            <ImageGrid images={featuredImages} />
+          </div>
+        </section>
+      )}
+
+      {/* Recent Stories */}
+      {recentStories.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-16">
           <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Recent Works</h2>
+            <h2 className="text-2xl font-bold">Stories</h2>
             <Link
-              href="/gallery"
+              href="/stories"
               className="text-sm text-gray-500 hover:text-gray-700"
             >
-              View all &rarr;
+              Read all &rarr;
             </Link>
           </div>
-          <ImageGrid images={featuredImages} />
+          <div className="grid gap-6 md:grid-cols-3">
+            {recentStories.map((story) => (
+              <Link key={story.id} href={`/stories/${story.slug}`}>
+                <Card className="overflow-hidden transition-shadow hover:shadow-lg">
+                  {story.coverImageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={story.coverImageUrl}
+                      alt=""
+                      className="h-48 w-full object-cover"
+                    />
+                  )}
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold">{story.title}</h3>
+                    {story.excerpt && (
+                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                        {story.excerpt}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
     </div>

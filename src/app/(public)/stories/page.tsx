@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { stories, images, artists } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, or, and, SQL } from "drizzle-orm";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import { hasFamilyAccess } from "@/lib/family-access";
 
 export const metadata = {
   title: "Stories - Meamasque",
@@ -10,6 +11,8 @@ export const metadata = {
 };
 
 export default async function StoriesPage() {
+  const familyAccess = await hasFamilyAccess();
+
   const allStories = await db
     .select({
       id: stories.id,
@@ -24,7 +27,7 @@ export default async function StoriesPage() {
     .from(stories)
     .leftJoin(images, eq(stories.coverImageId, images.id))
     .leftJoin(artists, eq(stories.authorId, artists.id))
-    .where(eq(stories.visibility, "public"))
+    .where(familyAccess ? undefined : eq(stories.visibility, "public"))
     .orderBy(desc(stories.createdAt));
 
   return (

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { hasFamilyAccess } from "@/lib/family-access";
 
 export default async function ImageDetailPage({
   params,
@@ -33,7 +34,8 @@ export default async function ImageDetailPage({
 
   const image = results[0];
 
-  if (!image || image.visibility !== "public") {
+  if (!image) notFound();
+  if (image.visibility === "private" && !(await hasFamilyAccess())) {
     notFound();
   }
 

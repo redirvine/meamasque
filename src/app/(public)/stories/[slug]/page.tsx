@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { hasFamilyAccess } from "@/lib/family-access";
 
 export default async function StoryPage({
   params,
@@ -32,7 +33,8 @@ export default async function StoryPage({
 
   const story = storyResults[0];
 
-  if (!story || story.visibility !== "public") {
+  if (!story) notFound();
+  if (story.visibility === "private" && !(await hasFamilyAccess())) {
     notFound();
   }
 
