@@ -10,6 +10,7 @@ import {
   Users,
   FolderOpen,
   BookOpen,
+  KeyRound,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/artists", label: "Artists", icon: Users },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
   { href: "/admin/stories", label: "Stories", icon: BookOpen },
+  { href: "/admin/family", label: "Family Access", icon: KeyRound },
 ];
 
 export function AdminSidebar() {

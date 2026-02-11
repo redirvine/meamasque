@@ -8,7 +8,7 @@ import { z } from "zod";
 const createImageSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  blobUrl: z.string().url(),
+  blobUrl: z.string().min(1),
   artistId: z.string().optional().nullable(),
   categoryId: z.string().optional().nullable(),
   dateCreated: z.string().optional(),

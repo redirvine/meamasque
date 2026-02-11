@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { artists, images } from "@/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, or, desc, SQL } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ImageGrid } from "@/components/gallery/image-grid";
+import { hasFamilyAccess } from "@/lib/family-access";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -13,12 +14,20 @@ export default async function ArtistPage({
 }) {
   const { slug } = await params;
 
-  const artist = await db.query.artists.findFirst({
-    where: eq(artists.slug, slug),
-  });
+  const [artist, familyAccess] = await Promise.all([
+    db.query.artists.findFirst({
+      where: eq(artists.slug, slug),
+    }),
+    hasFamilyAccess(),
+  ]);
 
   if (!artist) {
     notFound();
+  }
+
+  const conditions: SQL[] = [eq(images.artistId, artist.id)];
+  if (!familyAccess) {
+    conditions.push(eq(images.visibility, "public"));
   }
 
   const artistImages = await db
@@ -31,9 +40,7 @@ export default async function ArtistPage({
     })
     .from(images)
     .leftJoin(artists, eq(images.artistId, artists.id))
-    .where(
-      and(eq(images.artistId, artist.id), eq(images.visibility, "public"))
-    )
+    .where(and(...conditions))
     .orderBy(desc(images.createdAt));
 
   return (
