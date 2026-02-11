@@ -197,7 +197,7 @@ export default function ArtistsAdminPage() {
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                rows={3}
+                rows={6}
               />
             </div>
           </div>

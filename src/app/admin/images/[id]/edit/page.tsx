@@ -143,7 +143,7 @@ export default function EditImagePage({
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={3}
+                rows={6}
               />
             </div>
 

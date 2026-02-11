@@ -184,6 +184,7 @@ export default function UploadPage() {
               <Textarea
                 placeholder="Description (optional, applied to all)"
                 className="mt-2"
+                rows={6}
               />
 
               <Button
