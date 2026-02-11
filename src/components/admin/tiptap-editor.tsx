@@ -37,6 +37,7 @@ export function TiptapEditor({
   onInsertImage,
 }: TiptapEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Image.configure({
