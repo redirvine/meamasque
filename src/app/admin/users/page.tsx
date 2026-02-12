@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +31,7 @@ interface AdminUser {
 }
 
 export default function AdminUsersPage() {
-  const { data: session } = useSession();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
@@ -49,6 +48,9 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     loadUsers();
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => setCurrentUserId(data.id));
   }, []);
 
   const resetForm = () => {
@@ -136,7 +138,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  const isSelf = (userId: string) => session?.user?.id === userId;
+  const isSelf = (userId: string) => currentUserId === userId;
 
   return (
     <div>
