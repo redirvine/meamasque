@@ -121,6 +121,22 @@ export const storyImages = sqliteTable("story_images", {
   caption: text("caption"),
 });
 
+// PasswordResetTokens — hashed tokens for password reset flow
+export const passwordResetTokens = sqliteTable("password_reset_tokens", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  hashedToken: text("hashed_token").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  usedAt: integer("used_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // FamilyAccess — hashed access code for family-only viewing
 export const familyAccess = sqliteTable("family_access", {
   id: text("id")

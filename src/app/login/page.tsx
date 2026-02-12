@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,6 +82,14 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
+            <div className="text-center">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-gray-500 hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>
