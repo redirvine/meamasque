@@ -42,10 +42,10 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/login"
-            className="text-gray-300 hover:text-gray-500"
-            title="Admin login"
+            className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
           >
-            <LogIn className="h-4 w-4" />
+            <LogIn className="h-3 w-3" />
+            Login
           </Link>
         </nav>
 
@@ -77,7 +77,7 @@ export function SiteHeader() {
               </Link>
               <Link
                 href="/login"
-                className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-gray-500"
+                className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
               >
                 <LogIn className="h-3 w-3" />
                 Login
