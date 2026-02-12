@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock, Menu } from "lucide-react";
+import { Lock, LogIn, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -40,6 +40,13 @@ export function SiteHeader() {
             <Lock className="h-3 w-3" />
             Family
           </Link>
+          <Link
+            href="/login"
+            className="text-gray-300 hover:text-gray-500"
+            title="Admin login"
+          >
+            <LogIn className="h-4 w-4" />
+          </Link>
         </nav>
 
         {/* Mobile nav */}
@@ -67,6 +74,13 @@ export function SiteHeader() {
               >
                 <Lock className="h-3 w-3" />
                 Family
+              </Link>
+              <Link
+                href="/login"
+                className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-gray-500"
+              >
+                <LogIn className="h-3 w-3" />
+                Login
               </Link>
             </nav>
           </SheetContent>
