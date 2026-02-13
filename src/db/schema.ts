@@ -137,6 +137,55 @@ export const passwordResetTokens = sqliteTable("password_reset_tokens", {
     .$defaultFn(() => new Date()),
 });
 
+// Ancestors — family history records
+export const ancestors = sqliteTable("ancestors", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  maidenName: text("maiden_name"),
+  relationship: text("relationship"),
+  birthplace: text("birthplace"),
+  born: text("born"),
+  deathPlace: text("death_place"),
+  died: text("died"),
+  spouse: text("spouse"),
+  occupation: text("occupation"),
+  immigration: text("immigration"),
+  bio: text("bio"),
+  photoId: text("photo_id").references(() => images.id, {
+    onDelete: "set null",
+  }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+// Plays — acting history
+export const plays = sqliteTable("plays", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  play: text("play").notNull(),
+  date: text("date"),
+  role: text("role"),
+  location: text("location"),
+  description: text("description"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+// SiteAbout — single-row table for the About page content
+export const siteAbout = sqliteTable("site_about", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  name: text("name").notNull().default("Meamasque"),
+  bio: text("bio"),
+});
+
 // FamilyAccess — hashed access code for family-only viewing
 export const familyAccess = sqliteTable("family_access", {
   id: text("id")

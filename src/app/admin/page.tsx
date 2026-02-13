@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, artists, stories, categories } from "@/db/schema";
+import { images, artists, stories, categories, ancestors, plays } from "@/db/schema";
 import { count, desc } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Images, Users, BookOpen, FolderOpen } from "lucide-react";
+import { Images, Users, BookOpen, FolderOpen, TreePine, Drama } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +13,8 @@ export default async function AdminDashboard() {
   const [artistCount] = await db.select({ count: count() }).from(artists);
   const [storyCount] = await db.select({ count: count() }).from(stories);
   const [categoryCount] = await db.select({ count: count() }).from(categories);
+  const [ancestorCount] = await db.select({ count: count() }).from(ancestors);
+  const [playCount] = await db.select({ count: count() }).from(plays);
   const recentImages = await db.query.images.findMany({
     orderBy: desc(images.createdAt),
     limit: 5,
@@ -42,6 +44,18 @@ export default async function AdminDashboard() {
       value: categoryCount.count,
       icon: FolderOpen,
       href: "/admin/categories",
+    },
+    {
+      label: "Ancestors",
+      value: ancestorCount.count,
+      icon: TreePine,
+      href: "/admin/ancestors",
+    },
+    {
+      label: "Plays",
+      value: playCount.count,
+      icon: Drama,
+      href: "/admin/plays",
     },
   ];
 

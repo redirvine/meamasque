@@ -7,14 +7,18 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { hasFamilyAccess } from "@/lib/family-access";
 
 const navLinks = [
   { href: "/gallery", label: "Gallery" },
   { href: "/artists", label: "Artists" },
   { href: "/stories", label: "Stories" },
+  { href: "/about", label: "About" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const familyAccess = await hasFamilyAccess();
+
   return (
     <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -33,6 +37,22 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          {familyAccess && (
+            <Link
+              href="/ancestors"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              Ancestors
+            </Link>
+          )}
+          {familyAccess && (
+            <Link
+              href="/plays"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              Plays
+            </Link>
+          )}
           <Link
             href="/family"
             className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
@@ -68,6 +88,22 @@ export function SiteHeader() {
                   {link.label}
                 </Link>
               ))}
+              {familyAccess && (
+                <Link
+                  href="/ancestors"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  Ancestors
+                </Link>
+              )}
+              {familyAccess && (
+                <Link
+                  href="/plays"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  Plays
+                </Link>
+              )}
               <Link
                 href="/family"
                 className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
