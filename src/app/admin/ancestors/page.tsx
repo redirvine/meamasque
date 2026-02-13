@@ -66,7 +66,9 @@ export default function AncestorsAdminPage() {
 
   const loadAncestors = async () => {
     const res = await fetch("/api/ancestors");
-    setAncestors(await res.json());
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data)) setAncestors(data);
   };
 
   useEffect(() => {
@@ -138,18 +140,20 @@ export default function AncestorsAdminPage() {
       };
 
       if (editAncestor) {
-        await fetch(`/api/ancestors/${editAncestor.id}`, {
+        const res = await fetch(`/api/ancestors/${editAncestor.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) throw new Error("Update failed");
         toast.success("Ancestor updated");
       } else {
-        await fetch("/api/ancestors", {
+        const res = await fetch("/api/ancestors", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) throw new Error("Create failed");
         toast.success("Ancestor created");
       }
       setEditAncestor(null);

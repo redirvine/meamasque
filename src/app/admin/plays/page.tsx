@@ -47,7 +47,9 @@ export default function PlaysAdminPage() {
 
   const loadPlays = async () => {
     const res = await fetch("/api/plays");
-    setPlays(await res.json());
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data)) setPlays(data);
   };
 
   useEffect(() => {
@@ -83,18 +85,20 @@ export default function PlaysAdminPage() {
       };
 
       if (editPlay) {
-        await fetch(`/api/plays/${editPlay.id}`, {
+        const res = await fetch(`/api/plays/${editPlay.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) throw new Error("Update failed");
         toast.success("Play updated");
       } else {
-        await fetch("/api/plays", {
+        const res = await fetch("/api/plays", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) throw new Error("Create failed");
         toast.success("Play created");
       }
       setEditPlay(null);
