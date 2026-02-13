@@ -10,14 +10,20 @@ import {
 import { hasFamilyAccess } from "@/lib/family-access";
 
 const navLinks = [
-  { href: "/gallery", label: "Gallery" },
-  { href: "/artists", label: "Artists" },
+  { href: "/gallery", label: "Art" },
   { href: "/stories", label: "Stories" },
+  { href: "/plays", label: "Plays", familyOnly: true },
+  { href: "/artists", label: "Artists" },
+  { href: "/ancestors", label: "Ancestors", familyOnly: true },
   { href: "/about", label: "About" },
 ];
 
 export async function SiteHeader() {
   const familyAccess = await hasFamilyAccess();
+
+  const visibleLinks = navLinks.filter(
+    (link) => !link.familyOnly || familyAccess
+  );
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
@@ -28,7 +34,7 @@ export async function SiteHeader() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 sm:flex">
-          {navLinks.map((link) => (
+          {visibleLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -37,22 +43,6 @@ export async function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          {familyAccess && (
-            <Link
-              href="/ancestors"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Ancestors
-            </Link>
-          )}
-          {familyAccess && (
-            <Link
-              href="/plays"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Plays
-            </Link>
-          )}
           <Link
             href="/family"
             className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
@@ -79,7 +69,7 @@ export async function SiteHeader() {
           <SheetContent side="right" className="w-64">
             <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
             <nav className="mt-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
+              {visibleLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -88,22 +78,6 @@ export async function SiteHeader() {
                   {link.label}
                 </Link>
               ))}
-              {familyAccess && (
-                <Link
-                  href="/ancestors"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900"
-                >
-                  Ancestors
-                </Link>
-              )}
-              {familyAccess && (
-                <Link
-                  href="/plays"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900"
-                >
-                  Plays
-                </Link>
-              )}
               <Link
                 href="/family"
                 className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
