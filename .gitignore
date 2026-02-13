@@ -36,6 +36,9 @@ yarn-error.log*
 # local database
 local.db
 
+# backups
+/backup
+
 # local uploads (dev only)
 /public/uploads
 
