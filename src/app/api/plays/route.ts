@@ -6,10 +6,10 @@ import { z } from "zod";
 
 const createPlaySchema = z.object({
   play: z.string().min(1),
-  date: z.string().optional(),
-  role: z.string().optional(),
-  location: z.string().optional(),
-  description: z.string().optional(),
+  date: z.string().optional().nullable(),
+  role: z.string().optional().nullable(),
+  location: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
 });
 
 export async function GET() {

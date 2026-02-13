@@ -7,17 +7,17 @@ import { z } from "zod";
 const createAncestorSchema = z.object({
   name: z.string().min(1),
   slug: z.string().min(1),
-  maidenName: z.string().optional(),
-  relationship: z.string().optional(),
-  birthplace: z.string().optional(),
-  born: z.string().optional(),
-  deathPlace: z.string().optional(),
-  died: z.string().optional(),
-  spouse: z.string().optional(),
-  occupation: z.string().optional(),
-  immigration: z.string().optional(),
-  bio: z.string().optional(),
-  photoId: z.string().optional(),
+  maidenName: z.string().optional().nullable(),
+  relationship: z.string().optional().nullable(),
+  birthplace: z.string().optional().nullable(),
+  born: z.string().optional().nullable(),
+  deathPlace: z.string().optional().nullable(),
+  died: z.string().optional().nullable(),
+  spouse: z.string().optional().nullable(),
+  occupation: z.string().optional().nullable(),
+  immigration: z.string().optional().nullable(),
+  bio: z.string().optional().nullable(),
+  photoId: z.string().optional().nullable(),
 });
 
 export async function GET() {
