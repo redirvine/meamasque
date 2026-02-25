@@ -5,6 +5,7 @@ import { plays, images } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { PlaysListing } from "./plays-listing";
 
 export const metadata = {
   title: "Plays - Meamasque",
@@ -37,44 +38,7 @@ export default async function PlaysPage() {
       {allPlays.length === 0 ? (
         <p className="text-gray-500">No plays added yet.</p>
       ) : (
-        <div className="space-y-4">
-          {allPlays.map((p) => (
-            <div
-              key={p.id}
-              className="flex gap-5 rounded-lg border p-4"
-            >
-              {p.primaryImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.primaryImageUrl}
-                  alt={p.play}
-                  className="h-32 w-32 flex-shrink-0 rounded-md object-cover"
-                />
-              ) : (
-                <div className="h-32 w-32 flex-shrink-0 rounded-md bg-gray-100" />
-              )}
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold">{p.play}</h2>
-                {p.role && (
-                  <p className="text-sm text-gray-600">{p.role}</p>
-                )}
-                {(p.year != null || p.date) && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    {p.year ?? p.date}
-                  </p>
-                )}
-                {p.location && (
-                  <p className="text-sm text-gray-500">{p.location}</p>
-                )}
-                {p.description && (
-                  <p className="mt-2 text-sm whitespace-pre-wrap text-gray-700">
-                    {p.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <PlaysListing plays={allPlays} />
       )}
     </div>
   );
