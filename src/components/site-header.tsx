@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock, LogIn, Menu } from "lucide-react";
+import { Lock, LogIn, Menu, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -8,6 +8,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../auth";
 
 const navLinks = [
   { href: "/gallery", label: "Art" },
@@ -19,7 +20,10 @@ const navLinks = [
 ];
 
 export async function SiteHeader() {
-  const familyAccess = await hasFamilyAccess();
+  const [familyAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
 
   const visibleLinks = navLinks.filter(
     (link) => !link.familyOnly || familyAccess
@@ -50,13 +54,23 @@ export async function SiteHeader() {
             <Lock className="h-3 w-3" />
             Family
           </Link>
-          <Link
-            href="/login"
-            className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
-          >
-            <LogIn className="h-3 w-3" />
-            Login
-          </Link>
+          {session ? (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              <Settings className="h-3 w-3" />
+              Admin
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
+            >
+              <LogIn className="h-3 w-3" />
+              Login
+            </Link>
+          )}
         </nav>
 
         {/* Mobile nav */}
@@ -85,13 +99,23 @@ export async function SiteHeader() {
                 <Lock className="h-3 w-3" />
                 Family
               </Link>
-              <Link
-                href="/login"
-                className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
-              >
-                <LogIn className="h-3 w-3" />
-                Login
-              </Link>
+              {session ? (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  <Settings className="h-3 w-3" />
+                  Admin
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
+                >
+                  <LogIn className="h-3 w-3" />
+                  Login
+                </Link>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
