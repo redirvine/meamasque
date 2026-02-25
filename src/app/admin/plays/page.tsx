@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -194,37 +187,22 @@ export default function PlaysAdminPage() {
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12"></TableHead>
-            <TableHead>Play</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Year</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead className="w-20"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {plays.map((p) => (
-            <TableRow key={p.id}>
-              <TableCell>
-                {p.primaryImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={p.primaryImageUrl}
-                    alt={p.play}
-                    className="h-10 w-10 rounded object-cover"
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded bg-gray-100" />
-                )}
-              </TableCell>
-              <TableCell className="font-medium">{p.play}</TableCell>
-              <TableCell>{p.role}</TableCell>
-              <TableCell>{p.year ?? p.date}</TableCell>
-              <TableCell>{p.location}</TableCell>
-              <TableCell>
+      <div className="space-y-4">
+        {plays.map((p) => (
+          <Card key={p.id} className="flex gap-5 p-4">
+            {p.primaryImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.primaryImageUrl}
+                alt={p.play}
+                className="h-32 w-32 flex-shrink-0 rounded-md object-cover"
+              />
+            ) : (
+              <div className="h-32 w-32 flex-shrink-0 rounded-md bg-gray-100" />
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between">
+                <h2 className="text-lg font-semibold">{p.play}</h2>
                 <div className="flex gap-1">
                   <Button
                     size="icon"
@@ -241,11 +219,22 @@ export default function PlaysAdminPage() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              </div>
+              {p.role && (
+                <p className="text-sm text-gray-600">{p.role}</p>
+              )}
+              {(p.year != null || p.date) && (
+                <p className="mt-1 text-sm text-gray-500">
+                  {p.year ?? p.date}
+                </p>
+              )}
+              {p.location && (
+                <p className="text-sm text-gray-500">{p.location}</p>
+              )}
+            </div>
+          </Card>
+        ))}
+      </div>
 
       {/* Create/Edit Dialog */}
       <Dialog
