@@ -5,9 +5,10 @@ import { stories, storyImages, images, artists } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../../../../auth";
 
 export default async function StoryPage({
   params,
@@ -36,9 +37,15 @@ export default async function StoryPage({
   const story = storyResults[0];
 
   if (!story) notFound();
-  if (story.visibility === "private" && !(await hasFamilyAccess())) {
+
+  const [familyAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
+  if (story.visibility === "private" && !familyAccess) {
     notFound();
   }
+  const isAdmin = !!session;
 
   // Get associated images
   const associatedImages = await db
@@ -65,7 +72,18 @@ export default async function StoryPage({
       </Link>
 
       <article>
-        <h1 className="text-3xl font-bold">{story.title}</h1>
+        <div className="flex items-start gap-2">
+          <h1 className="text-3xl font-bold">{story.title}</h1>
+          {isAdmin && (
+            <Link
+              href={`/admin/stories/${story.id}/edit`}
+              className="mt-1 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              title="Edit story"
+            >
+              <Pencil className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
 
         {story.authorName && (
           <p className="mt-2 text-gray-500">
