@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { ChevronLeft, ChevronRight, X, Camera, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Camera, BookOpen, Pencil } from "lucide-react";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -38,7 +39,7 @@ type PlayMemory = {
   sortOrder: number;
 };
 
-export function PlaysListing({ plays }: { plays: Play[] }) {
+export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmin?: boolean }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<PlayImage[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -155,7 +156,18 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
               <div className="h-32 w-32 flex-shrink-0 rounded-md bg-gray-100" />
             )}
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold">{p.play}</h2>
+              <div className="flex items-start justify-between">
+                <h2 className="text-lg font-semibold">{p.play}</h2>
+                {isAdmin && (
+                  <Link
+                    href={`/admin/plays?edit=${p.id}`}
+                    className="ml-2 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    title="Edit play"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
               {p.role && (
                 <p className="text-sm text-gray-600">{p.role}</p>
               )}

@@ -5,6 +5,7 @@ import { plays, images, playMemories } from "@/db/schema";
 import { eq, desc, count, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
 
 export const metadata = {
@@ -13,8 +14,12 @@ export const metadata = {
 };
 
 export default async function PlaysPage() {
-  const hasAccess = await hasFamilyAccess();
+  const [hasAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
   if (!hasAccess) redirect("/family");
+  const isAdmin = !!session;
 
   const memoryCountSq = db
     .select({
@@ -56,7 +61,7 @@ export default async function PlaysPage() {
       {allPlays.length === 0 ? (
         <p className="text-gray-500">No plays added yet.</p>
       ) : (
-        <PlaysListing plays={allPlays} />
+        <PlaysListing plays={allPlays} isAdmin={isAdmin} />
       )}
     </div>
   );

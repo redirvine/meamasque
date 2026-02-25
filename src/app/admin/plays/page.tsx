@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +66,10 @@ interface ViewerMemory {
 }
 
 export default function PlaysAdminPage() {
+  const searchParams = useSearchParams();
+  const editParam = searchParams.get("edit");
+  const didAutoEdit = useRef(false);
+
   const [plays, setPlays] = useState<Play[]>([]);
   const [editPlay, setEditPlay] = useState<Play | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -109,6 +114,18 @@ export default function PlaysAdminPage() {
   useEffect(() => {
     loadPlays();
   }, []);
+
+  // Auto-open edit when navigating with ?edit=<id>
+  useEffect(() => {
+    if (editParam && plays.length > 0 && !didAutoEdit.current) {
+      const target = plays.find((p) => p.id === editParam);
+      if (target) {
+        didAutoEdit.current = true;
+        openEdit(target);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editParam, plays]);
 
   const resetForm = () => {
     setPlay("");
