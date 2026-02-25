@@ -7,7 +7,8 @@ import { notFound } from "next/navigation";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { hasFamilyAccess } from "@/lib/family-access";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
+import { auth } from "../../../../../auth";
 
 export default async function ArtistPage({
   params,
@@ -16,12 +17,14 @@ export default async function ArtistPage({
 }) {
   const { slug } = await params;
 
-  const [artist, familyAccess] = await Promise.all([
+  const [artist, familyAccess, session] = await Promise.all([
     db.query.artists.findFirst({
       where: eq(artists.slug, slug),
     }),
     hasFamilyAccess(),
+    auth(),
   ]);
+  const isAdmin = !!session;
 
   if (!artist) {
     notFound();
@@ -56,14 +59,25 @@ export default async function ArtistPage({
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{artist.name}</h1>
+        <div className="flex items-start gap-2">
+          <h1 className="text-3xl font-bold">{artist.name}</h1>
+          {isAdmin && (
+            <Link
+              href={`/admin/artists?edit=${artist.id}`}
+              className="mt-1 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              title="Edit artist"
+            >
+              <Pencil className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
         {artist.bio && (
           <p className="mt-4 max-w-2xl text-gray-600">{artist.bio}</p>
         )}
       </div>
 
       <h2 className="mb-4 text-xl font-semibold">Works</h2>
-      <ImageGrid images={artistImages} />
+      <ImageGrid images={artistImages} isAdmin={isAdmin} />
     </div>
   );
 }
