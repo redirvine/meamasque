@@ -328,6 +328,11 @@ export default function PlaysAdminPage() {
               {p.location && (
                 <p className="text-sm text-gray-500">{p.location}</p>
               )}
+              {p.description && (
+                <p className="mt-2 whitespace-pre-wrap text-sm text-gray-700">
+                  {p.description}
+                </p>
+              )}
               {(p.imageCount > 0 || p.memoryCount > 0) && (
                 <div className="mt-1 flex gap-3">
                   {p.imageCount > 0 && (
