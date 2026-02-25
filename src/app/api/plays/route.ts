@@ -54,7 +54,7 @@ export async function GET() {
     .from(plays)
     .leftJoin(images, eq(plays.primaryImageId, images.id))
     .leftJoin(memoryCountSq, eq(plays.id, memoryCountSq.playId))
-    .orderBy(desc(plays.createdAt));
+    .orderBy(desc(plays.year), desc(plays.createdAt));
 
   return NextResponse.json(allPlays);
 }
