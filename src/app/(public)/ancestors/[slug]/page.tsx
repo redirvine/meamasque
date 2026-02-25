@@ -5,8 +5,9 @@ import { ancestors, images, ancestorMemories } from "@/db/schema";
 import { eq, count } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../../../../auth";
 import { AncestorMemories } from "./ancestor-memories";
 
 export default async function AncestorPage({
@@ -14,8 +15,12 @@ export default async function AncestorPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const hasAccess = await hasFamilyAccess();
+  const [hasAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
   if (!hasAccess) redirect("/family");
+  const isAdmin = !!session;
 
   const { slug } = await params;
 
@@ -83,15 +88,26 @@ export default async function AncestorPage({
             />
           )}
           <div>
-            <h1 className="text-3xl font-bold">
-              {ancestor.name}
-              {ancestor.maidenName && (
-                <span className="font-normal text-gray-500">
-                  {" "}
-                  (née {ancestor.maidenName})
-                </span>
+            <div className="flex items-start gap-2">
+              <h1 className="text-3xl font-bold">
+                {ancestor.name}
+                {ancestor.maidenName && (
+                  <span className="font-normal text-gray-500">
+                    {" "}
+                    (née {ancestor.maidenName})
+                  </span>
+                )}
+              </h1>
+              {isAdmin && (
+                <Link
+                  href={`/admin/ancestors?edit=${ancestor.id}`}
+                  className="mt-1 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                  title="Edit ancestor"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Link>
               )}
-            </h1>
+            </div>
 
             {details.length > 0 && (
               <dl className="mt-4 space-y-2">

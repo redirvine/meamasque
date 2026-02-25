@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,6 +58,10 @@ interface ViewerMemory {
 }
 
 export default function AncestorsAdminPage() {
+  const searchParams = useSearchParams();
+  const editParam = searchParams.get("edit");
+  const didAutoEdit = useRef(false);
+
   const [ancestors, setAncestors] = useState<Ancestor[]>([]);
   const [editAncestor, setEditAncestor] = useState<Ancestor | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -98,6 +103,18 @@ export default function AncestorsAdminPage() {
   useEffect(() => {
     loadAncestors();
   }, []);
+
+  // Auto-open edit when navigating with ?edit=<id>
+  useEffect(() => {
+    if (editParam && ancestors.length > 0 && !didAutoEdit.current) {
+      const target = ancestors.find((a) => a.id === editParam);
+      if (target) {
+        didAutoEdit.current = true;
+        openEdit(target);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editParam, ancestors]);
 
   const resetForm = () => {
     setName("");

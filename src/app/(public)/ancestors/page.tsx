@@ -6,8 +6,9 @@ import { eq, sql, count } from "drizzle-orm";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Pencil } from "lucide-react";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../../../auth";
 
 export const metadata = {
   title: "Ancestors - Meamasque",
@@ -15,8 +16,12 @@ export const metadata = {
 };
 
 export default async function AncestorsPage() {
-  const hasAccess = await hasFamilyAccess();
+  const [hasAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
   if (!hasAccess) redirect("/family");
+  const isAdmin = !!session;
 
   const memoryCountSq = db
     .select({
@@ -54,26 +59,36 @@ export default async function AncestorsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {allAncestors.map((ancestor) => (
-            <Link key={ancestor.id} href={`/ancestors/${ancestor.slug}`}>
-              <Card className="overflow-hidden transition-shadow hover:shadow-lg">
-                {ancestor.photoUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={ancestor.photoUrl}
-                    alt={ancestor.name}
-                    className="h-48 w-full object-cover"
-                  />
-                )}
-                <CardContent className="p-4">
-                  <h2 className="text-lg font-semibold">
-                    {ancestor.name}
-                    {ancestor.maidenName && (
-                      <span className="font-normal text-gray-500">
-                        {" "}
-                        (née {ancestor.maidenName})
-                      </span>
-                    )}
-                  </h2>
+            <div key={ancestor.id} className="relative">
+              {isAdmin && (
+                <Link
+                  href={`/admin/ancestors?edit=${ancestor.id}`}
+                  className="absolute top-2 right-2 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 shadow transition-colors hover:bg-white hover:text-gray-700"
+                  title="Edit ancestor"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Link>
+              )}
+              <Link href={`/ancestors/${ancestor.slug}`}>
+                <Card className="overflow-hidden transition-shadow hover:shadow-lg">
+                  {ancestor.photoUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={ancestor.photoUrl}
+                      alt={ancestor.name}
+                      className="h-48 w-full object-cover"
+                    />
+                  )}
+                  <CardContent className="p-4">
+                    <h2 className="text-lg font-semibold">
+                      {ancestor.name}
+                      {ancestor.maidenName && (
+                        <span className="font-normal text-gray-500">
+                          {" "}
+                          (née {ancestor.maidenName})
+                        </span>
+                      )}
+                    </h2>
                   {ancestor.relationship && (
                     <p className="text-sm text-gray-600">
                       {ancestor.relationship}
@@ -94,7 +109,8 @@ export default async function AncestorsPage() {
                   )}
                 </CardContent>
               </Card>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
       )}
