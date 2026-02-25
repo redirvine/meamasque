@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { plays, playImages, images } from "@/db/schema";
+import { plays, playImages, playMemories, images } from "@/db/schema";
 import { auth } from "../../../../../auth";
 import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
@@ -14,6 +14,7 @@ const updatePlaySchema = z.object({
   year: z.number().int().optional().nullable(),
   primaryImageId: z.string().optional().nullable(),
   imageIds: z.array(z.string()).optional(),
+  memories: z.array(z.string()).optional(),
 });
 
 export async function GET(
@@ -47,7 +48,17 @@ export async function GET(
     .where(eq(playImages.playId, id))
     .orderBy(asc(playImages.sortOrder));
 
-  return NextResponse.json({ ...play, images: associatedImages });
+  const memories = await db
+    .select({
+      id: playMemories.id,
+      content: playMemories.content,
+      sortOrder: playMemories.sortOrder,
+    })
+    .from(playMemories)
+    .where(eq(playMemories.playId, id))
+    .orderBy(asc(playMemories.sortOrder));
+
+  return NextResponse.json({ ...play, images: associatedImages, memories });
 }
 
 export async function PATCH(
@@ -70,7 +81,7 @@ export async function PATCH(
     );
   }
 
-  const { imageIds, ...playData } = parsed.data;
+  const { imageIds, memories, ...playData } = parsed.data;
 
   const [updated] = await db
     .update(plays)
@@ -91,6 +102,21 @@ export async function PATCH(
         imageIds.map((imageId, index) => ({
           playId: id,
           imageId,
+          sortOrder: index,
+        }))
+      );
+    }
+  }
+
+  // Update memories if provided
+  if (memories !== undefined) {
+    await db.delete(playMemories).where(eq(playMemories.playId, id));
+
+    if (memories.length > 0) {
+      await db.insert(playMemories).values(
+        memories.map((content, index) => ({
+          playId: id,
+          content,
           sortOrder: index,
         }))
       );

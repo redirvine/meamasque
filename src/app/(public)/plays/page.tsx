@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { plays, images } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { plays, images, playImages, playMemories } from "@/db/schema";
+import { eq, desc, count, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { hasFamilyAccess } from "@/lib/family-access";
 import { PlaysListing } from "./plays-listing";
@@ -16,6 +16,24 @@ export default async function PlaysPage() {
   const hasAccess = await hasFamilyAccess();
   if (!hasAccess) redirect("/family");
 
+  const imageCountSq = db
+    .select({
+      playId: playImages.playId,
+      count: count().as("image_count"),
+    })
+    .from(playImages)
+    .groupBy(playImages.playId)
+    .as("ic");
+
+  const memoryCountSq = db
+    .select({
+      playId: playMemories.playId,
+      count: count().as("memory_count"),
+    })
+    .from(playMemories)
+    .groupBy(playMemories.playId)
+    .as("mc");
+
   const allPlays = await db
     .select({
       id: plays.id,
@@ -26,9 +44,13 @@ export default async function PlaysPage() {
       description: plays.description,
       year: plays.year,
       primaryImageUrl: images.blobUrl,
+      imageCount: sql<number>`coalesce(${imageCountSq.count}, 0)`.as("imageCount"),
+      memoryCount: sql<number>`coalesce(${memoryCountSq.count}, 0)`.as("memoryCount"),
     })
     .from(plays)
     .leftJoin(images, eq(plays.primaryImageId, images.id))
+    .leftJoin(imageCountSq, eq(plays.id, imageCountSq.playId))
+    .leftJoin(memoryCountSq, eq(plays.id, memoryCountSq.playId))
     .orderBy(desc(plays.year), desc(plays.createdAt));
 
   return (

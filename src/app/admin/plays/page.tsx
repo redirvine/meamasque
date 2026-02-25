@@ -54,6 +54,7 @@ export default function PlaysAdminPage() {
   const [primaryImageId, setPrimaryImageId] = useState<string | null>(null);
   const [primaryImageUrl, setPrimaryImageUrl] = useState<string | null>(null);
   const [associatedImages, setAssociatedImages] = useState<PlayImage[]>([]);
+  const [memories, setMemories] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const loadPlays = async () => {
@@ -77,6 +78,7 @@ export default function PlaysAdminPage() {
     setPrimaryImageId(null);
     setPrimaryImageUrl(null);
     setAssociatedImages([]);
+    setMemories([]);
   };
 
   const openEdit = async (p: Play) => {
@@ -90,8 +92,9 @@ export default function PlaysAdminPage() {
     setPrimaryImageId(p.primaryImageId);
     setPrimaryImageUrl(p.primaryImageUrl);
     setAssociatedImages([]);
+    setMemories([]);
 
-    // Fetch associated images
+    // Fetch associated images and memories
     try {
       const res = await fetch(`/api/plays/${p.id}`);
       if (res.ok) {
@@ -105,9 +108,14 @@ export default function PlaysAdminPage() {
             }))
           );
         }
+        if (data.memories) {
+          setMemories(
+            data.memories.map((m: { content: string }) => m.content)
+          );
+        }
       }
     } catch {
-      // ignore — images just won't be pre-populated
+      // ignore — images/memories just won't be pre-populated
     }
   };
 
@@ -126,6 +134,7 @@ export default function PlaysAdminPage() {
 
       if (editPlay) {
         data.imageIds = associatedImages.map((img) => img.id);
+        data.memories = memories.filter((m) => m.trim() !== "");
         const res = await fetch(`/api/plays/${editPlay.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -366,6 +375,49 @@ export default function PlaysAdminPage() {
                         size="icon"
                         variant="ghost"
                         onClick={() => removeImage(image.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Memories</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMemories((prev) => [...prev, ""])}
+                >
+                  Add Memory
+                </Button>
+              </div>
+              {memories.length > 0 && (
+                <div className="space-y-2">
+                  {memories.map((memory, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Textarea
+                        value={memory}
+                        onChange={(e) => {
+                          const updated = [...memories];
+                          updated[index] = e.target.value;
+                          setMemories(updated);
+                        }}
+                        rows={2}
+                        className="flex-1"
+                        placeholder="Write a memory..."
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() =>
+                          setMemories((prev) =>
+                            prev.filter((_, i) => i !== index)
+                          )
+                        }
                       >
                         <X className="h-4 w-4" />
                       </Button>

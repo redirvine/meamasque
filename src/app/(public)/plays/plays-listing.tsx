@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Camera, BookOpen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogClose,
   DialogTitle,
+  DialogHeader,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "radix-ui";
 
@@ -19,6 +20,8 @@ type Play = {
   description: string | null;
   year: number | null;
   primaryImageUrl: string | null;
+  imageCount: number;
+  memoryCount: number;
 };
 
 type PlayImage = {
@@ -29,12 +32,23 @@ type PlayImage = {
   sortOrder: number;
 };
 
+type PlayMemory = {
+  id: string;
+  content: string;
+  sortOrder: number;
+};
+
 export function PlaysListing({ plays }: { plays: Play[] }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<PlayImage[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxTitle, setLightboxTitle] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [memoriesOpen, setMemoriesOpen] = useState(false);
+  const [memoriesTitle, setMemoriesTitle] = useState("");
+  const [memoriesList, setMemoriesList] = useState<PlayMemory[]>([]);
+  const [memoriesLoading, setMemoriesLoading] = useState(false);
 
   const openLightbox = useCallback(async (play: Play) => {
     if (!play.primaryImageUrl) return;
@@ -54,7 +68,6 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
             : [{ id: "primary", blobUrl: play.primaryImageUrl!, title: play.play, caption: null, sortOrder: 0 }]
         );
       } else {
-        // Fallback to just the primary image
         setLightboxImages([
           { id: "primary", blobUrl: play.primaryImageUrl!, title: play.play, caption: null, sortOrder: 0 },
         ]);
@@ -65,6 +78,23 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
       ]);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const openMemories = useCallback(async (play: Play) => {
+    setMemoriesTitle(play.play);
+    setMemoriesOpen(true);
+    setMemoriesLoading(true);
+
+    try {
+      const res = await fetch(`/api/plays/${play.id}/memories`);
+      if (res.ok) {
+        setMemoriesList(await res.json());
+      }
+    } catch {
+      setMemoriesList([]);
+    } finally {
+      setMemoriesLoading(false);
     }
   }, []);
 
@@ -122,11 +152,34 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
                   {p.description}
                 </p>
               )}
+              {(p.imageCount > 0 || p.memoryCount > 0) && (
+                <div className="mt-2 flex gap-3">
+                  {p.imageCount > 0 && (
+                    <button
+                      onClick={() => openLightbox(p)}
+                      className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      {p.imageCount} {p.imageCount === 1 ? "photo" : "photos"}
+                    </button>
+                  )}
+                  {p.memoryCount > 0 && (
+                    <button
+                      onClick={() => openMemories(p)}
+                      className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      <BookOpen className="h-3.5 w-3.5" />
+                      {p.memoryCount} {p.memoryCount === 1 ? "memory" : "memories"}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
 
+      {/* Image Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent
           className="max-w-[90vw] max-h-[90vh] sm:max-w-[90vw] p-0 border-none bg-black/95 overflow-hidden"
@@ -186,6 +239,32 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
               </div>
             </div>
           ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {/* Memories Viewer */}
+      <Dialog open={memoriesOpen} onOpenChange={setMemoriesOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Memories &mdash; {memoriesTitle}</DialogTitle>
+          </DialogHeader>
+          {memoriesLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+            </div>
+          ) : memoriesList.length > 0 ? (
+            <div className="space-y-4">
+              {memoriesList.map((memory) => (
+                <div key={memory.id} className="rounded-lg bg-gray-50 p-4">
+                  <p className="whitespace-pre-wrap text-sm text-gray-700">
+                    {memory.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No memories yet.</p>
+          )}
         </DialogContent>
       </Dialog>
     </>

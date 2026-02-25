@@ -196,6 +196,21 @@ export const playImages = sqliteTable("play_images", {
   caption: text("caption"),
 });
 
+// PlayMemories — text memories attached to plays
+export const playMemories = sqliteTable("play_memories", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  playId: text("play_id")
+    .notNull()
+    .references(() => plays.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // SiteAbout — single-row table for the About page content
 export const siteAbout = sqliteTable("site_about", {
   id: text("id")
