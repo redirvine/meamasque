@@ -189,7 +189,7 @@ export default function PlaysAdminPage() {
 
       <div className="space-y-4">
         {plays.map((p) => (
-          <Card key={p.id} className="flex gap-5 p-4">
+          <Card key={p.id} className="flex flex-row gap-5 p-4">
             {p.primaryImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
