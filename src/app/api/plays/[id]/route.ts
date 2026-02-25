@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { plays } from "@/db/schema";
+import { plays, playImages, images } from "@/db/schema";
 import { auth } from "../../../../../auth";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
 
 const updatePlaySchema = z.object({
@@ -11,7 +11,44 @@ const updatePlaySchema = z.object({
   role: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  year: z.number().int().optional().nullable(),
+  primaryImageId: z.string().optional().nullable(),
+  imageIds: z.array(z.string()).optional(),
 });
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const play = await db.query.plays.findFirst({
+    where: eq(plays.id, id),
+  });
+
+  if (!play) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const associatedImages = await db
+    .select({
+      id: images.id,
+      title: images.title,
+      blobUrl: images.blobUrl,
+      caption: playImages.caption,
+      sortOrder: playImages.sortOrder,
+    })
+    .from(playImages)
+    .innerJoin(images, eq(playImages.imageId, images.id))
+    .where(eq(playImages.playId, id))
+    .orderBy(asc(playImages.sortOrder));
+
+  return NextResponse.json({ ...play, images: associatedImages });
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -33,14 +70,31 @@ export async function PATCH(
     );
   }
 
+  const { imageIds, ...playData } = parsed.data;
+
   const [updated] = await db
     .update(plays)
-    .set(parsed.data)
+    .set(playData)
     .where(eq(plays.id, id))
     .returning();
 
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  // Update image associations if provided
+  if (imageIds !== undefined) {
+    await db.delete(playImages).where(eq(playImages.playId, id));
+
+    if (imageIds.length > 0) {
+      await db.insert(playImages).values(
+        imageIds.map((imageId, index) => ({
+          playId: id,
+          imageId,
+          sortOrder: index,
+        }))
+      );
+    }
   }
 
   return NextResponse.json(updated);

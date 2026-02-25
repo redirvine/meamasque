@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { plays } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { plays, images } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
 import { hasFamilyAccess } from "@/lib/family-access";
 
 export const metadata = {
@@ -16,9 +17,19 @@ export default async function PlaysPage() {
   if (!hasAccess) redirect("/family");
 
   const allPlays = await db
-    .select()
+    .select({
+      id: plays.id,
+      play: plays.play,
+      date: plays.date,
+      role: plays.role,
+      location: plays.location,
+      description: plays.description,
+      year: plays.year,
+      primaryImageUrl: images.blobUrl,
+    })
     .from(plays)
-    .orderBy(desc(plays.createdAt));
+    .leftJoin(images, eq(plays.primaryImageId, images.id))
+    .orderBy(desc(plays.year), desc(plays.createdAt));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -27,24 +38,30 @@ export default async function PlaysPage() {
       {allPlays.length === 0 ? (
         <p className="text-gray-500">No plays added yet.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {allPlays.map((p) => (
-            <div
-              key={p.id}
-              className="rounded-lg border p-6"
-            >
-              <h2 className="text-xl font-semibold">{p.play}</h2>
-              <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600">
-                {p.role && <span>Role: {p.role}</span>}
-                {p.date && <span>{p.date}</span>}
-                {p.location && <span>{p.location}</span>}
-              </div>
-              {p.description && (
-                <p className="mt-3 whitespace-pre-wrap text-gray-700">
-                  {p.description}
-                </p>
+            <Card key={p.id} className="overflow-hidden transition-shadow hover:shadow-lg">
+              {p.primaryImageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={p.primaryImageUrl}
+                  alt={p.play}
+                  className="h-48 w-full object-cover"
+                />
               )}
-            </div>
+              <CardContent className="p-4">
+                <h2 className="text-lg font-semibold">{p.play}</h2>
+                {p.role && (
+                  <p className="text-sm text-gray-600">{p.role}</p>
+                )}
+                {p.year != null && (
+                  <p className="mt-1 text-sm text-gray-500">{p.year}</p>
+                )}
+                {p.location && (
+                  <p className="text-sm text-gray-500">{p.location}</p>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

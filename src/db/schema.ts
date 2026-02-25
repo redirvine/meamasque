@@ -172,9 +172,28 @@ export const plays = sqliteTable("plays", {
   role: text("role"),
   location: text("location"),
   description: text("description"),
+  year: integer("year"),
+  primaryImageId: text("primary_image_id").references(() => images.id, {
+    onDelete: "set null",
+  }),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
+});
+
+// PlayImages — junction table for play-image associations
+export const playImages = sqliteTable("play_images", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  playId: text("play_id")
+    .notNull()
+    .references(() => plays.id, { onDelete: "cascade" }),
+  imageId: text("image_id")
+    .notNull()
+    .references(() => images.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  caption: text("caption"),
 });
 
 // SiteAbout — single-row table for the About page content

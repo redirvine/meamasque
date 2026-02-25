@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { plays } from "@/db/schema";
+import { plays, images } from "@/db/schema";
 import { auth } from "../../../../auth";
+import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 
 const createPlaySchema = z.object({
@@ -10,6 +11,8 @@ const createPlaySchema = z.object({
   role: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  year: z.number().int().optional().nullable(),
+  primaryImageId: z.string().optional().nullable(),
 });
 
 export async function GET() {
@@ -18,9 +21,23 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const allPlays = await db.query.plays.findMany({
-    orderBy: (plays, { desc }) => [desc(plays.createdAt)],
-  });
+  const allPlays = await db
+    .select({
+      id: plays.id,
+      play: plays.play,
+      date: plays.date,
+      role: plays.role,
+      location: plays.location,
+      description: plays.description,
+      year: plays.year,
+      primaryImageId: plays.primaryImageId,
+      primaryImageUrl: images.blobUrl,
+      createdAt: plays.createdAt,
+    })
+    .from(plays)
+    .leftJoin(images, eq(plays.primaryImageId, images.id))
+    .orderBy(desc(plays.createdAt));
+
   return NextResponse.json(allPlays);
 }
 
@@ -48,6 +65,8 @@ export async function POST(request: NextRequest) {
       role: parsed.data.role ?? null,
       location: parsed.data.location ?? null,
       description: parsed.data.description ?? null,
+      year: parsed.data.year ?? null,
+      primaryImageId: parsed.data.primaryImageId ?? null,
     })
     .returning();
 

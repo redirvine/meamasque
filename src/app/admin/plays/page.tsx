@@ -19,8 +19,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/admin/image-picker";
+
+interface PlayImage {
+  id: string;
+  title: string;
+  blobUrl: string;
+}
 
 interface Play {
   id: string;
@@ -29,6 +36,9 @@ interface Play {
   role: string | null;
   location: string | null;
   description: string | null;
+  year: number | null;
+  primaryImageId: string | null;
+  primaryImageUrl: string | null;
 }
 
 export default function PlaysAdminPage() {
@@ -36,6 +46,8 @@ export default function PlaysAdminPage() {
   const [editPlay, setEditPlay] = useState<Play | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showPrimaryImagePicker, setShowPrimaryImagePicker] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   // Form state
   const [play, setPlay] = useState("");
@@ -43,6 +55,10 @@ export default function PlaysAdminPage() {
   const [role, setRole] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [year, setYear] = useState("");
+  const [primaryImageId, setPrimaryImageId] = useState<string | null>(null);
+  const [primaryImageUrl, setPrimaryImageUrl] = useState<string | null>(null);
+  const [associatedImages, setAssociatedImages] = useState<PlayImage[]>([]);
   const [saving, setSaving] = useState(false);
 
   const loadPlays = async () => {
@@ -62,29 +78,59 @@ export default function PlaysAdminPage() {
     setRole("");
     setLocation("");
     setDescription("");
+    setYear("");
+    setPrimaryImageId(null);
+    setPrimaryImageUrl(null);
+    setAssociatedImages([]);
   };
 
-  const openEdit = (p: Play) => {
+  const openEdit = async (p: Play) => {
     setEditPlay(p);
     setPlay(p.play);
     setDate(p.date ?? "");
     setRole(p.role ?? "");
     setLocation(p.location ?? "");
     setDescription(p.description ?? "");
+    setYear(p.year != null ? String(p.year) : "");
+    setPrimaryImageId(p.primaryImageId);
+    setPrimaryImageUrl(p.primaryImageUrl);
+    setAssociatedImages([]);
+
+    // Fetch associated images
+    try {
+      const res = await fetch(`/api/plays/${p.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.images) {
+          setAssociatedImages(
+            data.images.map((img: { id: string; title: string; blobUrl: string }) => ({
+              id: img.id,
+              title: img.title,
+              blobUrl: img.blobUrl,
+            }))
+          );
+        }
+      }
+    } catch {
+      // ignore — images just won't be pre-populated
+    }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const data = {
+      const data: Record<string, unknown> = {
         play,
         date: date || null,
         role: role || null,
         location: location || null,
         description: description || null,
+        year: year ? parseInt(year, 10) : null,
+        primaryImageId: primaryImageId || null,
       };
 
       if (editPlay) {
+        data.imageIds = associatedImages.map((img) => img.id);
         const res = await fetch(`/api/plays/${editPlay.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -125,6 +171,10 @@ export default function PlaysAdminPage() {
     }
   };
 
+  const removeImage = (id: string) => {
+    setAssociatedImages((prev) => prev.filter((img) => img.id !== id));
+  };
+
   const isFormOpen = showCreate || !!editPlay;
 
   return (
@@ -144,7 +194,15 @@ export default function PlaysAdminPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {plays.map((p) => (
-          <Card key={p.id}>
+          <Card key={p.id} className="overflow-hidden">
+            {p.primaryImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.primaryImageUrl}
+                alt={p.play}
+                className="h-40 w-full object-cover"
+              />
+            )}
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>{p.play}</span>
@@ -170,6 +228,9 @@ export default function PlaysAdminPage() {
               {p.role && (
                 <p className="text-sm text-gray-600">Role: {p.role}</p>
               )}
+              {p.year != null && (
+                <p className="text-sm text-gray-500">{p.year}</p>
+              )}
               {p.date && (
                 <p className="text-sm text-gray-500">{p.date}</p>
               )}
@@ -190,7 +251,7 @@ export default function PlaysAdminPage() {
           resetForm();
         }}
       >
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
               {editPlay ? "Edit Play" : "Add Play"}
@@ -205,7 +266,16 @@ export default function PlaysAdminPage() {
                 placeholder="Name of the play"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Year</Label>
+                <Input
+                  type="number"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  placeholder="e.g. 2005"
+                />
+              </div>
               <div className="space-y-2">
                 <Label>Date</Label>
                 <Input
@@ -237,6 +307,79 @@ export default function PlaysAdminPage() {
                 rows={3}
               />
             </div>
+            <div className="space-y-2">
+              <Label>Primary Image</Label>
+              {primaryImageId && primaryImageUrl ? (
+                <div className="relative inline-block">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={primaryImageUrl}
+                    alt="Selected photo"
+                    className="h-24 w-24 rounded-md object-cover"
+                  />
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="absolute -right-2 -top-2 h-6 w-6"
+                    onClick={() => {
+                      setPrimaryImageId(null);
+                      setPrimaryImageUrl(null);
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowPrimaryImagePicker(true)}
+                >
+                  <ImageIcon className="mr-2 h-4 w-4" />
+                  Choose Image
+                </Button>
+              )}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Additional Images</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowImagePicker(true)}
+                >
+                  Add Images
+                </Button>
+              </div>
+              {associatedImages.length > 0 && (
+                <div className="space-y-2">
+                  {associatedImages.map((image) => (
+                    <div
+                      key={image.id}
+                      className="flex items-center gap-3 rounded-md border p-2"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={image.blobUrl}
+                        alt={image.title}
+                        className="h-12 w-12 rounded object-cover"
+                      />
+                      <span className="flex-1 truncate text-sm">
+                        {image.title}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => removeImage(image.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -255,6 +398,32 @@ export default function PlaysAdminPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Primary Image Picker */}
+      <ImagePicker
+        open={showPrimaryImagePicker}
+        onClose={() => setShowPrimaryImagePicker(false)}
+        onSelect={(images) => {
+          if (images.length > 0) {
+            setPrimaryImageId(images[0].id);
+            setPrimaryImageUrl(images[0].blobUrl);
+          }
+        }}
+        selectedIds={primaryImageId ? [primaryImageId] : []}
+        multiple={false}
+      />
+
+      {/* Additional Images Picker */}
+      <ImagePicker
+        open={showImagePicker}
+        onClose={() => setShowImagePicker(false)}
+        selectedIds={associatedImages.map((img) => img.id)}
+        onSelect={(imgs) => {
+          const existing = new Set(associatedImages.map((i) => i.id));
+          const newImages = imgs.filter((img) => !existing.has(img.id));
+          setAssociatedImages((prev) => [...prev, ...newImages]);
+        }}
+      />
 
       {/* Delete Confirmation */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
