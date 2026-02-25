@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { ancestors } from "@/db/schema";
+import { ancestors, ancestorMemories } from "@/db/schema";
 import { auth } from "../../../../auth";
+import { eq, sql, count } from "drizzle-orm";
 import { z } from "zod";
 
 const createAncestorSchema = z.object({
@@ -26,9 +27,38 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const allAncestors = await db.query.ancestors.findMany({
-    orderBy: (ancestors, { asc }) => [asc(ancestors.name)],
-  });
+  const memoryCountSq = db
+    .select({
+      ancestorId: ancestorMemories.ancestorId,
+      count: count().as("memory_count"),
+    })
+    .from(ancestorMemories)
+    .groupBy(ancestorMemories.ancestorId)
+    .as("mc");
+
+  const allAncestors = await db
+    .select({
+      id: ancestors.id,
+      name: ancestors.name,
+      slug: ancestors.slug,
+      maidenName: ancestors.maidenName,
+      relationship: ancestors.relationship,
+      birthplace: ancestors.birthplace,
+      born: ancestors.born,
+      deathPlace: ancestors.deathPlace,
+      died: ancestors.died,
+      spouse: ancestors.spouse,
+      occupation: ancestors.occupation,
+      immigration: ancestors.immigration,
+      bio: ancestors.bio,
+      photoId: ancestors.photoId,
+      createdAt: ancestors.createdAt,
+      memoryCount: sql<number>`coalesce(${memoryCountSq.count}, 0)`.as("memoryCount"),
+    })
+    .from(ancestors)
+    .leftJoin(memoryCountSq, eq(ancestors.id, memoryCountSq.ancestorId))
+    .orderBy(ancestors.name);
+
   return NextResponse.json(allAncestors);
 }
 

@@ -162,6 +162,21 @@ export const ancestors = sqliteTable("ancestors", {
     .$defaultFn(() => new Date()),
 });
 
+// AncestorMemories — text memories attached to ancestors
+export const ancestorMemories = sqliteTable("ancestor_memories", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  ancestorId: text("ancestor_id")
+    .notNull()
+    .references(() => ancestors.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // Plays — acting history
 export const plays = sqliteTable("plays", {
   id: text("id")

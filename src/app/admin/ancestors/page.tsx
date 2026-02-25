@@ -19,7 +19,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ImageIcon,
+  X,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import { ImagePicker } from "@/components/admin/image-picker";
 
@@ -38,6 +47,13 @@ interface Ancestor {
   immigration: string | null;
   bio: string | null;
   photoId: string | null;
+  memoryCount: number;
+}
+
+interface ViewerMemory {
+  id: string;
+  content: string;
+  sortOrder: number;
 }
 
 export default function AncestorsAdminPage() {
@@ -62,7 +78,15 @@ export default function AncestorsAdminPage() {
   const [bio, setBio] = useState("");
   const [photoId, setPhotoId] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [memories, setMemories] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  // Memory viewer state
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerTitle, setViewerTitle] = useState("");
+  const [viewerMemories, setViewerMemories] = useState<ViewerMemory[]>([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerLoading, setViewerLoading] = useState(false);
 
   const loadAncestors = async () => {
     const res = await fetch("/api/ancestors");
@@ -90,9 +114,10 @@ export default function AncestorsAdminPage() {
     setBio("");
     setPhotoId(null);
     setPhotoUrl(null);
+    setMemories([]);
   };
 
-  const openEdit = (ancestor: Ancestor) => {
+  const openEdit = async (ancestor: Ancestor) => {
     setEditAncestor(ancestor);
     setName(ancestor.name);
     setSlug(ancestor.slug);
@@ -108,6 +133,23 @@ export default function AncestorsAdminPage() {
     setBio(ancestor.bio ?? "");
     setPhotoId(ancestor.photoId);
     setPhotoUrl(null);
+    setMemories([]);
+
+    // Fetch full ancestor data including photo URL and memories
+    try {
+      const res = await fetch(`/api/ancestors/${ancestor.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.memories) {
+          setMemories(
+            data.memories.map((m: { content: string }) => m.content)
+          );
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     // Fetch photo URL if there's a photoId
     if (ancestor.photoId) {
       fetch(`/api/images?search=`)
@@ -143,7 +185,10 @@ export default function AncestorsAdminPage() {
         const res = await fetch(`/api/ancestors/${editAncestor.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...data,
+            memories: memories.filter((m) => m.trim() !== ""),
+          }),
         });
         if (!res.ok) throw new Error("Update failed");
         toast.success("Ancestor updated");
@@ -177,6 +222,23 @@ export default function AncestorsAdminPage() {
       toast.error("Failed to delete ancestor");
     } finally {
       setDeleteId(null);
+    }
+  };
+
+  const openMemoryViewer = async (ancestor: Ancestor) => {
+    setViewerTitle(ancestor.name);
+    setViewerOpen(true);
+    setViewerLoading(true);
+    setViewerIndex(0);
+    try {
+      const res = await fetch(`/api/ancestors/${ancestor.id}/memories`);
+      if (res.ok) {
+        setViewerMemories(await res.json());
+      }
+    } catch {
+      setViewerMemories([]);
+    } finally {
+      setViewerLoading(false);
     }
   };
 
@@ -230,6 +292,17 @@ export default function AncestorsAdminPage() {
                   Born: {ancestor.born}
                   {ancestor.birthplace && ` in ${ancestor.birthplace}`}
                 </p>
+              )}
+              {ancestor.memoryCount > 0 && (
+                <div className="mt-1">
+                  <button
+                    onClick={() => openMemoryViewer(ancestor)}
+                    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
+                  </button>
+                </div>
               )}
               <p className="mt-2 text-xs text-gray-400">/{ancestor.slug}</p>
             </CardContent>
@@ -386,6 +459,49 @@ export default function AncestorsAdminPage() {
                 </Button>
               )}
             </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Memories</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMemories((prev) => [...prev, ""])}
+                >
+                  Add Memory
+                </Button>
+              </div>
+              {memories.length > 0 && (
+                <div className="space-y-2">
+                  {memories.map((memory, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Textarea
+                        value={memory}
+                        onChange={(e) => {
+                          const updated = [...memories];
+                          updated[index] = e.target.value;
+                          setMemories(updated);
+                        }}
+                        rows={2}
+                        className="flex-1"
+                        placeholder="Write a memory..."
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() =>
+                          setMemories((prev) =>
+                            prev.filter((_, i) => i !== index)
+                          )
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -436,6 +552,51 @@ export default function AncestorsAdminPage() {
               Delete
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Memory Viewer */}
+      <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Memories &mdash; {viewerTitle}</DialogTitle>
+          </DialogHeader>
+          {viewerLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+            </div>
+          ) : viewerMemories.length > 0 ? (
+            <div className="relative">
+              <div className="min-h-[8rem] rounded-lg bg-gray-50 p-4">
+                <p className="whitespace-pre-wrap text-sm text-gray-700">
+                  {viewerMemories[viewerIndex]?.content}
+                </p>
+              </div>
+              {viewerMemories.length > 1 && (
+                <div className="mt-3 flex items-center justify-center gap-4">
+                  <button
+                    onClick={() => setViewerIndex((i) => (i > 0 ? i - 1 : viewerMemories.length - 1))}
+                    className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Previous memory"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <span className="text-sm text-gray-500">
+                    {viewerIndex + 1} / {viewerMemories.length}
+                  </span>
+                  <button
+                    onClick={() => setViewerIndex((i) => (i < viewerMemories.length - 1 ? i + 1 : 0))}
+                    className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Next memory"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No memories yet.</p>
+          )}
         </DialogContent>
       </Dialog>
     </div>

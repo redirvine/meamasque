@@ -1,11 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { ancestors, images, ancestorMemories } from "@/db/schema";
+import { eq, sql, count } from "drizzle-orm";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
+import { BookOpen } from "lucide-react";
 import { hasFamilyAccess } from "@/lib/family-access";
 
 export const metadata = {
@@ -16,6 +17,15 @@ export const metadata = {
 export default async function AncestorsPage() {
   const hasAccess = await hasFamilyAccess();
   if (!hasAccess) redirect("/family");
+
+  const memoryCountSq = db
+    .select({
+      ancestorId: ancestorMemories.ancestorId,
+      count: count().as("memory_count"),
+    })
+    .from(ancestorMemories)
+    .groupBy(ancestorMemories.ancestorId)
+    .as("mc");
 
   const allAncestors = await db
     .select({
@@ -28,9 +38,11 @@ export default async function AncestorsPage() {
       died: ancestors.died,
       birthplace: ancestors.birthplace,
       photoUrl: images.blobUrl,
+      memoryCount: sql<number>`coalesce(${memoryCountSq.count}, 0)`.as("memoryCount"),
     })
     .from(ancestors)
     .leftJoin(images, eq(ancestors.photoId, images.id))
+    .leftJoin(memoryCountSq, eq(ancestors.id, memoryCountSq.ancestorId))
     .orderBy(ancestors.name);
 
   return (
@@ -72,6 +84,12 @@ export default async function AncestorsPage() {
                       {ancestor.born ?? "?"}
                       {" – "}
                       {ancestor.died ?? "?"}
+                    </p>
+                  )}
+                  {ancestor.memoryCount > 0 && (
+                    <p className="mt-1 inline-flex items-center gap-1 text-sm text-blue-600">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
                     </p>
                   )}
                 </CardContent>

@@ -1,12 +1,13 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { ancestors, images, ancestorMemories } from "@/db/schema";
+import { eq, count } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { AncestorMemories } from "./ancestor-memories";
 
 export default async function AncestorPage({
   params,
@@ -42,6 +43,12 @@ export default async function AncestorPage({
 
   const ancestor = results[0];
   if (!ancestor) notFound();
+
+  const [memoryCountResult] = await db
+    .select({ count: count() })
+    .from(ancestorMemories)
+    .where(eq(ancestorMemories.ancestorId, ancestor.id));
+  const memoryCount = memoryCountResult?.count ?? 0;
 
   const details = [
     { label: "Relationship", value: ancestor.relationship },
@@ -108,6 +115,10 @@ export default async function AncestorPage({
               {ancestor.bio}
             </div>
           </div>
+        )}
+
+        {memoryCount > 0 && (
+          <AncestorMemories ancestorId={ancestor.id} ancestorName={ancestor.name} memoryCount={memoryCount} />
         )}
       </article>
     </div>
