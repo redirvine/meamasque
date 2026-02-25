@@ -4,7 +4,14 @@ import { db } from "@/db";
 import { plays, images } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { hasFamilyAccess } from "@/lib/family-access";
 
 export const metadata = {
@@ -38,32 +45,39 @@ export default async function PlaysPage() {
       {allPlays.length === 0 ? (
         <p className="text-gray-500">No plays added yet.</p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {allPlays.map((p) => (
-            <Card key={p.id} className="overflow-hidden transition-shadow hover:shadow-lg">
-              {p.primaryImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.primaryImageUrl}
-                  alt={p.play}
-                  className="h-48 w-full object-cover"
-                />
-              )}
-              <CardContent className="p-4">
-                <h2 className="text-lg font-semibold">{p.play}</h2>
-                {p.role && (
-                  <p className="text-sm text-gray-600">{p.role}</p>
-                )}
-                {p.year != null && (
-                  <p className="mt-1 text-sm text-gray-500">{p.year}</p>
-                )}
-                {p.location && (
-                  <p className="text-sm text-gray-500">{p.location}</p>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12"></TableHead>
+              <TableHead>Play</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Year</TableHead>
+              <TableHead>Location</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {allPlays.map((p) => (
+              <TableRow key={p.id}>
+                <TableCell>
+                  {p.primaryImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={p.primaryImageUrl}
+                      alt={p.play}
+                      className="h-10 w-10 rounded object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 rounded bg-gray-100" />
+                  )}
+                </TableCell>
+                <TableCell className="font-medium">{p.play}</TableCell>
+                <TableCell>{p.role}</TableCell>
+                <TableCell>{p.year ?? p.date}</TableCell>
+                <TableCell>{p.location}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
