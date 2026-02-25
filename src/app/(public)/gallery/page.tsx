@@ -6,6 +6,7 @@ import { eq, desc, and, like, or, SQL } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { GalleryFilters } from "@/components/gallery/gallery-filters";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../../../auth";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -19,7 +20,11 @@ export default async function GalleryPage({
   searchParams: Promise<{ artist?: string; category?: string; q?: string }>;
 }) {
   const params = await searchParams;
-  const familyAccess = await hasFamilyAccess();
+  const [familyAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
+  const isAdmin = !!session;
 
   const conditions: SQL[] = [];
 
@@ -72,7 +77,7 @@ export default async function GalleryPage({
       <Suspense>
         <GalleryFilters artists={allArtists} categories={allCategories} />
       </Suspense>
-      <ImageGrid images={allImages} />
+      <ImageGrid images={allImages} isAdmin={isAdmin} />
     </div>
   );
 }

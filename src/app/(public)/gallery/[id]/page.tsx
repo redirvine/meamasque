@@ -5,9 +5,10 @@ import { images, artists, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { hasFamilyAccess } from "@/lib/family-access";
+import { auth } from "../../../../../auth";
 
 export default async function ImageDetailPage({
   params,
@@ -37,9 +38,15 @@ export default async function ImageDetailPage({
   const image = results[0];
 
   if (!image) notFound();
-  if (image.visibility === "private" && !(await hasFamilyAccess())) {
+
+  const [familyAccess, session] = await Promise.all([
+    hasFamilyAccess(),
+    auth(),
+  ]);
+  if (image.visibility === "private" && !familyAccess) {
     notFound();
   }
+  const isAdmin = !!session;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -61,7 +68,18 @@ export default async function ImageDetailPage({
       </div>
 
       <div className="mt-6">
-        <h1 className="text-2xl font-bold">{image.title}</h1>
+        <div className="flex items-start gap-2">
+          <h1 className="text-2xl font-bold">{image.title}</h1>
+          {isAdmin && (
+            <Link
+              href={`/admin/images/${image.id}/edit`}
+              className="mt-0.5 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              title="Edit image"
+            >
+              <Pencil className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
           {image.artistName && (
