@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { plays, images } from "@/db/schema";
+import { plays, images, playMemories } from "@/db/schema";
 import { auth } from "../../../../auth";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql, count } from "drizzle-orm";
 import { z } from "zod";
 
 const createPlaySchema = z.object({
@@ -21,6 +21,15 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const memoryCountSq = db
+    .select({
+      playId: playMemories.playId,
+      count: count().as("memory_count"),
+    })
+    .from(playMemories)
+    .groupBy(playMemories.playId)
+    .as("mc");
+
   const allPlays = await db
     .select({
       id: plays.id,
@@ -33,9 +42,18 @@ export async function GET() {
       primaryImageId: plays.primaryImageId,
       primaryImageUrl: images.blobUrl,
       createdAt: plays.createdAt,
+      imageCount: sql<number>`(
+        SELECT COUNT(*) FROM (
+          SELECT image_id AS iid FROM play_images WHERE play_id = ${plays.id}
+          UNION
+          SELECT ${plays.primaryImageId} AS iid WHERE ${plays.primaryImageId} IS NOT NULL
+        )
+      )`.as("imageCount"),
+      memoryCount: sql<number>`coalesce(${memoryCountSq.count}, 0)`.as("memoryCount"),
     })
     .from(plays)
     .leftJoin(images, eq(plays.primaryImageId, images.id))
+    .leftJoin(memoryCountSq, eq(plays.id, memoryCountSq.playId))
     .orderBy(desc(plays.createdAt));
 
   return NextResponse.json(allPlays);

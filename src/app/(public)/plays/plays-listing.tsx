@@ -48,6 +48,7 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
   const [memoriesOpen, setMemoriesOpen] = useState(false);
   const [memoriesTitle, setMemoriesTitle] = useState("");
   const [memoriesList, setMemoriesList] = useState<PlayMemory[]>([]);
+  const [memoriesIndex, setMemoriesIndex] = useState(0);
   const [memoriesLoading, setMemoriesLoading] = useState(false);
 
   const openLightbox = useCallback(async (play: Play) => {
@@ -85,6 +86,7 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
     setMemoriesTitle(play.play);
     setMemoriesOpen(true);
     setMemoriesLoading(true);
+    setMemoriesIndex(0);
 
     try {
       const res = await fetch(`/api/plays/${play.id}/memories`);
@@ -97,6 +99,14 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
       setMemoriesLoading(false);
     }
   }, []);
+
+  const prevMemory = useCallback(() => {
+    setMemoriesIndex((i) => (i > 0 ? i - 1 : memoriesList.length - 1));
+  }, [memoriesList.length]);
+
+  const nextMemory = useCallback(() => {
+    setMemoriesIndex((i) => (i < memoriesList.length - 1 ? i + 1 : 0));
+  }, [memoriesList.length]);
 
   const prev = useCallback(() => {
     setLightboxIndex((i) => (i > 0 ? i - 1 : lightboxImages.length - 1));
@@ -115,6 +125,16 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxOpen, prev, next]);
+
+  useEffect(() => {
+    if (!memoriesOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prevMemory();
+      if (e.key === "ArrowRight") nextMemory();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [memoriesOpen, prevMemory, nextMemory]);
 
   const currentImage = lightboxImages[lightboxIndex];
 
@@ -244,7 +264,7 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
 
       {/* Memories Viewer */}
       <Dialog open={memoriesOpen} onOpenChange={setMemoriesOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Memories &mdash; {memoriesTitle}</DialogTitle>
           </DialogHeader>
@@ -253,14 +273,33 @@ export function PlaysListing({ plays }: { plays: Play[] }) {
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
             </div>
           ) : memoriesList.length > 0 ? (
-            <div className="space-y-4">
-              {memoriesList.map((memory) => (
-                <div key={memory.id} className="rounded-lg bg-gray-50 p-4">
-                  <p className="whitespace-pre-wrap text-sm text-gray-700">
-                    {memory.content}
-                  </p>
+            <div className="relative">
+              <div className="min-h-[8rem] rounded-lg bg-gray-50 p-4">
+                <p className="whitespace-pre-wrap text-sm text-gray-700">
+                  {memoriesList[memoriesIndex]?.content}
+                </p>
+              </div>
+              {memoriesList.length > 1 && (
+                <div className="mt-3 flex items-center justify-center gap-4">
+                  <button
+                    onClick={prevMemory}
+                    className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Previous memory"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <span className="text-sm text-gray-500">
+                    {memoriesIndex + 1} / {memoriesList.length}
+                  </span>
+                  <button
+                    onClick={nextMemory}
+                    className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Next memory"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           ) : (
             <p className="text-sm text-gray-500">No memories yet.</p>
