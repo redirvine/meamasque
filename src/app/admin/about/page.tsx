@@ -69,7 +69,7 @@ export default function AboutAdminPage() {
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Bio</Label>
+            <Label>Site Description</Label>
             <Textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
