@@ -145,7 +145,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           Drop images here or click to browse
         </p>
         <p className="mt-1 text-xs text-gray-400">
-          JPEG, PNG, GIF, WebP, TIFF up to 50MB
+          JPEG, PNG, GIF, WebP, TIFF, HEIC up to 50MB
         </p>
       </div>
 
