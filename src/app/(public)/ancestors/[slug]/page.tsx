@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
 import { CollapsibleSections } from "./collapsible-sections";
+import { AncestorPhoto } from "./ancestor-photo";
 
 export default async function AncestorPage({
   params,
@@ -96,12 +97,7 @@ export default async function AncestorPage({
       <article>
         <div className="flex flex-col gap-6 sm:flex-row">
           {ancestor.photoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={ancestor.photoUrl}
-              alt={ancestor.name}
-              className="h-64 w-64 flex-shrink-0 rounded-lg object-cover"
-            />
+            <AncestorPhoto src={ancestor.photoUrl} name={ancestor.name} />
           )}
           <div>
             <div className="flex items-start gap-2">
