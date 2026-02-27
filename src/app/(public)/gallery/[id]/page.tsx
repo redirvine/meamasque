@@ -7,7 +7,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { hasFamilyAccess } from "@/lib/family-access";
 import { auth } from "../../../../../auth";
 
 export default async function ImageDetailPage({
@@ -39,13 +38,7 @@ export default async function ImageDetailPage({
 
   if (!image) notFound();
 
-  const [familyAccess, session] = await Promise.all([
-    hasFamilyAccess(),
-    auth(),
-  ]);
-  if (image.visibility === "private" && !familyAccess) {
-    notFound();
-  }
+  const session = await auth();
   const isAdmin = !!session;
 
   return (

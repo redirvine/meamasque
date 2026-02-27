@@ -4,10 +4,8 @@ import { db } from "@/db";
 import { ancestors, images, ancestorMemories } from "@/db/schema";
 import { eq, sql, count } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Pencil } from "lucide-react";
-import { hasFamilyAccess } from "@/lib/family-access";
 import { auth } from "../../../../auth";
 
 export const metadata = {
@@ -16,11 +14,7 @@ export const metadata = {
 };
 
 export default async function AncestorsPage() {
-  const [hasAccess, session] = await Promise.all([
-    hasFamilyAccess(),
-    auth(),
-  ]);
-  if (!hasAccess) redirect("/family");
+  const session = await auth();
   const isAdmin = !!session;
 
   const memoryCountSq = db

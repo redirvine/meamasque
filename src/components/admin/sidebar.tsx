@@ -9,11 +9,9 @@ import {
   Upload,
   Users,
   FolderOpen,
-  BookOpen,
   TreePine,
   Drama,
   Info,
-  KeyRound,
   UserCog,
   LogOut,
 } from "lucide-react";
@@ -27,11 +25,9 @@ const navItems = [
   { href: "/admin/images/new", label: "Upload", icon: Upload },
   { href: "/admin/artists", label: "Artists", icon: Users },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
-  { href: "/admin/stories", label: "Stories", icon: BookOpen },
   { href: "/admin/ancestors", label: "Ancestors", icon: TreePine },
   { href: "/admin/plays", label: "Plays", icon: Drama },
   { href: "/admin/about", label: "About", icon: Info },
-  { href: "/admin/family", label: "Family Access", icon: KeyRound },
   { href: "/admin/users", label: "Admin Users", icon: UserCog },
 ];
 

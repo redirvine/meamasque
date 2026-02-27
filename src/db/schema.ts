@@ -80,47 +80,6 @@ export const images = sqliteTable("images", {
     .$defaultFn(() => new Date()),
 });
 
-// Stories — rich text content
-export const stories = sqliteTable("stories", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  content: text("content"),
-  excerpt: text("excerpt"),
-  coverImageId: text("cover_image_id").references(() => images.id, {
-    onDelete: "set null",
-  }),
-  authorId: text("author_id").references(() => artists.id, {
-    onDelete: "set null",
-  }),
-  visibility: text("visibility", { enum: ["public", "private"] })
-    .notNull()
-    .default("public"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
-
-// StoryImages — junction table for story-image associations
-export const storyImages = sqliteTable("story_images", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  storyId: text("story_id")
-    .notNull()
-    .references(() => stories.id, { onDelete: "cascade" }),
-  imageId: text("image_id")
-    .notNull()
-    .references(() => images.id, { onDelete: "cascade" }),
-  sortOrder: integer("sort_order").notNull().default(0),
-  caption: text("caption"),
-});
-
 // PasswordResetTokens — hashed tokens for password reset flow
 export const passwordResetTokens = sqliteTable("password_reset_tokens", {
   id: text("id")
@@ -235,14 +194,3 @@ export const siteAbout = sqliteTable("site_about", {
   bio: text("bio"),
 });
 
-// FamilyAccess — hashed access code for family-only viewing
-export const familyAccess = sqliteTable("family_access", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  hashedCode: text("hashed_code").notNull(),
-  label: text("label"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});

@@ -3,8 +3,6 @@ export const dynamic = "force-dynamic";
 import { db } from "@/db";
 import { plays, images, playMemories } from "@/db/schema";
 import { eq, desc, count, sql } from "drizzle-orm";
-import { redirect } from "next/navigation";
-import { hasFamilyAccess } from "@/lib/family-access";
 import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
 
@@ -14,11 +12,7 @@ export const metadata = {
 };
 
 export default async function PlaysPage() {
-  const [hasAccess, session] = await Promise.all([
-    hasFamilyAccess(),
-    auth(),
-  ]);
-  if (!hasAccess) redirect("/family");
+  const session = await auth();
   const isAdmin = !!session;
 
   const memoryCountSq = db

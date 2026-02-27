@@ -26,12 +26,9 @@ async function backup() {
     artists: await db.select().from(schema.artists),
     categories: await db.select().from(schema.categories),
     images: await db.select().from(schema.images),
-    stories: await db.select().from(schema.stories),
-    storyImages: await db.select().from(schema.storyImages),
     ancestors: await db.select().from(schema.ancestors),
     plays: await db.select().from(schema.plays),
     siteAbout: await db.select().from(schema.siteAbout),
-    familyAccess: await db.select({ id: schema.familyAccess.id, label: schema.familyAccess.label, createdAt: schema.familyAccess.createdAt }).from(schema.familyAccess),
   };
 
   for (const [name, rows] of Object.entries(tables)) {

@@ -3,10 +3,9 @@ export const dynamic = "force-dynamic";
 import { db } from "@/db";
 import { ancestors, images, ancestorMemories } from "@/db/schema";
 import { eq, count } from "drizzle-orm";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { hasFamilyAccess } from "@/lib/family-access";
 import { auth } from "../../../../../auth";
 import { AncestorMemories } from "./ancestor-memories";
 
@@ -15,11 +14,7 @@ export default async function AncestorPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const [hasAccess, session] = await Promise.all([
-    hasFamilyAccess(),
-    auth(),
-  ]);
-  if (!hasAccess) redirect("/family");
+  const session = await auth();
   const isAdmin = !!session;
 
   const { slug } = await params;

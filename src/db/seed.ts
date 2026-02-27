@@ -82,18 +82,6 @@ async function seed() {
 
   console.log("✓ Categories created");
 
-  // Seed family access code
-  const familyCode = await hash("family2024", 12);
-  await db
-    .insert(schema.familyAccess)
-    .values({
-      hashedCode: familyCode,
-      label: "Default family code",
-    })
-    .onConflictDoNothing();
-
-  console.log("✓ Family access code created (code: family2024)");
-
   console.log("\nSeeding complete!");
   process.exit(0);
 }

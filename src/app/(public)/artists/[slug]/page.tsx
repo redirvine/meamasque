@@ -2,10 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { artists, images } from "@/db/schema";
-import { eq, and, or, desc, SQL } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ImageGrid } from "@/components/gallery/image-grid";
-import { hasFamilyAccess } from "@/lib/family-access";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
@@ -17,22 +16,16 @@ export default async function ArtistPage({
 }) {
   const { slug } = await params;
 
-  const [artist, familyAccess, session] = await Promise.all([
+  const [artist, session] = await Promise.all([
     db.query.artists.findFirst({
       where: eq(artists.slug, slug),
     }),
-    hasFamilyAccess(),
     auth(),
   ]);
   const isAdmin = !!session;
 
   if (!artist) {
     notFound();
-  }
-
-  const conditions: SQL[] = [eq(images.artistId, artist.id)];
-  if (!familyAccess) {
-    conditions.push(eq(images.visibility, "public"));
   }
 
   const artistImages = await db
@@ -45,7 +38,7 @@ export default async function ArtistPage({
     })
     .from(images)
     .leftJoin(artists, eq(images.artistId, artists.id))
-    .where(and(...conditions))
+    .where(eq(images.artistId, artist.id))
     .orderBy(desc(images.createdAt));
 
   return (

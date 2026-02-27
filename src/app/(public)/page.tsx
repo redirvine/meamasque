@@ -1,12 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, artists, stories } from "@/db/schema";
+import { images, artists } from "@/db/schema";
 import { eq, desc, asc, and } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ImageGrid } from "@/components/gallery/image-grid";
-import { Card, CardContent } from "@/components/ui/card";
 
 export default async function HomePage() {
   const firstArtist = await db
@@ -16,36 +15,21 @@ export default async function HomePage() {
     .limit(1)
     .then((rows) => rows[0]);
 
-  const [featuredImages, recentStories] = await Promise.all([
-    firstArtist
-      ? db
-          .select({
-            id: images.id,
-            title: images.title,
-            blobUrl: images.blobUrl,
-            dateCreated: images.dateCreated,
-            artistName: artists.name,
-          })
-          .from(images)
-          .leftJoin(artists, eq(images.artistId, artists.id))
-          .where(and(eq(images.visibility, "public"), eq(images.artistId, firstArtist.id)))
-          .orderBy(desc(images.createdAt))
-          .limit(8)
-      : Promise.resolve([]),
-    db
-      .select({
-        id: stories.id,
-        title: stories.title,
-        slug: stories.slug,
-        excerpt: stories.excerpt,
-        coverImageUrl: images.blobUrl,
-      })
-      .from(stories)
-      .leftJoin(images, eq(stories.coverImageId, images.id))
-      .where(eq(stories.visibility, "public"))
-      .orderBy(desc(stories.createdAt))
-      .limit(3),
-  ]);
+  const featuredImages = firstArtist
+    ? await db
+        .select({
+          id: images.id,
+          title: images.title,
+          blobUrl: images.blobUrl,
+          dateCreated: images.dateCreated,
+          artistName: artists.name,
+        })
+        .from(images)
+        .leftJoin(artists, eq(images.artistId, artists.id))
+        .where(and(eq(images.visibility, "public"), eq(images.artistId, firstArtist.id)))
+        .orderBy(desc(images.createdAt))
+        .limit(8)
+    : [];
 
   return (
     <div>
@@ -56,17 +40,12 @@ export default async function HomePage() {
             Meamasque
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-600">
-            A collection of art and stories spanning generations.
+            A collection of art and memories spanning generations.
           </p>
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
             <Link href="/gallery">
               <Button size="lg" className="w-full sm:w-auto">
                 Browse Gallery
-              </Button>
-            </Link>
-            <Link href="/stories">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Read Stories
               </Button>
             </Link>
             <Link href="/artists">
@@ -92,45 +71,6 @@ export default async function HomePage() {
               </Link>
             </div>
             <ImageGrid images={featuredImages} />
-          </div>
-        </section>
-      )}
-
-      {/* Recent Stories */}
-      {recentStories.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Stories</h2>
-            <Link
-              href="/stories"
-              className="text-sm text-gray-500 hover:text-gray-700"
-            >
-              Read all &rarr;
-            </Link>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {recentStories.map((story) => (
-              <Link key={story.id} href={`/stories/${story.slug}`}>
-                <Card className="overflow-hidden transition-shadow hover:shadow-lg">
-                  {story.coverImageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={story.coverImageUrl}
-                      alt=""
-                      className="h-48 w-full object-cover"
-                    />
-                  )}
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold">{story.title}</h3>
-                    {story.excerpt && (
-                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {story.excerpt}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
           </div>
         </section>
       )}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock, LogIn, Menu, Settings } from "lucide-react";
+import { LogIn, Menu, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -7,27 +7,17 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { hasFamilyAccess } from "@/lib/family-access";
 import { auth } from "../../auth";
 
 const navLinks = [
   { href: "/gallery", label: "Art" },
-  { href: "/stories", label: "Stories" },
-  { href: "/plays", label: "Plays", familyOnly: true },
-  { href: "/artists", label: "Artists" },
-  { href: "/ancestors", label: "Ancestors", familyOnly: true },
+  { href: "/plays", label: "Plays" },
+  { href: "/ancestors", label: "Ancestors" },
   { href: "/about", label: "About" },
 ];
 
 export async function SiteHeader() {
-  const [familyAccess, session] = await Promise.all([
-    hasFamilyAccess(),
-    auth(),
-  ]);
-
-  const visibleLinks = navLinks.filter(
-    (link) => !link.familyOnly || familyAccess
-  );
+  const session = await auth();
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
@@ -38,7 +28,7 @@ export async function SiteHeader() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 sm:flex">
-          {visibleLinks.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -47,13 +37,6 @@ export async function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/family"
-            className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
-          >
-            <Lock className="h-3 w-3" />
-            Family
-          </Link>
           {session ? (
             <Link
               href="/admin"
@@ -83,7 +66,7 @@ export async function SiteHeader() {
           <SheetContent side="right" className="w-64">
             <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
             <nav className="mt-6 flex flex-col gap-4">
-              {visibleLinks.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -92,13 +75,6 @@ export async function SiteHeader() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/family"
-                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                <Lock className="h-3 w-3" />
-                Family
-              </Link>
               {session ? (
                 <Link
                   href="/admin"

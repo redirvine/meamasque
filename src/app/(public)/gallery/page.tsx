@@ -5,7 +5,6 @@ import { images, artists, categories } from "@/db/schema";
 import { eq, desc, and, like, or, SQL } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { GalleryFilters } from "@/components/gallery/gallery-filters";
-import { hasFamilyAccess } from "@/lib/family-access";
 import { auth } from "../../../../auth";
 import { Suspense } from "react";
 
@@ -20,20 +19,10 @@ export default async function GalleryPage({
   searchParams: Promise<{ artist?: string; category?: string; q?: string }>;
 }) {
   const params = await searchParams;
-  const [familyAccess, session] = await Promise.all([
-    hasFamilyAccess(),
-    auth(),
-  ]);
+  const session = await auth();
   const isAdmin = !!session;
 
   const conditions: SQL[] = [];
-
-  // Visibility filter
-  if (familyAccess) {
-    // Show both public and private
-  } else {
-    conditions.push(eq(images.visibility, "public"));
-  }
 
   if (params.artist) {
     conditions.push(eq(images.artistId, params.artist));
