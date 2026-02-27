@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { upload } from "@vercel/blob/client";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,8 +17,6 @@ interface UploadZoneProps {
 }
 
 async function uploadFile(file: File): Promise<string> {
-  // Try local upload first (FormData POST)
-  // If BLOB_READ_WRITE_TOKEN is not set, the server handles it locally
   const formData = new FormData();
   formData.append("file", file);
 
@@ -28,17 +25,13 @@ async function uploadFile(file: File): Promise<string> {
     body: formData,
   });
 
-  if (res.ok) {
-    const data = await res.json();
-    if (data.url) return data.url;
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "Upload failed");
   }
 
-  // Fall back to Vercel Blob client upload
-  const blob = await upload(file.name, file, {
-    access: "public",
-    handleUploadUrl: "/api/upload",
-  });
-  return blob.url;
+  const data = await res.json();
+  return data.url;
 }
 
 export function UploadZone({ onUploadComplete }: UploadZoneProps) {

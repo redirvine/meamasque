@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { put } from "@vercel/blob";
 import { auth } from "../../../../auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { createId } from "@paralleldrive/cuid2";
+import sharp from "sharp";
 
 const useLocalStorage = !process.env.BLOB_READ_WRITE_TOKEN;
+
+const HEIC_TYPES = ["image/heic", "image/heif"];
+
+async function convertToJpeg(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await auth();
@@ -13,58 +20,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Local file storage for development
+  const formData = await request.formData();
+  const file = formData.get("file") as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: "No file provided" }, { status: 400 });
+  }
+
+  let buffer = Buffer.from(await file.arrayBuffer()) as Buffer;
+  let ext = path.extname(file.name) || ".jpg";
+  let contentType = file.type;
+
+  // Convert HEIC/HEIF to JPEG
+  if (HEIC_TYPES.includes(file.type) || /\.hei[cf]$/i.test(file.name)) {
+    buffer = await convertToJpeg(buffer);
+    ext = ".jpg";
+    contentType = "image/jpeg";
+  }
+
+  const filename = `${createId()}${ext}`;
+
   if (useLocalStorage) {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
-
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadsDir, { recursive: true });
-
-    const ext = path.extname(file.name) || ".jpg";
-    const filename = `${createId()}${ext}`;
-    const filepath = path.join(uploadsDir, filename);
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filepath, buffer);
-
+    await writeFile(path.join(uploadsDir, filename), buffer);
     return NextResponse.json({ url: `/uploads/${filename}` });
   }
 
-  // Vercel Blob for production
-  const body = (await request.json()) as HandleUploadBody;
+  // Vercel Blob server-side upload
+  const blob = await put(filename, buffer, {
+    access: "public",
+    contentType,
+  });
 
-  try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => {
-        return {
-          allowedContentTypes: [
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "image/webp",
-            "image/tiff",
-            "image/bmp",
-            "image/heic",
-            "image/heif",
-          ],
-          maximumSizeInBytes: 50 * 1024 * 1024, // 50MB
-        };
-      },
-      onUploadCompleted: async () => {},
-    });
-
-    return NextResponse.json(jsonResponse);
-  } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
-  }
+  return NextResponse.json({ url: blob.url });
 }
