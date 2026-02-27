@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories } from "@/db/schema";
+import { ancestors, images, ancestorMemories, categories } from "@/db/schema";
 import { eq, count, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -57,10 +57,20 @@ export default async function AncestorPage({
       title: images.title,
       blobUrl: images.blobUrl,
       dateCreated: images.dateCreated,
+      categoryName: categories.name,
     })
     .from(images)
+    .leftJoin(categories, eq(images.categoryId, categories.id))
     .where(eq(images.ancestorId, ancestor.id))
     .orderBy(desc(images.createdAt));
+
+  const grouped = new Map<string, typeof works>();
+  for (const work of works) {
+    const key = work.categoryName ?? "Other";
+    const arr = grouped.get(key);
+    if (arr) arr.push(work);
+    else grouped.set(key, [work]);
+  }
 
   const details = [
     { label: "Relationship", value: ancestor.relationship },
@@ -144,12 +154,13 @@ export default async function AncestorPage({
           <AncestorMemories ancestorId={ancestor.id} ancestorName={ancestor.name} memoryCount={memoryCount} />
         )}
 
-        {works.length > 0 && (
-          <div className="mt-8">
-            <h2 className="mb-4 text-xl font-semibold">Works</h2>
-            <ImageGrid images={works} isAdmin={isAdmin} />
-          </div>
-        )}
+        {works.length > 0 &&
+          Array.from(grouped.entries()).map(([categoryName, imgs]) => (
+            <section key={categoryName} className="mt-8">
+              <h2 className="mb-4 text-xl font-semibold">{categoryName}</h2>
+              <ImageGrid images={imgs} isAdmin={isAdmin} />
+            </section>
+          ))}
       </article>
     </div>
   );
