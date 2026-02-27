@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { AncestorMemories } from "./ancestor-memories";
 import { ImageGrid } from "@/components/gallery/image-grid";
@@ -30,30 +29,12 @@ export function CollapsibleSections({
   photoGroups: PhotoGroup[];
   isAdmin: boolean;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [allOpen, setAllOpen] = useState(true);
-
   const hasSections = !!bio || memoryCount > 0 || photoGroups.length > 0;
-
-  function toggleAll() {
-    const next = !allOpen;
-    setAllOpen(next);
-    containerRef.current
-      ?.querySelectorAll("details")
-      .forEach((el) => (el.open = next));
-  }
 
   if (!hasSections) return null;
 
   return (
-    <div ref={containerRef} className="relative">
-      <button
-        onClick={toggleAll}
-        className="absolute right-0 top-10 text-sm text-gray-500 hover:text-gray-700"
-      >
-        {allOpen ? "Collapse All" : "Expand All"}
-      </button>
-
+    <div>
       {bio && (
         <details className="mt-8 group" open>
           <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">

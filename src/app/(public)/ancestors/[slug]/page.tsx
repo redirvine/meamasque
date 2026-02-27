@@ -9,6 +9,7 @@ import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
 import { CollapsibleSections } from "./collapsible-sections";
 import { AncestorPhoto } from "./ancestor-photo";
+import { CollapseToggle } from "./collapse-toggle";
 
 export default async function AncestorPage({
   params,
@@ -99,40 +100,45 @@ export default async function AncestorPage({
           {ancestor.photoUrl && (
             <AncestorPhoto src={ancestor.photoUrl} name={ancestor.name} />
           )}
-          <div>
-            <div className="flex items-start gap-2">
-              <h1 className="text-3xl font-bold">
-                {ancestor.name}
-                {ancestor.maidenName && (
-                  <span className="font-normal text-gray-500">
-                    {" "}
-                    (née {ancestor.maidenName})
-                  </span>
+          <div className="flex flex-1 flex-col justify-between">
+            <div>
+              <div className="flex items-start gap-2">
+                <h1 className="text-3xl font-bold">
+                  {ancestor.name}
+                  {ancestor.maidenName && (
+                    <span className="font-normal text-gray-500">
+                      {" "}
+                      (née {ancestor.maidenName})
+                    </span>
+                  )}
+                </h1>
+                {isAdmin && (
+                  <Link
+                    href={`/admin/ancestors?edit=${ancestor.id}`}
+                    className="mt-1 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    title="Edit ancestor"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Link>
                 )}
-              </h1>
-              {isAdmin && (
-                <Link
-                  href={`/admin/ancestors?edit=${ancestor.id}`}
-                  className="mt-1 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                  title="Edit ancestor"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Link>
+              </div>
+
+              {details.length > 0 && (
+                <dl className="mt-4 space-y-2">
+                  {details.map((d) => (
+                    <div key={d.label} className="flex gap-2">
+                      <dt className="text-sm font-medium text-gray-500 w-28 flex-shrink-0">
+                        {d.label}
+                      </dt>
+                      <dd className="text-sm text-gray-900">{d.value}</dd>
+                    </div>
+                  ))}
+                </dl>
               )}
             </div>
-
-            {details.length > 0 && (
-              <dl className="mt-4 space-y-2">
-                {details.map((d) => (
-                  <div key={d.label} className="flex gap-2">
-                    <dt className="text-sm font-medium text-gray-500 w-28 flex-shrink-0">
-                      {d.label}
-                    </dt>
-                    <dd className="text-sm text-gray-900">{d.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
+            <div className="flex justify-end">
+              <CollapseToggle />
+            </div>
           </div>
         </div>
 
