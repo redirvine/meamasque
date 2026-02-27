@@ -157,7 +157,7 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
             )}
             <div className="min-w-0">
               <div className="flex items-start justify-between">
-                <h2 className="text-lg font-semibold">{p.play}</h2>
+                <Link href={`/plays/${p.id}`} className="text-lg font-semibold hover:underline">{p.play}</Link>
                 {isAdmin && (
                   <Link
                     href={`/admin/plays?edit=${p.id}`}
