@@ -6,7 +6,6 @@ import Link from "next/link";
 type Play = {
   id: string;
   play: string;
-  date: string | null;
   role: string | null;
   location: string | null;
   description: string | null;
@@ -54,9 +53,9 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
             {p.role && (
               <p className="text-sm text-gray-600">{p.role}</p>
             )}
-            {(p.year != null || p.date) && (
+            {p.year != null && (
               <p className="mt-1 text-sm text-gray-500">
-                {p.year ?? p.date}
+                {p.year}
               </p>
             )}
             {p.location && (

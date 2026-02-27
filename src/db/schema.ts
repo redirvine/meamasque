@@ -126,7 +126,6 @@ export const plays = sqliteTable("plays", {
     .primaryKey()
     .$defaultFn(() => createId()),
   play: text("play").notNull(),
-  date: text("date"),
   role: text("role"),
   location: text("location"),
   description: text("description"),

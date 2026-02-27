@@ -7,7 +7,6 @@ import { z } from "zod";
 
 const createPlaySchema = z.object({
   play: z.string().min(1),
-  date: z.string().optional().nullable(),
   role: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
@@ -34,7 +33,6 @@ export async function GET() {
     .select({
       id: plays.id,
       play: plays.play,
-      date: plays.date,
       role: plays.role,
       location: plays.location,
       description: plays.description,
@@ -79,7 +77,6 @@ export async function POST(request: NextRequest) {
     .insert(plays)
     .values({
       play: parsed.data.play,
-      date: parsed.data.date ?? null,
       role: parsed.data.role ?? null,
       location: parsed.data.location ?? null,
       description: parsed.data.description ?? null,

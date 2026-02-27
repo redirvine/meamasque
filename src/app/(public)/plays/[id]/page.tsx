@@ -96,8 +96,8 @@ export default async function PlayDetailPage({
 
         <div className="mt-3 space-y-1 text-sm text-gray-600">
           {play.role && <p>Role: {play.role}</p>}
-          {(play.year != null || play.date) && (
-            <p>{play.year ?? play.date}</p>
+          {play.year != null && (
+            <p>{play.year}</p>
           )}
           {play.location && <p>{play.location}</p>}
         </div>

@@ -7,7 +7,6 @@ import { z } from "zod";
 
 const updatePlaySchema = z.object({
   play: z.string().min(1).optional(),
-  date: z.string().optional().nullable(),
   role: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   description: z.string().optional().nullable(),

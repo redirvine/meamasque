@@ -40,7 +40,6 @@ interface PlayImage {
 interface Play {
   id: string;
   play: string;
-  date: string | null;
   role: string | null;
   location: string | null;
   description: string | null;
@@ -101,7 +100,6 @@ function PlaysAdminPage() {
 
   // Form state
   const [play, setPlay] = useState("");
-  const [date, setDate] = useState("");
   const [role, setRole] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -137,7 +135,6 @@ function PlaysAdminPage() {
 
   const resetForm = () => {
     setPlay("");
-    setDate("");
     setRole("");
     setLocation("");
     setDescription("");
@@ -151,7 +148,6 @@ function PlaysAdminPage() {
   const openEdit = async (p: Play) => {
     setEditPlay(p);
     setPlay(p.play);
-    setDate(p.date ?? "");
     setRole(p.role ?? "");
     setLocation(p.location ?? "");
     setDescription(p.description ?? "");
@@ -191,7 +187,6 @@ function PlaysAdminPage() {
     try {
       const data: Record<string, unknown> = {
         play,
-        date: date || null,
         role: role || null,
         location: location || null,
         description: description || null,
@@ -345,9 +340,9 @@ function PlaysAdminPage() {
               {p.role && (
                 <p className="text-sm text-gray-600">{p.role}</p>
               )}
-              {(p.year != null || p.date) && (
+              {p.year != null && (
                 <p className="mt-1 text-sm text-gray-500">
-                  {p.year ?? p.date}
+                  {p.year}
                 </p>
               )}
               {p.location && (
@@ -409,7 +404,7 @@ function PlaysAdminPage() {
                 placeholder="Name of the play"
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Year</Label>
                 <Input
@@ -417,14 +412,6 @@ function PlaysAdminPage() {
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   placeholder="e.g. 2005"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Date</Label>
-                <Input
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  placeholder="e.g. Spring 2005"
                 />
               </div>
               <div className="space-y-2">

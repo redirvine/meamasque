@@ -28,7 +28,6 @@ export default async function PlaysPage() {
     .select({
       id: plays.id,
       play: plays.play,
-      date: plays.date,
       role: plays.role,
       location: plays.location,
       description: plays.description,
