@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +65,15 @@ interface ViewerMemory {
   sortOrder: number;
 }
 
-export default function PlaysAdminPage() {
+export default function PlaysAdminPageWrapper() {
+  return (
+    <Suspense>
+      <PlaysAdminPage />
+    </Suspense>
+  );
+}
+
+function PlaysAdminPage() {
   const searchParams = useSearchParams();
   const editParam = searchParams.get("edit");
   const didAutoEdit = useRef(false);

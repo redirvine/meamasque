@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,15 @@ interface Artist {
   bio: string | null;
 }
 
-export default function ArtistsAdminPage() {
+export default function ArtistsAdminPageWrapper() {
+  return (
+    <Suspense>
+      <ArtistsAdminPage />
+    </Suspense>
+  );
+}
+
+function ArtistsAdminPage() {
   const searchParams = useSearchParams();
   const editParam = searchParams.get("edit");
   const didAutoEdit = useRef(false);
