@@ -51,7 +51,7 @@ export default async function AncestorsPage() {
       {allAncestors.length === 0 ? (
         <p className="text-gray-500">No ancestors added yet.</p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4">
           {allAncestors.map((ancestor) => (
             <div key={ancestor.id} className="relative">
               {isAdmin && (
@@ -65,44 +65,46 @@ export default async function AncestorsPage() {
               )}
               <Link href={`/ancestors/${ancestor.slug}`}>
                 <Card className="overflow-hidden transition-shadow hover:shadow-lg">
-                  {ancestor.photoUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={ancestor.photoUrl}
-                      alt={ancestor.name}
-                      className="h-48 w-full object-cover"
-                    />
-                  )}
-                  <CardContent className="p-4">
-                    <h2 className="text-lg font-semibold">
-                      {ancestor.name}
-                      {ancestor.maidenName && (
-                        <span className="font-normal text-gray-500">
-                          {" "}
-                          (née {ancestor.maidenName})
-                        </span>
+                  <div className="flex">
+                    {ancestor.photoUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={ancestor.photoUrl}
+                        alt={ancestor.name}
+                        className="h-32 w-32 flex-shrink-0 object-cover"
+                      />
+                    )}
+                    <CardContent className="flex flex-col justify-center p-4">
+                      <h2 className="text-lg font-semibold">
+                        {ancestor.name}
+                        {ancestor.maidenName && (
+                          <span className="font-normal text-gray-500">
+                            {" "}
+                            (née {ancestor.maidenName})
+                          </span>
+                        )}
+                      </h2>
+                      {ancestor.relationship && (
+                        <p className="text-sm text-gray-600">
+                          {ancestor.relationship}
+                        </p>
                       )}
-                    </h2>
-                  {ancestor.relationship && (
-                    <p className="text-sm text-gray-600">
-                      {ancestor.relationship}
-                    </p>
-                  )}
-                  {(ancestor.born || ancestor.died) && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      {ancestor.born ?? "?"}
-                      {" – "}
-                      {ancestor.died ?? "?"}
-                    </p>
-                  )}
-                  {ancestor.memoryCount > 0 && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-sm text-blue-600">
-                      <BookOpen className="h-3.5 w-3.5" />
-                      {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+                      {(ancestor.born || ancestor.died) && (
+                        <p className="mt-1 text-sm text-gray-500">
+                          {ancestor.born ?? "?"}
+                          {" – "}
+                          {ancestor.died ?? "?"}
+                        </p>
+                      )}
+                      {ancestor.memoryCount > 0 && (
+                        <p className="mt-1 inline-flex items-center gap-1 text-sm text-blue-600">
+                          <BookOpen className="h-3.5 w-3.5" />
+                          {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
+                        </p>
+                      )}
+                    </CardContent>
+                  </div>
+                </Card>
               </Link>
             </div>
           ))}

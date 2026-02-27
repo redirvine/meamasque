@@ -22,10 +22,10 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/images", label: "Images", icon: Images },
   { href: "/admin/images/new", label: "Upload", icon: Upload },
-  { href: "/admin/categories", label: "Categories", icon: FolderOpen },
   { href: "/admin/ancestors", label: "Ancestors", icon: TreePine },
   { href: "/admin/plays", label: "Plays", icon: Drama },
   { href: "/admin/about", label: "About", icon: Info },
+  { href: "/admin/categories", label: "Categories", icon: FolderOpen },
   { href: "/admin/users", label: "Admin Users", icon: UserCog },
 ];
 
