@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, artists, categories } from "@/db/schema";
+import { images, ancestors, categories } from "@/db/schema";
 import { eq, desc, and, like, or, SQL } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { GalleryFilters } from "@/components/gallery/gallery-filters";
@@ -16,7 +16,7 @@ export const metadata = {
 export default async function GalleryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ artist?: string; category?: string; q?: string }>;
+  searchParams: Promise<{ ancestor?: string; category?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const session = await auth();
@@ -24,8 +24,8 @@ export default async function GalleryPage({
 
   const conditions: SQL[] = [];
 
-  if (params.artist) {
-    conditions.push(eq(images.artistId, params.artist));
+  if (params.ancestor) {
+    conditions.push(eq(images.ancestorId, params.ancestor));
   }
   if (params.category) {
     conditions.push(eq(images.categoryId, params.category));
@@ -39,32 +39,34 @@ export default async function GalleryPage({
     );
   }
 
-  const [allImages, allArtists, allCategories] = await Promise.all([
+  const [allImages, allAncestors, allCategories] = await Promise.all([
     db
       .select({
         id: images.id,
         title: images.title,
         blobUrl: images.blobUrl,
         dateCreated: images.dateCreated,
-        artistName: artists.name,
+        creatorName: ancestors.name,
       })
       .from(images)
-      .leftJoin(artists, eq(images.artistId, artists.id))
+      .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(images.createdAt)),
-    db.query.artists.findMany({
-      orderBy: (artists, { asc }) => [asc(artists.name)],
-    }),
-    db.query.categories.findMany({
-      orderBy: (categories, { asc }) => [asc(categories.name)],
-    }),
+    db
+      .select({ id: ancestors.id, name: ancestors.name })
+      .from(ancestors)
+      .orderBy(ancestors.name),
+    db
+      .select({ id: categories.id, name: categories.name })
+      .from(categories)
+      .orderBy(categories.name),
   ]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-6 text-3xl font-bold">Gallery</h1>
       <Suspense>
-        <GalleryFilters artists={allArtists} categories={allCategories} />
+        <GalleryFilters ancestors={allAncestors} categories={allCategories} />
       </Suspense>
       <ImageGrid images={allImages} isAdmin={isAdmin} />
     </div>

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, artists, categories } from "@/db/schema";
+import { images, ancestors, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -24,12 +24,12 @@ export default async function ImageDetailPage({
       blobUrl: images.blobUrl,
       dateCreated: images.dateCreated,
       visibility: images.visibility,
-      artistName: artists.name,
-      artistSlug: artists.slug,
+      creatorName: ancestors.name,
+      creatorSlug: ancestors.slug,
       categoryName: categories.name,
     })
     .from(images)
-    .leftJoin(artists, eq(images.artistId, artists.id))
+    .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
     .leftJoin(categories, eq(images.categoryId, categories.id))
     .where(eq(images.id, id))
     .limit(1);
@@ -75,12 +75,12 @@ export default async function ImageDetailPage({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          {image.artistName && (
+          {image.creatorName && (
             <Link
-              href={`/artists/${image.artistSlug}`}
+              href={`/ancestors/${image.creatorSlug}`}
               className="text-sm text-blue-600 hover:underline"
             >
-              {image.artistName}
+              {image.creatorName}
             </Link>
           )}
           {image.dateCreated && (

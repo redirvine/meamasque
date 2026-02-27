@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 
-interface Artist {
+interface Ancestor {
   id: string;
   name: string;
 }
@@ -39,21 +39,21 @@ interface UploadedFile {
 
 export default function UploadPage() {
   const router = useRouter();
-  const [artists, setArtists] = useState<Artist[]>([]);
+  const [ancestors, setAncestors] = useState<Ancestor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [saving, setSaving] = useState(false);
 
   // Shared metadata for all uploads
-  const [artistId, setArtistId] = useState<string>("");
+  const [ancestorId, setAncestorId] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [dateCreated, setDateCreated] = useState("");
 
   useEffect(() => {
-    fetch("/api/artists")
+    fetch("/api/ancestors")
       .then((r) => r.json())
-      .then(setArtists)
+      .then(setAncestors)
       .catch(() => {});
     fetch("/api/categories")
       .then((r) => r.json())
@@ -83,7 +83,7 @@ export default function UploadPage() {
           body: JSON.stringify({
             title,
             blobUrl: file.blobUrl,
-            artistId: artistId || null,
+            ancestorId: ancestorId || null,
             categoryId: categoryId || null,
             visibility,
             dateCreated: dateCreated || undefined,
@@ -123,13 +123,13 @@ export default function UploadPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Artist</Label>
-                <Select value={artistId} onValueChange={setArtistId}>
+                <Label>Creator</Label>
+                <Select value={ancestorId} onValueChange={setAncestorId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select artist" />
+                    <SelectValue placeholder="Select creator" />
                   </SelectTrigger>
                   <SelectContent>
-                    {artists.map((a) => (
+                    {ancestors.map((a) => (
                       <SelectItem key={a.id} value={a.id}>
                         {a.name}
                       </SelectItem>

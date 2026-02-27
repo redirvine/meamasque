@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { ancestors, images, ancestorMemories } from "@/db/schema";
-import { eq, count } from "drizzle-orm";
+import { eq, count, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
 import { AncestorMemories } from "./ancestor-memories";
+import { ImageGrid } from "@/components/gallery/image-grid";
 
 export default async function AncestorPage({
   params,
@@ -49,6 +50,17 @@ export default async function AncestorPage({
     .from(ancestorMemories)
     .where(eq(ancestorMemories.ancestorId, ancestor.id));
   const memoryCount = memoryCountResult?.count ?? 0;
+
+  const works = await db
+    .select({
+      id: images.id,
+      title: images.title,
+      blobUrl: images.blobUrl,
+      dateCreated: images.dateCreated,
+    })
+    .from(images)
+    .where(eq(images.ancestorId, ancestor.id))
+    .orderBy(desc(images.createdAt));
 
   const details = [
     { label: "Relationship", value: ancestor.relationship },
@@ -130,6 +142,13 @@ export default async function AncestorPage({
 
         {memoryCount > 0 && (
           <AncestorMemories ancestorId={ancestor.id} ancestorName={ancestor.name} memoryCount={memoryCount} />
+        )}
+
+        {works.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-4 text-xl font-semibold">Works</h2>
+            <ImageGrid images={works} isAdmin={isAdmin} />
+          </div>
         )}
       </article>
     </div>

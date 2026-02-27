@@ -29,34 +29,6 @@ async function seed() {
 
   console.log("✓ Admin user created");
 
-  // Seed artists
-  const artistData = [
-    {
-      name: "Mom",
-      slug: "mom",
-      bio: "Artist and storyteller.",
-      relationship: "Mother",
-    },
-    {
-      name: "Grandmother",
-      slug: "grandmother",
-      bio: "A talented artist whose works span decades.",
-      relationship: "Grandmother",
-    },
-    {
-      name: "Grandfather",
-      slug: "grandfather",
-      bio: "An artist with a distinctive style and vision.",
-      relationship: "Grandfather",
-    },
-  ];
-
-  for (const artist of artistData) {
-    await db.insert(schema.artists).values(artist).onConflictDoNothing();
-  }
-
-  console.log("✓ Artists created");
-
   // Seed default categories
   const categoryData = [
     {

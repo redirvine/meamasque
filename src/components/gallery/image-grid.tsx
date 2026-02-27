@@ -6,7 +6,7 @@ interface GalleryImage {
   title: string;
   blobUrl: string;
   dateCreated: string | null;
-  artistName?: string | null;
+  creatorName?: string | null;
 }
 
 export function ImageGrid({ images, isAdmin = false }: { images: GalleryImage[]; isAdmin?: boolean }) {
@@ -46,8 +46,8 @@ export function ImageGrid({ images, isAdmin = false }: { images: GalleryImage[];
             <div className="p-3">
               <p className="truncate text-sm font-medium">{image.title}</p>
               <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                {image.artistName && <span>{image.artistName}</span>}
-                {image.artistName && image.dateCreated && <span>&middot;</span>}
+                {image.creatorName && <span>{image.creatorName}</span>}
+                {image.creatorName && image.dateCreated && <span>&middot;</span>}
                 {image.dateCreated && <span>{image.dateCreated}</span>}
               </div>
             </div>

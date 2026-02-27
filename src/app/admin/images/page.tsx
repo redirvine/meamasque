@@ -25,7 +25,7 @@ interface Image {
   title: string;
   description: string | null;
   blobUrl: string;
-  artistId: string | null;
+  ancestorId: string | null;
   categoryId: string | null;
   dateCreated: string | null;
   visibility: "public" | "private";

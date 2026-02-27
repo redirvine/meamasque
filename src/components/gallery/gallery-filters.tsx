@@ -19,11 +19,11 @@ interface FilterOption {
 }
 
 interface GalleryFiltersProps {
-  artists: FilterOption[];
+  ancestors: FilterOption[];
   categories: FilterOption[];
 }
 
-export function GalleryFilters({ artists, categories }: GalleryFiltersProps) {
+export function GalleryFilters({ ancestors, categories }: GalleryFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -53,7 +53,7 @@ export function GalleryFilters({ artists, categories }: GalleryFiltersProps) {
   };
 
   const hasFilters =
-    searchParams.has("artist") ||
+    searchParams.has("ancestor") ||
     searchParams.has("category") ||
     searchParams.has("q");
 
@@ -76,15 +76,15 @@ export function GalleryFilters({ artists, categories }: GalleryFiltersProps) {
 
       <div className="flex flex-wrap items-center gap-3">
         <Select
-          value={searchParams.get("artist") ?? "all"}
-          onValueChange={(v) => updateParams("artist", v === "all" ? null : v)}
+          value={searchParams.get("ancestor") ?? "all"}
+          onValueChange={(v) => updateParams("ancestor", v === "all" ? null : v)}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Artists" />
+            <SelectValue placeholder="All Creators" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Artists</SelectItem>
-            {artists.map((a) => (
+            <SelectItem value="all">All Creators</SelectItem>
+            {ancestors.map((a) => (
               <SelectItem key={a.id} value={a.id}>
                 {a.name}
               </SelectItem>

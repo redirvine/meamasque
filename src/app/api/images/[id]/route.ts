@@ -9,7 +9,7 @@ import { z } from "zod";
 const updateImageSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().optional().nullable(),
-  artistId: z.string().optional().nullable(),
+  ancestorId: z.string().optional().nullable(),
   categoryId: z.string().optional().nullable(),
   dateCreated: z.string().optional().nullable(),
   sortDate: z.string().optional().nullable(),
@@ -57,7 +57,7 @@ export async function PATCH(
 
   if (data.title !== undefined) updateData.title = data.title;
   if (data.description !== undefined) updateData.description = data.description;
-  if (data.artistId !== undefined) updateData.artistId = data.artistId;
+  if (data.ancestorId !== undefined) updateData.ancestorId = data.ancestorId;
   if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
   if (data.dateCreated !== undefined) updateData.dateCreated = data.dateCreated;
   if (data.sortDate !== undefined)

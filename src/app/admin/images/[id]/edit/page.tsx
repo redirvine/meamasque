@@ -23,13 +23,13 @@ interface Image {
   title: string;
   description: string | null;
   blobUrl: string;
-  artistId: string | null;
+  ancestorId: string | null;
   categoryId: string | null;
   dateCreated: string | null;
   visibility: "public" | "private";
 }
 
-interface Artist {
+interface Ancestor {
   id: string;
   name: string;
 }
@@ -47,12 +47,12 @@ export default function EditImagePage({
   const { id } = use(params);
   const router = useRouter();
   const [image, setImage] = useState<Image | null>(null);
-  const [artists, setArtists] = useState<Artist[]>([]);
+  const [ancestors, setAncestors] = useState<Ancestor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [artistId, setArtistId] = useState("");
+  const [ancestorId, setAncestorId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [dateCreated, setDateCreated] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
@@ -60,17 +60,17 @@ export default function EditImagePage({
   useEffect(() => {
     Promise.all([
       fetch(`/api/images/${id}`).then((r) => r.json()),
-      fetch("/api/artists").then((r) => r.json()),
+      fetch("/api/ancestors").then((r) => r.json()),
       fetch("/api/categories").then((r) => r.json()),
-    ]).then(([img, arts, cats]) => {
+    ]).then(([img, ancs, cats]) => {
       setImage(img);
       setTitle(img.title);
       setDescription(img.description ?? "");
-      setArtistId(img.artistId ?? "");
+      setAncestorId(img.ancestorId ?? "");
       setCategoryId(img.categoryId ?? "");
       setDateCreated(img.dateCreated ?? "");
       setVisibility(img.visibility);
-      setArtists(arts);
+      setAncestors(ancs);
       setCategories(cats);
     });
   }, [id]);
@@ -84,7 +84,7 @@ export default function EditImagePage({
         body: JSON.stringify({
           title,
           description: description || null,
-          artistId: artistId || null,
+          ancestorId: ancestorId || null,
           categoryId: categoryId || null,
           dateCreated: dateCreated || null,
           visibility,
@@ -148,13 +148,13 @@ export default function EditImagePage({
             </div>
 
             <div className="space-y-2">
-              <Label>Artist</Label>
-              <Select value={artistId} onValueChange={setArtistId}>
+              <Label>Creator</Label>
+              <Select value={ancestorId} onValueChange={setAncestorId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select artist" />
+                  <SelectValue placeholder="Select creator" />
                 </SelectTrigger>
                 <SelectContent>
-                  {artists.map((a) => (
+                  {ancestors.map((a) => (
                     <SelectItem key={a.id} value={a.id}>
                       {a.name}
                     </SelectItem>

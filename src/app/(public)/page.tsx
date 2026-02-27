@@ -1,35 +1,26 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, artists } from "@/db/schema";
-import { eq, desc, asc, and } from "drizzle-orm";
+import { images, ancestors } from "@/db/schema";
+import { eq, desc, and } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ImageGrid } from "@/components/gallery/image-grid";
 
 export default async function HomePage() {
-  const firstArtist = await db
-    .select({ id: artists.id, name: artists.name })
-    .from(artists)
-    .orderBy(asc(artists.createdAt))
-    .limit(1)
-    .then((rows) => rows[0]);
-
-  const featuredImages = firstArtist
-    ? await db
-        .select({
-          id: images.id,
-          title: images.title,
-          blobUrl: images.blobUrl,
-          dateCreated: images.dateCreated,
-          artistName: artists.name,
-        })
-        .from(images)
-        .leftJoin(artists, eq(images.artistId, artists.id))
-        .where(and(eq(images.visibility, "public"), eq(images.artistId, firstArtist.id)))
-        .orderBy(desc(images.createdAt))
-        .limit(8)
-    : [];
+  const featuredImages = await db
+    .select({
+      id: images.id,
+      title: images.title,
+      blobUrl: images.blobUrl,
+      dateCreated: images.dateCreated,
+      creatorName: ancestors.name,
+    })
+    .from(images)
+    .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
+    .where(eq(images.visibility, "public"))
+    .orderBy(desc(images.createdAt))
+    .limit(8);
 
   return (
     <div>
@@ -46,11 +37,6 @@ export default async function HomePage() {
             <Link href="/gallery">
               <Button size="lg" className="w-full sm:w-auto">
                 Browse Gallery
-              </Button>
-            </Link>
-            <Link href="/artists">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Meet the Artists
               </Button>
             </Link>
           </div>

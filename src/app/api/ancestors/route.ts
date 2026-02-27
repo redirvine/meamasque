@@ -22,11 +22,6 @@ const createAncestorSchema = z.object({
 });
 
 export async function GET() {
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const memoryCountSq = db
     .select({
       ancestorId: ancestorMemories.ancestorId,

@@ -9,7 +9,7 @@ const createImageSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   blobUrl: z.string().min(1),
-  artistId: z.string().optional().nullable(),
+  ancestorId: z.string().optional().nullable(),
   categoryId: z.string().optional().nullable(),
   dateCreated: z.string().optional(),
   sortDate: z.string().optional(),
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       title: data.title,
       description: data.description ?? null,
       blobUrl: data.blobUrl,
-      artistId: data.artistId ?? null,
+      ancestorId: data.ancestorId ?? null,
       categoryId: data.categoryId ?? null,
       dateCreated: data.dateCreated ?? null,
       sortDate: data.sortDate ? new Date(data.sortDate) : null,
@@ -53,14 +53,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const artistId = searchParams.get("artistId");
+  const ancestorId = searchParams.get("ancestorId");
   const categoryId = searchParams.get("categoryId");
   const search = searchParams.get("search");
   const visibility = searchParams.get("visibility");
 
   const conditions: SQL[] = [];
 
-  if (artistId) conditions.push(eq(images.artistId, artistId));
+  if (ancestorId) conditions.push(eq(images.ancestorId, ancestorId));
   if (categoryId) conditions.push(eq(images.categoryId, categoryId));
   if (visibility === "public" || visibility === "private") {
     conditions.push(eq(images.visibility, visibility));

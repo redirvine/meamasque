@@ -26,20 +26,6 @@ export const sessions = sqliteTable("sessions", {
   expires: integer("expires", { mode: "timestamp" }).notNull(),
 });
 
-// Artists — name, slug, bio, relationship
-export const artists = sqliteTable("artists", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  bio: text("bio"),
-  relationship: text("relationship"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
-
 // Categories — name, slug, description
 export const categories = sqliteTable("categories", {
   id: text("id")
@@ -61,9 +47,7 @@ export const images = sqliteTable("images", {
   title: text("title").notNull(),
   description: text("description"),
   blobUrl: text("blob_url").notNull(),
-  artistId: text("artist_id").references(() => artists.id, {
-    onDelete: "set null",
-  }),
+  ancestorId: text("ancestor_id"),
   categoryId: text("category_id").references(() => categories.id, {
     onDelete: "set null",
   }),

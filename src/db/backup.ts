@@ -23,7 +23,6 @@ async function backup() {
 
   const tables = {
     users: await db.select({ id: schema.users.id, email: schema.users.email, name: schema.users.name, role: schema.users.role, createdAt: schema.users.createdAt }).from(schema.users),
-    artists: await db.select().from(schema.artists),
     categories: await db.select().from(schema.categories),
     images: await db.select().from(schema.images),
     ancestors: await db.select().from(schema.ancestors),

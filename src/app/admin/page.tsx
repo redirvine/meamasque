@@ -1,16 +1,15 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, artists, categories, ancestors, plays } from "@/db/schema";
+import { images, categories, ancestors, plays } from "@/db/schema";
 import { count, desc } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Images, Users, FolderOpen, TreePine, Drama } from "lucide-react";
+import { Images, FolderOpen, TreePine, Drama } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default async function AdminDashboard() {
   const [imageCount] = await db.select({ count: count() }).from(images);
-  const [artistCount] = await db.select({ count: count() }).from(artists);
   const [categoryCount] = await db.select({ count: count() }).from(categories);
   const [ancestorCount] = await db.select({ count: count() }).from(ancestors);
   const [playCount] = await db.select({ count: count() }).from(plays);
@@ -25,12 +24,6 @@ export default async function AdminDashboard() {
       value: imageCount.count,
       icon: Images,
       href: "/admin/images",
-    },
-    {
-      label: "Artists",
-      value: artistCount.count,
-      icon: Users,
-      href: "/admin/artists",
     },
     {
       label: "Categories",
