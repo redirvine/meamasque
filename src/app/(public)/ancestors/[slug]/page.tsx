@@ -5,7 +5,7 @@ import { ancestors, images, ancestorMemories, categories } from "@/db/schema";
 import { eq, count, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, ChevronDown, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
 import { AncestorMemories } from "./ancestor-memories";
 import { ImageGrid } from "@/components/gallery/image-grid";
@@ -156,10 +156,14 @@ export default async function AncestorPage({
 
         {works.length > 0 &&
           Array.from(grouped.entries()).map(([categoryName, imgs]) => (
-            <section key={categoryName} className="mt-8">
-              <h2 className="mb-4 text-xl font-semibold">{categoryName}</h2>
+            <details key={categoryName} className="mt-8 group" open>
+              <summary className="mb-4 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">
+                <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-0 -rotate-90" />
+                {categoryName}
+                <span className="text-sm font-normal text-gray-500">({imgs.length})</span>
+              </summary>
               <ImageGrid images={imgs} isAdmin={isAdmin} />
-            </section>
+            </details>
           ))}
       </article>
     </div>
