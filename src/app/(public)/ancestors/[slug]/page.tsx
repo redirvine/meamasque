@@ -5,10 +5,9 @@ import { ancestors, images, ancestorMemories, categories } from "@/db/schema";
 import { eq, count, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
-import { AncestorMemories } from "./ancestor-memories";
-import { ImageGrid } from "@/components/gallery/image-grid";
+import { CollapsibleSections } from "./collapsible-sections";
 
 export default async function AncestorPage({
   params,
@@ -141,30 +140,24 @@ export default async function AncestorPage({
           </div>
         </div>
 
-        {ancestor.bio && (
-          <div className="mt-8">
-            <h2 className="mb-3 text-xl font-semibold">Biography</h2>
-            <div className="prose prose-gray max-w-none whitespace-pre-wrap text-gray-700">
-              {ancestor.bio}
-            </div>
-          </div>
-        )}
-
-        {memoryCount > 0 && (
-          <AncestorMemories ancestorId={ancestor.id} ancestorName={ancestor.name} memoryCount={memoryCount} />
-        )}
-
-        {works.length > 0 &&
-          Array.from(grouped.entries()).map(([categoryName, imgs]) => (
-            <details key={categoryName} className="mt-8 group" open>
-              <summary className="mb-4 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">
-                <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-0 -rotate-90" />
-                {categoryName}
-                <span className="text-sm font-normal text-gray-500">({imgs.length})</span>
-              </summary>
-              <ImageGrid images={imgs} isAdmin={isAdmin} />
-            </details>
-          ))}
+        <CollapsibleSections
+          bio={ancestor.bio}
+          memoryCount={memoryCount}
+          ancestorId={ancestor.id}
+          ancestorName={ancestor.name}
+          photoGroups={Array.from(grouped.entries()).map(
+            ([categoryName, imgs]) => ({
+              categoryName,
+              images: imgs.map((img) => ({
+                id: img.id,
+                title: img.title ?? "",
+                blobUrl: img.blobUrl ?? "",
+                dateCreated: img.dateCreated,
+              })),
+            })
+          )}
+          isAdmin={isAdmin}
+        />
       </article>
     </div>
   );
