@@ -284,53 +284,53 @@ function AncestorsAdminPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-3">
         {ancestors.map((ancestor) => (
           <Card key={ancestor.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{ancestor.name}</span>
-                <div className="flex gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => openEdit(ancestor)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setDeleteId(ancestor.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+            <div className="flex items-center gap-4 p-4">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="truncate text-sm font-semibold">{ancestor.name}</h3>
+                  <span className="text-xs text-gray-400">/{ancestor.slug}</span>
                 </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {ancestor.relationship && (
-                <p className="text-sm text-gray-600">{ancestor.relationship}</p>
-              )}
-              {ancestor.born && (
-                <p className="text-sm text-gray-500">
-                  Born: {ancestor.born}
-                  {ancestor.birthplace && ` in ${ancestor.birthplace}`}
-                </p>
-              )}
-              {ancestor.memoryCount > 0 && (
-                <div className="mt-1">
-                  <button
-                    onClick={() => openMemoryViewer(ancestor)}
-                    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
-                  </button>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-gray-500">
+                  {ancestor.relationship && (
+                    <span>{ancestor.relationship}</span>
+                  )}
+                  {ancestor.born && (
+                    <span>
+                      Born: {ancestor.born}
+                      {ancestor.birthplace && ` in ${ancestor.birthplace}`}
+                    </span>
+                  )}
+                  {ancestor.memoryCount > 0 && (
+                    <button
+                      onClick={() => openMemoryViewer(ancestor)}
+                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      <BookOpen className="h-3.5 w-3.5" />
+                      {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
+                    </button>
+                  )}
                 </div>
-              )}
-              <p className="mt-2 text-xs text-gray-400">/{ancestor.slug}</p>
-            </CardContent>
+              </div>
+              <div className="flex flex-shrink-0 gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => openEdit(ancestor)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setDeleteId(ancestor.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </Card>
         ))}
       </div>
