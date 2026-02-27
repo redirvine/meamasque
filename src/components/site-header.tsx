@@ -3,6 +3,7 @@ import { LogIn, Menu, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetTrigger,
   SheetTitle,
@@ -67,30 +68,35 @@ export async function SiteHeader() {
             <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
             <nav className="mt-6 flex flex-col gap-4">
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm font-medium text-gray-300 hover:text-white"
-                >
-                  {link.label}
-                </Link>
+                <SheetClose key={link.href} asChild>
+                  <Link
+                    href={link.href}
+                    className="text-sm font-medium text-gray-300 hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </SheetClose>
               ))}
               {session ? (
-                <Link
-                  href="/admin"
-                  className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
-                >
-                  <Settings className="h-3 w-3" />
-                  Admin
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+                  >
+                    <Settings className="h-3 w-3" />
+                    Admin
+                  </Link>
+                </SheetClose>
               ) : (
-                <Link
-                  href="/login"
-                  className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
-                >
-                  <LogIn className="h-3 w-3" />
-                  Login
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
+                  >
+                    <LogIn className="h-3 w-3" />
+                    Login
+                  </Link>
+                </SheetClose>
               )}
             </nav>
           </SheetContent>
