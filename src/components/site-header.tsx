@@ -20,9 +20,9 @@ export async function SiteHeader() {
   const session = await auth();
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-gray-800 bg-black/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold tracking-tight">
+        <Link href="/" className="text-xl font-bold tracking-tight text-white">
           Meamasque
         </Link>
 
@@ -32,7 +32,7 @@ export async function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="text-sm font-medium text-gray-300 hover:text-white"
             >
               {link.label}
             </Link>
@@ -40,7 +40,7 @@ export async function SiteHeader() {
           {session ? (
             <Link
               href="/admin"
-              className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
             >
               <Settings className="h-3 w-3" />
               Admin
@@ -48,7 +48,7 @@ export async function SiteHeader() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
+              className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
             >
               <LogIn className="h-3 w-3" />
               Login
@@ -59,7 +59,7 @@ export async function SiteHeader() {
         {/* Mobile nav */}
         <Sheet>
           <SheetTrigger asChild className="sm:hidden">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
@@ -70,7 +70,7 @@ export async function SiteHeader() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                  className="text-sm font-medium text-gray-300 hover:text-white"
                 >
                   {link.label}
                 </Link>
@@ -78,7 +78,7 @@ export async function SiteHeader() {
               {session ? (
                 <Link
                   href="/admin"
-                  className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+                  className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
                 >
                   <Settings className="h-3 w-3" />
                   Admin
@@ -86,7 +86,7 @@ export async function SiteHeader() {
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-900"
+                  className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
                 >
                   <LogIn className="h-3 w-3" />
                   Login
