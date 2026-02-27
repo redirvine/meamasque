@@ -46,18 +46,16 @@ export function CollapsibleSections({
   if (!hasSections) return null;
 
   return (
-    <div ref={containerRef}>
-      <div className="mt-8 flex justify-end">
-        <button
-          onClick={toggleAll}
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
-          {allOpen ? "Collapse All" : "Expand All"}
-        </button>
-      </div>
+    <div ref={containerRef} className="relative">
+      <button
+        onClick={toggleAll}
+        className="absolute right-0 top-10 text-sm text-gray-500 hover:text-gray-700"
+      >
+        {allOpen ? "Collapse All" : "Expand All"}
+      </button>
 
       {bio && (
-        <details className="mt-4 group" open>
+        <details className="mt-8 group" open>
           <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">
             <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-0 -rotate-90" />
             Biography
