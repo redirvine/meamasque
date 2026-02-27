@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,7 @@ interface Ancestor {
   immigration: string | null;
   bio: string | null;
   photoId: string | null;
+  photoUrl: string | null;
   memoryCount: number;
 }
 
@@ -288,9 +290,19 @@ function AncestorsAdminPage() {
         {ancestors.map((ancestor) => (
           <Card key={ancestor.id}>
             <div className="flex items-center gap-4 p-4">
+              {ancestor.photoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={ancestor.photoUrl}
+                  alt={ancestor.name}
+                  className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
+                />
+              )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-semibold">{ancestor.name}</h3>
+                  <Link href={`/ancestors/${ancestor.slug}`} className="truncate text-sm font-semibold hover:underline">
+                    {ancestor.name}
+                  </Link>
                   <span className="text-xs text-gray-400">/{ancestor.slug}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-gray-500">

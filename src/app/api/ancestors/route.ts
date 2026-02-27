@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { ancestors, ancestorMemories } from "@/db/schema";
+import { ancestors, ancestorMemories, images } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { eq, sql, count } from "drizzle-orm";
 import { z } from "zod";
@@ -47,10 +47,12 @@ export async function GET() {
       immigration: ancestors.immigration,
       bio: ancestors.bio,
       photoId: ancestors.photoId,
+      photoUrl: images.blobUrl,
       createdAt: ancestors.createdAt,
       memoryCount: sql<number>`coalesce(${memoryCountSq.count}, 0)`.as("memoryCount"),
     })
     .from(ancestors)
+    .leftJoin(images, eq(ancestors.photoId, images.id))
     .leftJoin(memoryCountSq, eq(ancestors.id, memoryCountSq.ancestorId))
     .orderBy(ancestors.name);
 
