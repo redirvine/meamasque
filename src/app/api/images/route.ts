@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { images } from "@/db/schema";
+import { images, categories } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { eq, desc, and, like, SQL } from "drizzle-orm";
 import { z } from "zod";
@@ -68,8 +68,21 @@ export async function GET(request: NextRequest) {
   if (search) conditions.push(like(images.title, `%${search}%`));
 
   const results = await db
-    .select()
+    .select({
+      id: images.id,
+      title: images.title,
+      description: images.description,
+      blobUrl: images.blobUrl,
+      ancestorId: images.ancestorId,
+      categoryId: images.categoryId,
+      dateCreated: images.dateCreated,
+      sortDate: images.sortDate,
+      visibility: images.visibility,
+      createdAt: images.createdAt,
+      categoryName: categories.name,
+    })
     .from(images)
+    .leftJoin(categories, eq(images.categoryId, categories.id))
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(images.createdAt));
 
