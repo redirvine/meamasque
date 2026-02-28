@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
+import { AddMemoryForm } from "./add-memory-form";
 
 export default async function PlayDetailPage({
   params,
@@ -131,21 +132,28 @@ export default async function PlayDetailPage({
           </div>
         )}
 
-        {memories.length > 0 && (
+        {(memories.length > 0 || isAdmin) && (
           <div className="mt-8">
             <h2 className="mb-4 text-xl font-semibold">Memories</h2>
-            <div className="space-y-4">
-              {memories.map((memory) => (
-                <div
-                  key={memory.id}
-                  className="rounded-lg bg-gray-50 p-4"
-                >
-                  <p className="whitespace-pre-wrap text-sm text-gray-700">
-                    {memory.content}
-                  </p>
-                </div>
-              ))}
-            </div>
+            {memories.length > 0 && (
+              <div className="space-y-4">
+                {memories.map((memory) => (
+                  <div
+                    key={memory.id}
+                    className="rounded-lg bg-gray-50 p-4"
+                  >
+                    <p className="whitespace-pre-wrap text-sm text-gray-700">
+                      {memory.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {isAdmin && (
+              <div className={memories.length > 0 ? "mt-4" : ""}>
+                <AddMemoryForm playId={id} />
+              </div>
+            )}
           </div>
         )}
       </article>
