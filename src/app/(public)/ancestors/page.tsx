@@ -52,25 +52,20 @@ export default async function AncestorsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {allAncestors.map((ancestor) => (
-            <Link
-              key={ancestor.id}
-              href={`/ancestors/${ancestor.slug}`}
-              className="group relative flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md"
-            >
+            <div key={ancestor.id} className="relative">
               {isAdmin && (
-                <span
-                  onClick={(e) => e.stopPropagation()}
-                  className="absolute top-2 right-2 z-10"
+                <Link
+                  href={`/admin/ancestors?edit=${ancestor.id}`}
+                  className="absolute top-2 right-2 z-10 rounded-full bg-white/80 p-1.5 text-gray-400 shadow transition-colors hover:bg-white hover:text-gray-700"
+                  title="Edit ancestor"
                 >
-                  <Link
-                    href={`/admin/ancestors?edit=${ancestor.id}`}
-                    className="rounded-full bg-white/80 p-1.5 text-gray-400 shadow transition-colors hover:bg-white hover:text-gray-700"
-                    title="Edit ancestor"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Link>
-                </span>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Link>
               )}
+              <Link
+                href={`/ancestors/${ancestor.slug}`}
+                className="group flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md"
+              >
               {ancestor.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -115,6 +110,7 @@ export default async function AncestorsPage() {
                 )}
               </div>
             </Link>
+            </div>
           ))}
         </div>
       )}
