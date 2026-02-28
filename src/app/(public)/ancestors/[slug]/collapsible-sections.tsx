@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { AncestorMemories } from "./ancestor-memories";
+import { AddMemoryForm } from "./add-memory-form";
 import { ImageGrid } from "@/components/gallery/image-grid";
 
 type PhotoGroup = {
@@ -29,7 +30,7 @@ export function CollapsibleSections({
   photoGroups: PhotoGroup[];
   isAdmin: boolean;
 }) {
-  const hasSections = !!bio || memoryCount > 0 || photoGroups.length > 0;
+  const hasSections = !!bio || memoryCount > 0 || isAdmin || photoGroups.length > 0;
 
   if (!hasSections) return null;
 
@@ -47,20 +48,29 @@ export function CollapsibleSections({
         </details>
       )}
 
-      {memoryCount > 0 && (
+      {(memoryCount > 0 || isAdmin) && (
         <details className="mt-8 group" open>
           <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">
             <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-0 -rotate-90" />
             Memories
-            <span className="text-sm font-normal text-gray-500">
-              ({memoryCount})
-            </span>
+            {memoryCount > 0 && (
+              <span className="text-sm font-normal text-gray-500">
+                ({memoryCount})
+              </span>
+            )}
           </summary>
-          <AncestorMemories
-            ancestorId={ancestorId}
-            ancestorName={ancestorName}
-            memoryCount={memoryCount}
-          />
+          {memoryCount > 0 && (
+            <AncestorMemories
+              ancestorId={ancestorId}
+              ancestorName={ancestorName}
+              memoryCount={memoryCount}
+            />
+          )}
+          {isAdmin && (
+            <div className={memoryCount > 0 ? "mt-4" : ""}>
+              <AddMemoryForm ancestorId={ancestorId} />
+            </div>
+          )}
         </details>
       )}
 
