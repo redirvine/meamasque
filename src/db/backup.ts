@@ -1,13 +1,18 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, writeFile, access } from "fs/promises";
 import { join } from "path";
+
+async function fileExists(path: string): Promise<boolean> {
+  try { await access(path); return true; } catch { return false; }
+}
 
 async function backup() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const backupDir = join(process.cwd(), "backup", timestamp);
-  const blobDir = join(backupDir, "blobs");
+  const blobDir = join(process.cwd(), "backup", "blobs");
+  await mkdir(backupDir, { recursive: true });
   await mkdir(blobDir, { recursive: true });
 
   console.log(`Backup: ${timestamp}\n`);
@@ -38,16 +43,23 @@ async function backup() {
     console.log(`  ✓ ${name}: ${rows.length} rows`);
   }
 
-  // --- 2. Download blobs ---
-  console.log("\nDownloading images...");
+  // --- 2. Download new blobs only ---
+  console.log("\nChecking images...");
 
-  let success = 0;
+  let downloaded = 0;
+  let skipped = 0;
   let failed = 0;
 
   for (const image of tables.images) {
     const url = image.blobUrl;
     const ext = getExtension(url);
     const filename = `${image.id}${ext}`;
+    const filepath = join(blobDir, filename);
+
+    if (await fileExists(filepath)) {
+      skipped++;
+      continue;
+    }
 
     try {
       const res = await fetch(url);
@@ -58,9 +70,9 @@ async function backup() {
       }
 
       const buffer = Buffer.from(await res.arrayBuffer());
-      await writeFile(join(blobDir, filename), buffer);
-      console.log(`  ✓ ${image.title}`);
-      success++;
+      await writeFile(filepath, buffer);
+      console.log(`  ✓ ${image.title} (new)`);
+      downloaded++;
     } catch (err) {
       console.error(
         `  ✗ ${image.title} — ${err instanceof Error ? err.message : err}`
@@ -72,7 +84,7 @@ async function backup() {
   console.log(`\n--- Summary ---`);
   console.log(`Location: ${backupDir}`);
   console.log(`Database: ${Object.values(tables).reduce((sum, rows) => sum + rows.length, 0)} total rows across ${Object.keys(tables).length} tables`);
-  console.log(`Images: ${success} saved, ${failed} failed`);
+  console.log(`Images: ${downloaded} new, ${skipped} already backed up, ${failed} failed`);
 
   process.exit(failed > 0 ? 1 : 0);
 }
