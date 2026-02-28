@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, BookOpen, Pencil } from "lucide-react";
+import { Camera, BookOpen, Drama, Pencil } from "lucide-react";
 import Link from "next/link";
 
 type Play = {
@@ -17,12 +17,12 @@ type Play = {
 
 export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmin?: boolean }) {
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
       {plays.map((p) => (
         <Link
           key={p.id}
           href={`/plays/${p.id}`}
-          className="relative flex gap-5 rounded-lg border p-4 transition-shadow hover:shadow-md"
+          className="group relative flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md"
         >
           {isAdmin && (
             <span
@@ -43,31 +43,30 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
             <img
               src={p.primaryImageUrl}
               alt={p.play}
-              className="h-32 w-32 flex-shrink-0 rounded-md object-cover"
+              className="aspect-[3/2] w-full object-cover"
             />
           ) : (
-            <div className="h-32 w-32 flex-shrink-0 rounded-md bg-gray-100" />
+            <div className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+              <Drama className="h-12 w-12 text-gray-300" />
+            </div>
           )}
-          <div className="min-w-0">
+          <div className="flex flex-1 flex-col p-4">
             <h2 className="text-lg font-semibold">{p.play}</h2>
             {p.role && (
               <p className="text-sm text-gray-600">{p.role}</p>
             )}
-            {p.year != null && (
-              <p className="mt-1 text-sm text-gray-500">
-                {p.year}
-              </p>
-            )}
-            {p.location && (
-              <p className="text-sm text-gray-500">{p.location}</p>
-            )}
+            <div className="mt-1 flex gap-2 text-sm text-gray-500">
+              {p.year != null && <span>{p.year}</span>}
+              {p.year != null && p.location && <span>&middot;</span>}
+              {p.location && <span>{p.location}</span>}
+            </div>
             {p.description && (
               <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-sm text-gray-700">
                 {p.description}
               </p>
             )}
             {(p.imageCount > 0 || p.memoryCount > 0) && (
-              <div className="mt-2 flex gap-3">
+              <div className="mt-auto flex gap-3 pt-3">
                 {p.imageCount > 0 && (
                   <span className="inline-flex items-center gap-1 text-sm text-blue-600">
                     <Camera className="h-3.5 w-3.5" />
