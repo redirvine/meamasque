@@ -97,14 +97,19 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
   const onInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const fileList = e.target.files;
-      if (!fileList || fileList.length === 0) return;
-      // Copy files into a plain array immediately, before any async work
-      // or input value reset can invalidate the FileList
-      const rawFiles = Array.from(fileList);
-      // Reset input so the same file can be re-selected later
-      e.target.value = "";
-      processFiles(rawFiles);
+      try {
+        const fileList = e.target.files;
+        const count = fileList?.length ?? 0;
+        if (!fileList || count === 0) {
+          alert(`onChange fired but no files (fileList: ${fileList}, length: ${count})`);
+          return;
+        }
+        alert(`onChange: ${count} file(s) selected. First: ${fileList[0].name} (${fileList[0].type || "no type"}, ${fileList[0].size} bytes)`);
+        const rawFiles = Array.from(fileList);
+        processFiles(rawFiles);
+      } catch (err) {
+        alert(`onChange error: ${(err as Error).message}`);
+      }
     },
     [processFiles]
   );
