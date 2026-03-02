@@ -15,6 +15,7 @@ const updateImageSchema = z.object({
   dateCreated: z.string().optional().nullable(),
   sortDate: z.string().optional().nullable(),
   visibility: z.enum(["public", "private"]).optional(),
+  featured: z.boolean().optional(),
 });
 
 export async function GET(
@@ -65,6 +66,7 @@ export async function PATCH(
   if (data.sortDate !== undefined)
     updateData.sortDate = data.sortDate ? new Date(data.sortDate) : null;
   if (data.visibility !== undefined) updateData.visibility = data.visibility;
+  if (data.featured !== undefined) updateData.featured = data.featured;
 
   const [updated] = await db
     .update(images)

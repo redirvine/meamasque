@@ -18,6 +18,7 @@ interface GalleryImage {
   dateCreated: string | null;
   creatorName?: string | null;
   description?: string | null;
+  featured?: boolean | null;
 }
 
 export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: GalleryImage[]; isAdmin?: boolean; redirectPath?: string }) {
@@ -35,7 +36,7 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
     <>
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {images.map((image) => (
-          <div key={image.id} className="relative">
+          <div key={image.id} className={`relative ${image.featured ? "md:col-span-2 md:row-span-2" : ""}`}>
             {isAdmin && (
               <Link
                 href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}

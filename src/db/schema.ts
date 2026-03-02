@@ -59,6 +59,7 @@ export const images = sqliteTable("images", {
   visibility: text("visibility", { enum: ["public", "private"] })
     .notNull()
     .default("public"),
+  featured: integer("featured", { mode: "boolean" }).default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),

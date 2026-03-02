@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, Pencil } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Star } from "lucide-react";
 import { toast } from "sonner";
 
 interface Image {
@@ -30,6 +30,7 @@ interface Image {
   categoryName: string | null;
   dateCreated: string | null;
   visibility: "public" | "private";
+  featured: boolean | null;
   createdAt: string;
 }
 
@@ -93,6 +94,31 @@ export default function ImagesPage() {
         )
       );
       toast.error("Failed to update visibility");
+    }
+  };
+
+  const toggleFeatured = async (image: Image) => {
+    const newFeatured = !image.featured;
+    setImages((prev) =>
+      prev.map((img) =>
+        img.id === image.id ? { ...img, featured: newFeatured } : img
+      )
+    );
+    try {
+      const res = await fetch(`/api/images/${image.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featured: newFeatured }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(newFeatured ? "Marked as featured" : "Removed from featured");
+    } catch {
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === image.id ? { ...img, featured: image.featured } : img
+        )
+      );
+      toast.error("Failed to update featured status");
     }
   };
 
@@ -170,6 +196,19 @@ export default function ImagesPage() {
                     >
                       {image.visibility}
                     </Badge>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleFeatured(image)}
+                    title={image.featured ? "Remove from featured" : "Mark as featured"}
+                  >
+                    <Star
+                      className={`h-4 w-4 ${
+                        image.featured
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300 hover:text-yellow-400"
+                      }`}
+                    />
                   </button>
                   {image.dateCreated && (
                     <span className="text-xs text-gray-500">
