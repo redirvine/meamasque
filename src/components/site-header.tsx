@@ -11,7 +11,10 @@ import {
 import { auth } from "../../auth";
 
 const navLinks = [
-  { href: "/gallery", label: "Art" },
+  { href: "/gallery?category=masks", label: "Masks" },
+  { href: "/gallery?category=poems", label: "Poems" },
+  { href: "/gallery?category=paintings", label: "Paintings" },
+  { href: "/gallery?category=drawings", label: "Drawings" },
   { href: "/plays", label: "Plays" },
   { href: "/ancestors", label: "Ancestors" },
   { href: "/about", label: "About" },
