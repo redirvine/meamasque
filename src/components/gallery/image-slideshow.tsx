@@ -8,7 +8,6 @@ interface SlideshowImage {
   id: string;
   title: string;
   blobUrl: string;
-  description: string | null;
   creatorName: string | null;
 }
 
@@ -63,22 +62,6 @@ export function ImageSlideshow({ images }: { images: SlideshowImage[] }) {
           }
         />
       ))}
-
-      {/* Description overlay */}
-      {images.map((image, i) =>
-        image.description ? (
-          <div
-            key={`desc-${image.id}`}
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${
-              i === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <p className="max-w-lg rounded-lg bg-black/50 px-6 py-4 text-center text-lg text-white backdrop-blur-sm">
-              {image.description}
-            </p>
-          </div>
-        ) : null
-      )}
 
       {/* Navigation arrows */}
       {images.length > 1 && (

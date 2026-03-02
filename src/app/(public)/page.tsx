@@ -11,7 +11,6 @@ export default async function HomePage() {
       id: images.id,
       title: images.title,
       blobUrl: images.blobUrl,
-      description: images.description,
       creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
     })
     .from(images)
