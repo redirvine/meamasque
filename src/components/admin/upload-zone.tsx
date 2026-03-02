@@ -105,7 +105,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
   return (
     <div className="space-y-4">
-      <div
+      <label
         className={cn(
           "flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
           dragOver
@@ -122,14 +122,13 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           setDragOver(false);
           handleFiles(e.dataTransfer.files);
         }}
-        onClick={() => inputRef.current?.click()}
       >
         <input
           ref={inputRef}
           type="file"
           multiple
           accept="image/*"
-          className="hidden"
+          className="sr-only"
           onChange={(e) => {
             const files = e.target.files;
             if (files) handleFiles(files);
@@ -143,7 +142,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
         <p className="mt-1 text-xs text-gray-400">
           JPEG, PNG, GIF, WebP, TIFF, HEIC up to 50MB
         </p>
-      </div>
+      </label>
 
       {files.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
