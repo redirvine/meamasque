@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
+import { upload } from "@vercel/blob/client";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,61 +18,11 @@ interface UploadZoneProps {
 }
 
 async function uploadFile(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
+  const blob = await upload(file.name, file, {
+    access: "public",
+    handleUploadUrl: "/api/upload",
   });
-
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "Upload failed");
-  }
-
-  const data = await res.json();
-  return data.url;
-}
-
-function DebugFileInput({ onFiles }: { onFiles: (files: File[]) => void }) {
-  const debugRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const input = debugRef.current;
-    if (!input) return;
-
-    const handleChange = () => {
-      alert(`Native change: ${input.files?.length ?? 0} file(s)`);
-      if (input.files && input.files.length > 0) {
-        onFiles(Array.from(input.files));
-      }
-    };
-    const handleInput = () => {
-      alert(`Native input event: ${input.files?.length ?? 0} file(s)`);
-    };
-    const handleClick = () => {
-      alert("Input clicked");
-    };
-
-    input.addEventListener("change", handleChange);
-    input.addEventListener("input", handleInput);
-    input.addEventListener("click", handleClick);
-    return () => {
-      input.removeEventListener("change", handleChange);
-      input.removeEventListener("input", handleInput);
-      input.removeEventListener("click", handleClick);
-    };
-  }, [onFiles]);
-
-  return (
-    <div className="rounded border bg-yellow-50 p-4">
-      <p className="mb-2 text-sm font-bold">
-        Page rendered: {new Date().toLocaleTimeString()}
-      </p>
-      <input ref={debugRef} type="file" accept="image/*" />
-    </div>
-  );
+  return blob.url;
 }
 
 export function UploadZone({ onUploadComplete }: UploadZoneProps) {
@@ -137,19 +88,11 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
   const onInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      try {
-        const fileList = e.target.files;
-        const count = fileList?.length ?? 0;
-        if (!fileList || count === 0) {
-          alert(`onChange fired but no files (fileList: ${fileList}, length: ${count})`);
-          return;
-        }
-        alert(`onChange: ${count} file(s) selected. First: ${fileList[0].name} (${fileList[0].type || "no type"}, ${fileList[0].size} bytes)`);
-        const rawFiles = Array.from(fileList);
-        processFiles(rawFiles);
-      } catch (err) {
-        alert(`onChange error: ${(err as Error).message}`);
-      }
+      const fileList = e.target.files;
+      if (!fileList || fileList.length === 0) return;
+      const rawFiles = Array.from(fileList);
+      e.target.value = "";
+      processFiles(rawFiles);
     },
     [processFiles]
   );
@@ -164,7 +107,6 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
   return (
     <div className="space-y-4">
-      <DebugFileInput onFiles={processFiles} />
       <label
         className={cn(
           "relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
@@ -220,6 +162,9 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
                 <p className="text-xs text-gray-500">
                   {(entry.file.size / 1024 / 1024).toFixed(1)} MB
                 </p>
+                {entry.error && (
+                  <p className="text-xs text-red-500">{entry.error}</p>
+                )}
               </div>
               <div className="flex-shrink-0">
                 {entry.status === "uploading" && (

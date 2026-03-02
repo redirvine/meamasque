@@ -1,57 +1,43 @@
-import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { NextResponse } from "next/server";
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { auth } from "../../../../auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { createId } from "@paralleldrive/cuid2";
-import sharp from "sharp";
 
-const useLocalStorage = !process.env.BLOB_READ_WRITE_TOKEN;
+export async function POST(request: Request): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
 
-const HEIC_TYPES = ["image/heic", "image/heif"];
+  try {
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => {
+        const session = await auth();
+        if (!session) {
+          throw new Error("Unauthorized");
+        }
 
-async function convertToJpeg(buffer: Buffer): Promise<Buffer> {
-  return sharp(buffer).jpeg({ quality: 90 }).toBuffer();
-}
+        return {
+          allowedContentTypes: [
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "image/tiff",
+            "image/heic",
+            "image/heif",
+          ],
+          addRandomSuffix: true,
+        };
+      },
+      onUploadCompleted: async () => {
+        // Nothing to do here — the client handles the blob URL
+      },
+    });
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(jsonResponse);
+  } catch (error) {
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 400 }
+    );
   }
-
-  const formData = await request.formData();
-  const file = formData.get("file") as File | null;
-
-  if (!file) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  }
-
-  let buffer = Buffer.from(await file.arrayBuffer()) as Buffer;
-  let ext = path.extname(file.name) || ".jpg";
-  let contentType = file.type;
-
-  // Convert HEIC/HEIF to JPEG
-  if (HEIC_TYPES.includes(file.type) || /\.hei[cf]$/i.test(file.name)) {
-    buffer = await convertToJpeg(buffer);
-    ext = ".jpg";
-    contentType = "image/jpeg";
-  }
-
-  const filename = `${createId()}${ext}`;
-
-  if (useLocalStorage) {
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadsDir, { recursive: true });
-    await writeFile(path.join(uploadsDir, filename), buffer);
-    return NextResponse.json({ url: `/uploads/${filename}` });
-  }
-
-  // Vercel Blob server-side upload
-  const blob = await put(filename, buffer, {
-    access: "public",
-    contentType,
-  });
-
-  return NextResponse.json({ url: blob.url });
 }
