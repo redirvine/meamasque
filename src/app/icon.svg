@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Mask shape -->
+  <path d="M4 8c0-2 2-4 4-4h16c2 0 4 2 4 4v8c0 7-5 13-12 14C9 29 4 23 4 16V8z" fill="#1e293b"/>
+  <!-- Left eye -->
+  <ellipse cx="11" cy="13" rx="3" ry="2.5" fill="white"/>
+  <!-- Right eye -->
+  <ellipse cx="21" cy="13" rx="3" ry="2.5" fill="white"/>
+  <!-- Letter M as path -->
+  <path d="M10 26v-8h1.5l4.5 5 4.5-5H22v8h-2v-5.5l-4 4.5-4-4.5V26z" fill="#e2e8f0"/>
+</svg>
