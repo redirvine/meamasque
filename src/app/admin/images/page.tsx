@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ChevronDown, Plus, Search, Trash2, Pencil } from "lucide-react";
+import { Plus, Search, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface Image {
@@ -71,6 +71,31 @@ export default function ImagesPage() {
     }
   };
 
+  const toggleVisibility = async (image: Image) => {
+    const newVisibility = image.visibility === "public" ? "private" : "public";
+    setImages((prev) =>
+      prev.map((img) =>
+        img.id === image.id ? { ...img, visibility: newVisibility } : img
+      )
+    );
+    try {
+      const res = await fetch(`/api/images/${image.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visibility: newVisibility }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`Set to ${newVisibility}`);
+    } catch {
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === image.id ? { ...img, visibility: image.visibility } : img
+        )
+      );
+      toast.error("Failed to update visibility");
+    }
+  };
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -108,70 +133,54 @@ export default function ImagesPage() {
           </CardContent>
         </Card>
       ) : (
-        (() => {
-          const grouped = new Map<string, Image[]>();
-          for (const image of images) {
-            const key = image.categoryName ?? "Other";
-            const arr = grouped.get(key);
-            if (arr) arr.push(image);
-            else grouped.set(key, [image]);
-          }
-          return Array.from(grouped.entries()).map(([categoryName, imgs]) => (
-            <details key={categoryName} className="mb-6 group/cat" open>
-              <summary className="mb-4 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">
-                <ChevronDown className="h-5 w-5 transition-transform group-open/cat:rotate-0 -rotate-90" />
-                {categoryName}
-                <span className="text-sm font-normal text-gray-500">({imgs.length})</span>
-              </summary>
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {imgs.map((image) => (
-                  <Card key={image.id} className="group overflow-hidden">
-                    <div className="relative aspect-square">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={image.blobUrl}
-                        alt={image.title}
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
-                        <Link href={`/admin/images/${image.id}/edit`}>
-                          <Button size="sm" variant="secondary">
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => setDeleteId(image.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <CardContent className="p-3">
-                      <p className="truncate text-sm font-medium">{image.title}</p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <Badge
-                          variant={
-                            image.visibility === "public" ? "default" : "secondary"
-                          }
-                          className="text-xs"
-                        >
-                          {image.visibility}
-                        </Badge>
-                        {image.dateCreated && (
-                          <span className="text-xs text-gray-500">
-                            {image.dateCreated}
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {images.map((image) => (
+            <Card key={image.id} className="group overflow-hidden">
+              <div className="relative aspect-square">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={image.blobUrl}
+                  alt={image.title}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
+                  <Link href={`/admin/images/${image.id}/edit`}>
+                    <Button size="sm" variant="secondary">
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setDeleteId(image.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </details>
-          ));
-        })()
+              <CardContent className="p-3">
+                <p className="truncate text-sm font-medium">{image.title}</p>
+                <div className="mt-1 flex items-center gap-2">
+                  <button type="button" onClick={() => toggleVisibility(image)}>
+                    <Badge
+                      variant={
+                        image.visibility === "public" ? "default" : "secondary"
+                      }
+                      className="cursor-pointer text-xs"
+                    >
+                      {image.visibility}
+                    </Badge>
+                  </button>
+                  {image.dateCreated && (
+                    <span className="text-xs text-gray-500">
+                      {image.dateCreated}
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
