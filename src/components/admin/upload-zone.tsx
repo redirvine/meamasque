@@ -42,7 +42,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   const handleFiles = useCallback(
     async (fileList: FileList) => {
       const newFiles: UploadedFile[] = Array.from(fileList)
-        .filter((f) => f.type.startsWith("image/"))
+        .filter((f) => f.type.startsWith("image/") || f.type === "")
         .map((file) => ({
           file,
           status: "pending" as const,
