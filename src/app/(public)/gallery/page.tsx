@@ -5,6 +5,7 @@ import { images, users, categories } from "@/db/schema";
 import { eq, desc, and, ne, or, isNull } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { auth } from "../../../../auth";
+import Link from "next/link";
 
 export const metadata = {
   title: "Gallery - Meamasque",
@@ -60,9 +61,19 @@ export default async function GalleryPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">
-        {siteSubject.name ?? "Gallery"}
-      </h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">
+          {siteSubject.name ?? "Gallery"}
+        </h1>
+        {isAdmin && (
+          <Link
+            href="/admin/images/new?redirect=/gallery"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Upload
+          </Link>
+        )}
+      </div>
       {grouped.size === 0 ? (
         <div className="py-20 text-center text-gray-500">
           <p>No artwork to display yet.</p>

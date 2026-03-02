@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UploadZone } from "@/components/admin/upload-zone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,8 @@ interface UploadedFile {
 
 export default function UploadPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const [userCreators, setUserCreators] = useState<Creator[]>([]);
   const [ancestorCreators, setAncestorCreators] = useState<Creator[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -109,7 +111,7 @@ export default function UploadPage() {
       }
 
       toast.success("All images saved!");
-      router.push("/admin/images");
+      router.push(redirect || "/admin/images");
     } catch {
       toast.error("Failed to save images");
     } finally {
