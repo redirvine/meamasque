@@ -17,7 +17,6 @@ const navLinks = [
   { href: "/gallery?category=drawings", label: "Drawings" },
   { href: "/plays", label: "Plays" },
   { href: "/ancestors", label: "Ancestors" },
-  { href: "/about", label: "About" },
 ];
 
 export async function SiteHeader() {
