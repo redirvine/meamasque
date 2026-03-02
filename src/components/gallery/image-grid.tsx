@@ -32,45 +32,78 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
     );
   }
 
+  const featured = images.filter((img) => img.featured);
+  const regular = images.filter((img) => !img.featured);
+
+  const renderCard = (image: GalleryImage, large = false) => (
+    <div key={image.id} className="relative">
+      {isAdmin && (
+        <Link
+          href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
+          className="absolute top-2 right-2 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 shadow transition-colors hover:bg-white hover:text-gray-700"
+          title="Edit image"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Link>
+      )}
+      <button
+        type="button"
+        onClick={() => setSelectedImage(image)}
+        className="group block h-full w-full overflow-hidden rounded-lg border bg-white text-left transition-shadow hover:shadow-lg"
+      >
+        <div className={`overflow-hidden ${large ? "aspect-auto h-full min-h-[300px]" : "aspect-square"}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image.blobUrl}
+            alt={image.title}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+        <div className={`p-3 ${large ? "absolute bottom-0 left-0 right-0 rounded-b-lg bg-gradient-to-t from-black/70 to-transparent text-white" : ""}`}>
+          <p className={`truncate font-medium ${large ? "text-base" : "text-sm"}`}>{image.title}</p>
+          <div className={`mt-1 flex items-center gap-2 text-xs ${large ? "text-white/70" : "text-gray-500"}`}>
+            {image.creatorName && <span>{image.creatorName}</span>}
+            {image.creatorName && image.dateCreated && <span>&middot;</span>}
+            {image.dateCreated && <span>{image.dateCreated}</span>}
+          </div>
+        </div>
+      </button>
+    </div>
+  );
+
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {images.map((image) => (
-          <div key={image.id} className={`relative ${image.featured ? "md:col-span-2 md:row-span-2" : ""}`}>
-            {isAdmin && (
-              <Link
-                href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
-                className="absolute top-2 right-2 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 shadow transition-colors hover:bg-white hover:text-gray-700"
-                title="Edit image"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Link>
+      {featured.map((featuredImage, i) => {
+        // For each featured image, pair it with the next batch of regular images
+        const batchSize = 4;
+        const batchStart = i * batchSize;
+        const sideImages = regular.slice(batchStart, batchStart + batchSize);
+
+        return (
+          <div key={featuredImage.id} className="mb-4 grid gap-4 md:grid-cols-2">
+            {renderCard(featuredImage, true)}
+            {sideImages.length > 0 && (
+              <div className="grid grid-cols-2 gap-4">
+                {sideImages.map((img) => renderCard(img))}
+              </div>
             )}
-            <button
-              type="button"
-              onClick={() => setSelectedImage(image)}
-              className="group block w-full overflow-hidden rounded-lg border bg-white text-left transition-shadow hover:shadow-lg"
-            >
-              <div className="aspect-square overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={image.blobUrl}
-                  alt={image.title}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-3">
-                <p className="truncate text-sm font-medium">{image.title}</p>
-                <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                  {image.creatorName && <span>{image.creatorName}</span>}
-                  {image.creatorName && image.dateCreated && <span>&middot;</span>}
-                  {image.dateCreated && <span>{image.dateCreated}</span>}
-                </div>
-              </div>
-            </button>
           </div>
-        ))}
-      </div>
+        );
+      })}
+
+      {/* Remaining regular images */}
+      {regular.length > featured.length * 4 && (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {regular.slice(featured.length * 4).map((image) => renderCard(image))}
+        </div>
+      )}
+
+      {/* If no featured images, show all in regular grid */}
+      {featured.length === 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {regular.map((image) => renderCard(image))}
+        </div>
+      )}
 
       <Dialog open={!!selectedImage} onOpenChange={(open) => { if (!open) setSelectedImage(null); }}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
