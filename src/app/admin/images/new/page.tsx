@@ -10,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -22,7 +24,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 
-interface Ancestor {
+interface Creator {
   id: string;
   name: string;
 }
@@ -39,21 +41,26 @@ interface UploadedFile {
 
 export default function UploadPage() {
   const router = useRouter();
-  const [ancestors, setAncestors] = useState<Ancestor[]>([]);
+  const [userCreators, setUserCreators] = useState<Creator[]>([]);
+  const [ancestorCreators, setAncestorCreators] = useState<Creator[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [saving, setSaving] = useState(false);
 
   // Shared metadata for all uploads
-  const [ancestorId, setAncestorId] = useState<string>("");
+  const [creatorValue, setCreatorValue] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [dateCreated, setDateCreated] = useState("");
 
   useEffect(() => {
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((users: Creator[]) => setUserCreators(users))
+      .catch(() => {});
     fetch("/api/ancestors")
       .then((r) => r.json())
-      .then(setAncestors)
+      .then((ancs: Creator[]) => setAncestorCreators(ancs))
       .catch(() => {});
     fetch("/api/categories")
       .then((r) => r.json())
@@ -72,6 +79,15 @@ export default function UploadPage() {
       return;
     }
 
+    // Parse creator prefix
+    let ancestorId: string | null = null;
+    let creatorUserId: string | null = null;
+    if (creatorValue.startsWith("user:")) {
+      creatorUserId = creatorValue.slice(5);
+    } else if (creatorValue.startsWith("ancestor:")) {
+      ancestorId = creatorValue.slice(9);
+    }
+
     setSaving(true);
 
     try {
@@ -83,7 +99,8 @@ export default function UploadPage() {
           body: JSON.stringify({
             title,
             blobUrl: file.blobUrl,
-            ancestorId: ancestorId || null,
+            ancestorId,
+            creatorUserId,
             categoryId: categoryId || null,
             visibility,
             dateCreated: dateCreated || undefined,
@@ -124,16 +141,31 @@ export default function UploadPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Creator</Label>
-                <Select value={ancestorId} onValueChange={setAncestorId}>
+                <Select value={creatorValue} onValueChange={setCreatorValue}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select creator" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ancestors.map((a) => (
-                      <SelectItem key={a.id} value={a.id}>
-                        {a.name}
-                      </SelectItem>
-                    ))}
+                    {userCreators.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel>Users</SelectLabel>
+                        {userCreators.map((u) => (
+                          <SelectItem key={u.id} value={`user:${u.id}`}>
+                            {u.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )}
+                    {ancestorCreators.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel>Ancestors</SelectLabel>
+                        {ancestorCreators.map((a) => (
+                          <SelectItem key={a.id} value={`ancestor:${a.id}`}>
+                            {a.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

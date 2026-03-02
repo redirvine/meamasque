@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -24,12 +26,13 @@ interface Image {
   description: string | null;
   blobUrl: string;
   ancestorId: string | null;
+  creatorUserId: string | null;
   categoryId: string | null;
   dateCreated: string | null;
   visibility: "public" | "private";
 }
 
-interface Ancestor {
+interface Creator {
   id: string;
   name: string;
 }
@@ -47,12 +50,13 @@ export default function EditImagePage({
   const { id } = use(params);
   const router = useRouter();
   const [image, setImage] = useState<Image | null>(null);
-  const [ancestors, setAncestors] = useState<Ancestor[]>([]);
+  const [userCreators, setUserCreators] = useState<Creator[]>([]);
+  const [ancestorCreators, setAncestorCreators] = useState<Creator[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [ancestorId, setAncestorId] = useState("");
+  const [creatorValue, setCreatorValue] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [dateCreated, setDateCreated] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
@@ -60,22 +64,38 @@ export default function EditImagePage({
   useEffect(() => {
     Promise.all([
       fetch(`/api/images/${id}`).then((r) => r.json()),
+      fetch("/api/users").then((r) => r.json()),
       fetch("/api/ancestors").then((r) => r.json()),
       fetch("/api/categories").then((r) => r.json()),
-    ]).then(([img, ancs, cats]) => {
+    ]).then(([img, usrs, ancs, cats]) => {
       setImage(img);
       setTitle(img.title);
       setDescription(img.description ?? "");
-      setAncestorId(img.ancestorId ?? "");
+      // Initialize creator value from image data
+      if (img.creatorUserId) {
+        setCreatorValue(`user:${img.creatorUserId}`);
+      } else if (img.ancestorId) {
+        setCreatorValue(`ancestor:${img.ancestorId}`);
+      }
       setCategoryId(img.categoryId ?? "");
       setDateCreated(img.dateCreated ?? "");
       setVisibility(img.visibility);
-      setAncestors(ancs);
+      setUserCreators(usrs);
+      setAncestorCreators(ancs);
       setCategories(cats);
     });
   }, [id]);
 
   const handleSave = async () => {
+    // Parse creator prefix
+    let ancestorId: string | null = null;
+    let creatorUserId: string | null = null;
+    if (creatorValue.startsWith("user:")) {
+      creatorUserId = creatorValue.slice(5);
+    } else if (creatorValue.startsWith("ancestor:")) {
+      ancestorId = creatorValue.slice(9);
+    }
+
     setSaving(true);
     try {
       await fetch(`/api/images/${id}`, {
@@ -84,7 +104,8 @@ export default function EditImagePage({
         body: JSON.stringify({
           title,
           description: description || null,
-          ancestorId: ancestorId || null,
+          ancestorId,
+          creatorUserId,
           categoryId: categoryId || null,
           dateCreated: dateCreated || null,
           visibility,
@@ -149,16 +170,31 @@ export default function EditImagePage({
 
             <div className="space-y-2">
               <Label>Creator</Label>
-              <Select value={ancestorId} onValueChange={setAncestorId}>
+              <Select value={creatorValue} onValueChange={setCreatorValue}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select creator" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ancestors.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>
-                      {a.name}
-                    </SelectItem>
-                  ))}
+                  {userCreators.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Users</SelectLabel>
+                      {userCreators.map((u) => (
+                        <SelectItem key={u.id} value={`user:${u.id}`}>
+                          {u.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {ancestorCreators.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Ancestors</SelectLabel>
+                      {ancestorCreators.map((a) => (
+                        <SelectItem key={a.id} value={`ancestor:${a.id}`}>
+                          {a.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
                 </SelectContent>
               </Select>
             </div>

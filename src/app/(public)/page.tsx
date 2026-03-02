@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, ancestors } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { images, ancestors, users } from "@/db/schema";
+import { eq, desc, sql } from "drizzle-orm";
 import { ImageSlideshow } from "@/components/gallery/image-slideshow";
 
 export default async function HomePage() {
@@ -11,10 +11,11 @@ export default async function HomePage() {
       id: images.id,
       title: images.title,
       blobUrl: images.blobUrl,
-      creatorName: ancestors.name,
+      creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
     })
     .from(images)
     .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
+    .leftJoin(users, eq(images.creatorUserId, users.id))
     .where(eq(images.visibility, "public"))
     .orderBy(desc(images.createdAt));
 

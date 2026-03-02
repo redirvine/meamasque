@@ -12,6 +12,8 @@ export const users = sqliteTable("users", {
   role: text("role", { enum: ["admin", "editor"] })
     .notNull()
     .default("admin"),
+  isSiteSubject: integer("is_site_subject", { mode: "boolean" })
+    .default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -48,6 +50,7 @@ export const images = sqliteTable("images", {
   description: text("description"),
   blobUrl: text("blob_url").notNull(),
   ancestorId: text("ancestor_id"),
+  creatorUserId: text("creator_user_id"),
   categoryId: text("category_id").references(() => categories.id, {
     onDelete: "set null",
   }),

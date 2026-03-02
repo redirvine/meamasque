@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, ancestors, categories } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { images, ancestors, users, categories } from "@/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -24,12 +24,13 @@ export default async function ImageDetailPage({
       blobUrl: images.blobUrl,
       dateCreated: images.dateCreated,
       visibility: images.visibility,
-      creatorName: ancestors.name,
+      creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
       creatorSlug: ancestors.slug,
       categoryName: categories.name,
     })
     .from(images)
     .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
+    .leftJoin(users, eq(images.creatorUserId, users.id))
     .leftJoin(categories, eq(images.categoryId, categories.id))
     .where(eq(images.id, id))
     .limit(1);
@@ -76,12 +77,18 @@ export default async function ImageDetailPage({
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
           {image.creatorName && (
-            <Link
-              href={`/ancestors/${image.creatorSlug}`}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              {image.creatorName}
-            </Link>
+            image.creatorSlug ? (
+              <Link
+                href={`/ancestors/${image.creatorSlug}`}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                {image.creatorName}
+              </Link>
+            ) : (
+              <span className="text-sm text-gray-600">
+                {image.creatorName}
+              </span>
+            )
           )}
           {image.dateCreated && (
             <span className="text-sm text-gray-500">{image.dateCreated}</span>
