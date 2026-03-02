@@ -81,6 +81,7 @@ export async function GET(request: NextRequest) {
       dateCreated: images.dateCreated,
       sortDate: images.sortDate,
       visibility: images.visibility,
+      featured: images.featured,
       createdAt: images.createdAt,
       categoryName: categories.name,
     })
