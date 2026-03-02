@@ -124,6 +124,18 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
   return (
     <div className="space-y-4">
+      <div className="rounded border bg-yellow-50 p-4">
+        <p className="mb-2 text-sm font-bold">Debug: plain file input</p>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const f = e.target.files;
+            alert(`Plain input: ${f?.length ?? 0} file(s)`);
+            if (f && f.length > 0) processFiles(Array.from(f));
+          }}
+        />
+      </div>
       <label
         className={cn(
           "relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
