@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const navItems = [
-  { href: "/", label: "View Public Side", icon: Globe },
+  { href: "/", label: "View Public Site", icon: Globe },
   { href: "/admin/images", label: "Images", icon: Images },
   { href: "/admin/images/new", label: "Upload", icon: Upload },
   { href: "/admin/ancestors", label: "Ancestors", icon: TreePine },
