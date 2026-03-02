@@ -121,7 +121,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
     <div className="space-y-4">
       <label
         className={cn(
-          "flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
+          "relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
           dragOver
             ? "border-blue-500 bg-blue-50"
             : "border-gray-300 hover:border-gray-400"
@@ -143,17 +143,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           multiple
           accept="image/*"
           onChange={onInputChange}
-          style={{
-            position: "absolute",
-            width: 1,
-            height: 1,
-            padding: 0,
-            margin: -1,
-            overflow: "hidden",
-            clip: "rect(0,0,0,0)",
-            whiteSpace: "nowrap",
-            border: 0,
-          }}
+          className="absolute inset-0 cursor-pointer opacity-0"
         />
         <Upload className="mb-4 h-8 w-8 text-gray-400" />
         <p className="text-sm font-medium text-gray-600">
