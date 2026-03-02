@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import {
-  LayoutDashboard,
+  Globe,
   Images,
   Upload,
   FolderOpen,
@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/", label: "View Public Side", icon: Globe },
   { href: "/admin/images", label: "Images", icon: Images },
   { href: "/admin/images/new", label: "Upload", icon: Upload },
   { href: "/admin/ancestors", label: "Ancestors", icon: TreePine },
@@ -76,8 +76,9 @@ function SidebarContent({
       <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            (item.href !== "/admin" && pathname.startsWith(item.href + "/"));
+            item.href !== "/" &&
+            (pathname === item.href ||
+            pathname.startsWith(item.href + "/"));
           return (
             <NavLink
               key={item.href}
@@ -98,13 +99,6 @@ function SidebarContent({
       </nav>
       <Separator />
       <div className="p-4">
-        <NavLink
-          href="/"
-          onNavigate={onNavigate}
-          className="mb-2 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
-        >
-          View Site
-        </NavLink>
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-gray-600"
