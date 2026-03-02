@@ -159,6 +159,7 @@ export default async function AncestorPage({
             })
           )}
           isAdmin={isAdmin}
+          redirectPath={`/ancestors/${slug}`}
         />
       </article>
     </div>

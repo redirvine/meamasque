@@ -9,7 +9,7 @@ interface GalleryImage {
   creatorName?: string | null;
 }
 
-export function ImageGrid({ images, isAdmin = false }: { images: GalleryImage[]; isAdmin?: boolean }) {
+export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: GalleryImage[]; isAdmin?: boolean; redirectPath?: string }) {
   if (images.length === 0) {
     return (
       <div className="py-20 text-center text-gray-500">
@@ -24,7 +24,7 @@ export function ImageGrid({ images, isAdmin = false }: { images: GalleryImage[];
         <div key={image.id} className="relative">
           {isAdmin && (
             <Link
-              href={`/admin/images/${image.id}/edit`}
+              href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
               className="absolute top-2 right-2 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 shadow transition-colors hover:bg-white hover:text-gray-700"
               title="Edit image"
             >

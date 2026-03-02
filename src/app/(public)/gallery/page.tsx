@@ -84,7 +84,7 @@ export default async function GalleryPage() {
             <h2 className="mb-4 text-xl font-semibold text-gray-700">
               {categoryName}
             </h2>
-            <ImageGrid images={imgs} isAdmin={isAdmin} />
+            <ImageGrid images={imgs} isAdmin={isAdmin} redirectPath="/gallery" />
           </section>
         ))
       )}

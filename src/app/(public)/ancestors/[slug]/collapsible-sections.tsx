@@ -22,6 +22,7 @@ export function CollapsibleSections({
   ancestorName,
   photoGroups,
   isAdmin,
+  redirectPath,
 }: {
   bio: string | null;
   memoryCount: number;
@@ -29,6 +30,7 @@ export function CollapsibleSections({
   ancestorName: string;
   photoGroups: PhotoGroup[];
   isAdmin: boolean;
+  redirectPath?: string;
 }) {
   const hasSections = !!bio || memoryCount > 0 || isAdmin || photoGroups.length > 0;
 
@@ -83,7 +85,7 @@ export function CollapsibleSections({
               ({images.length})
             </span>
           </summary>
-          <ImageGrid images={images} isAdmin={isAdmin} />
+          <ImageGrid images={images} isAdmin={isAdmin} redirectPath={redirectPath} />
         </details>
       ))}
     </div>

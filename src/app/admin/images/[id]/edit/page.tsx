@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, use, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,8 +47,22 @@ export default function EditImagePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  return (
+    <Suspense>
+      <EditImagePageContent params={params} />
+    </Suspense>
+  );
+}
+
+function EditImagePageContent({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const [image, setImage] = useState<Image | null>(null);
   const [userCreators, setUserCreators] = useState<Creator[]>([]);
   const [ancestorCreators, setAncestorCreators] = useState<Creator[]>([]);
@@ -112,7 +126,7 @@ export default function EditImagePage({
         }),
       });
       toast.success("Image updated");
-      router.push("/admin/images");
+      router.push(redirect || "/admin/images");
     } catch {
       toast.error("Failed to update image");
     } finally {
@@ -128,11 +142,11 @@ export default function EditImagePage({
     <div>
       <div className="mb-6">
         <Link
-          href="/admin/images"
+          href={redirect || "/admin/images"}
           className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Images
+          {redirect ? "Back" : "Back to Images"}
         </Link>
         <h1 className="text-3xl font-bold">Edit Image</h1>
       </div>

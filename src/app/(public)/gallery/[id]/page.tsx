@@ -66,7 +66,7 @@ export default async function ImageDetailPage({
           <h1 className="text-2xl font-bold">{image.title}</h1>
           {isAdmin && (
             <Link
-              href={`/admin/images/${image.id}/edit`}
+              href={`/admin/images/${image.id}/edit?redirect=${encodeURIComponent(`/gallery/${image.id}`)}`}
               className="mt-0.5 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
               title="Edit image"
             >
