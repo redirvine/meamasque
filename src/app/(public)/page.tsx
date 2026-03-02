@@ -45,7 +45,7 @@ export default async function HomePage() {
       {/* Centered about text overlay */}
       {about?.bio && (
         <div className="absolute inset-0 flex items-center justify-center px-8">
-          <p className="max-w-2xl whitespace-pre-wrap text-center italic font-[family-name:var(--font-script)] text-2xl leading-relaxed text-white/60 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-3xl">
+          <p className="max-w-2xl whitespace-pre-wrap text-center italic font-[family-name:var(--font-script)] text-2xl leading-relaxed text-white/80 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-3xl">
             {about.bio}
           </p>
         </div>
