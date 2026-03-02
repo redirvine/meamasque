@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UploadZone } from "@/components/admin/upload-zone";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,14 @@ interface UploadedFile {
 }
 
 export default function UploadPage() {
+  return (
+    <Suspense>
+      <UploadPageContent />
+    </Suspense>
+  );
+}
+
+function UploadPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
