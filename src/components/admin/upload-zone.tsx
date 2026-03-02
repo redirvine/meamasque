@@ -39,15 +39,15 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = useCallback(
-    async (fileList: FileList) => {
-      const newFiles: UploadedFile[] = Array.from(fileList)
-        .filter((f) => f.type.startsWith("image/") || f.type === "")
-        .map((file) => ({
-          file,
-          status: "pending" as const,
-          preview: URL.createObjectURL(file),
-        }));
+  const processFiles = useCallback(
+    async (rawFiles: File[]) => {
+      const newFiles: UploadedFile[] = rawFiles.map((file) => ({
+        file,
+        status: "pending" as const,
+        preview: URL.createObjectURL(file),
+      }));
+
+      if (newFiles.length === 0) return;
 
       setFiles((prev) => [...prev, ...newFiles]);
 
@@ -95,6 +95,20 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
     [onUploadComplete]
   );
 
+  const onInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const fileList = e.target.files;
+      if (!fileList || fileList.length === 0) return;
+      // Copy files into a plain array immediately, before any async work
+      // or input value reset can invalidate the FileList
+      const rawFiles = Array.from(fileList);
+      // Reset input so the same file can be re-selected later
+      e.target.value = "";
+      processFiles(rawFiles);
+    },
+    [processFiles]
+  );
+
   const removeFile = (file: File) => {
     setFiles((prev) => {
       const entry = prev.find((f) => f.file === file);
@@ -120,7 +134,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          handleFiles(e.dataTransfer.files);
+          processFiles(Array.from(e.dataTransfer.files));
         }}
       >
         <input
@@ -128,11 +142,17 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           type="file"
           multiple
           accept="image/*"
-          className="sr-only"
-          onChange={(e) => {
-            const files = e.target.files;
-            if (files) handleFiles(files);
-            e.target.value = "";
+          onChange={onInputChange}
+          style={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: "hidden",
+            clip: "rect(0,0,0,0)",
+            whiteSpace: "nowrap",
+            border: 0,
           }}
         />
         <Upload className="mb-4 h-8 w-8 text-gray-400" />
