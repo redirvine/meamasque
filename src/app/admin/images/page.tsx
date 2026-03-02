@@ -133,7 +133,7 @@ export default function ImagesPage() {
                         alt={image.title}
                         className="h-full w-full object-cover"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                         <Link href={`/admin/images/${image.id}/edit`}>
                           <Button size="sm" variant="secondary">
                             <Pencil className="h-4 w-4" />
