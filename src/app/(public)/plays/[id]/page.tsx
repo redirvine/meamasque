@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
 import { AddMemoryForm } from "./add-memory-form";
+import { PlayMediaViewer } from "./play-media-viewer";
 
 export default async function PlayDetailPage({
   params,
@@ -109,51 +110,15 @@ export default async function PlayDetailPage({
           </div>
         )}
 
-        {associatedImages.length > 0 && (
-          <div className="mt-8">
-            <h2 className="mb-4 text-xl font-semibold">Photos</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {associatedImages.map((img) => (
-                <figure key={img.id}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img.blobUrl}
-                    alt={img.title || play.play}
-                    className="w-full rounded-lg object-cover"
-                  />
-                  {img.caption && (
-                    <figcaption className="mt-1 text-center text-sm text-gray-500">
-                      {img.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
-            </div>
-          </div>
-        )}
+        <PlayMediaViewer
+          images={associatedImages}
+          memories={memories}
+          playTitle={play.play}
+        />
 
-        {(memories.length > 0 || isAdmin) && (
-          <div className="mt-8">
-            <h2 className="mb-4 text-xl font-semibold">Memories</h2>
-            {memories.length > 0 && (
-              <div className="space-y-4">
-                {memories.map((memory) => (
-                  <div
-                    key={memory.id}
-                    className="rounded-lg bg-gray-50 p-4"
-                  >
-                    <p className="whitespace-pre-wrap text-sm text-gray-700">
-                      {memory.content}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-            {isAdmin && (
-              <div className={memories.length > 0 ? "mt-4" : ""}>
-                <AddMemoryForm playId={id} />
-              </div>
-            )}
+        {isAdmin && (
+          <div className={memories.length > 0 ? "mt-4" : "mt-8"}>
+            <AddMemoryForm playId={id} />
           </div>
         )}
       </article>
