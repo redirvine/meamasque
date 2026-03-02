@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +32,46 @@ async function uploadFile(file: File): Promise<string> {
 
   const data = await res.json();
   return data.url;
+}
+
+function DebugFileInput({ onFiles }: { onFiles: (files: File[]) => void }) {
+  const debugRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const input = debugRef.current;
+    if (!input) return;
+
+    const handleChange = () => {
+      alert(`Native change: ${input.files?.length ?? 0} file(s)`);
+      if (input.files && input.files.length > 0) {
+        onFiles(Array.from(input.files));
+      }
+    };
+    const handleInput = () => {
+      alert(`Native input event: ${input.files?.length ?? 0} file(s)`);
+    };
+    const handleClick = () => {
+      alert("Input clicked");
+    };
+
+    input.addEventListener("change", handleChange);
+    input.addEventListener("input", handleInput);
+    input.addEventListener("click", handleClick);
+    return () => {
+      input.removeEventListener("change", handleChange);
+      input.removeEventListener("input", handleInput);
+      input.removeEventListener("click", handleClick);
+    };
+  }, [onFiles]);
+
+  return (
+    <div className="rounded border bg-yellow-50 p-4">
+      <p className="mb-2 text-sm font-bold">
+        Page rendered: {new Date().toLocaleTimeString()}
+      </p>
+      <input ref={debugRef} type="file" accept="image/*" />
+    </div>
+  );
 }
 
 export function UploadZone({ onUploadComplete }: UploadZoneProps) {
@@ -124,20 +164,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded border bg-yellow-50 p-4">
-        <p className="mb-2 text-sm font-bold">
-          Page rendered: {new Date().toLocaleTimeString()}
-        </p>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const f = e.target.files;
-            alert(`Plain input: ${f?.length ?? 0} file(s)`);
-            if (f && f.length > 0) processFiles(Array.from(f));
-          }}
-        />
-      </div>
+      <DebugFileInput onFiles={processFiles} />
       <label
         className={cn(
           "relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
