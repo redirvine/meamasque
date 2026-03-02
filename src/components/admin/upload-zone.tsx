@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +37,7 @@ async function uploadFile(file: File): Promise<string> {
 export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(
     async (fileList: FileList) => {
@@ -121,18 +122,20 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           setDragOver(false);
           handleFiles(e.dataTransfer.files);
         }}
-        onClick={() => {
-          const input = document.createElement("input");
-          input.type = "file";
-          input.multiple = true;
-          input.accept = "image/*";
-          input.onchange = (e) => {
-            const files = (e.target as HTMLInputElement).files;
-            if (files) handleFiles(files);
-          };
-          input.click();
-        }}
+        onClick={() => inputRef.current?.click()}
       >
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const files = e.target.files;
+            if (files) handleFiles(files);
+            e.target.value = "";
+          }}
+        />
         <Upload className="mb-4 h-8 w-8 text-gray-400" />
         <p className="text-sm font-medium text-gray-600">
           Drop images here or click to browse
