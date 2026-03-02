@@ -58,6 +58,7 @@ export default async function AncestorPage({
       title: images.title,
       blobUrl: images.blobUrl,
       dateCreated: images.dateCreated,
+      description: images.description,
       categoryName: categories.name,
     })
     .from(images)
@@ -155,6 +156,7 @@ export default async function AncestorPage({
                 title: img.title ?? "",
                 blobUrl: img.blobUrl ?? "",
                 dateCreated: img.dateCreated,
+                description: img.description,
               })),
             })
           )}

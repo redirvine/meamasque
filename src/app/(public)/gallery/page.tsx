@@ -37,6 +37,7 @@ export default async function GalleryPage() {
       title: images.title,
       blobUrl: images.blobUrl,
       dateCreated: images.dateCreated,
+      description: images.description,
       creatorName: users.name,
       categoryName: categories.name,
     })
