@@ -125,7 +125,9 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   return (
     <div className="space-y-4">
       <div className="rounded border bg-yellow-50 p-4">
-        <p className="mb-2 text-sm font-bold">Debug: plain file input</p>
+        <p className="mb-2 text-sm font-bold">
+          Page rendered: {new Date().toLocaleTimeString()}
+        </p>
         <input
           type="file"
           accept="image/*"
