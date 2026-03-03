@@ -6,7 +6,6 @@ import { eq, desc, and, ne, or, isNull } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { ImageSlideshow } from "@/components/gallery/image-slideshow";
 import { auth } from "../../../../auth";
-import Link from "next/link";
 
 export default async function GalleryPage({
   searchParams,
@@ -65,24 +64,18 @@ export default async function GalleryPage({
     )
     .orderBy(desc(images.createdAt));
 
+  if (allImages.length > 0 && category === "paintings") {
+    return (
+      <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} />
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      {isAdmin && (
-        <div className="mb-6 flex justify-end">
-          <Link
-            href={`/admin/images/new?redirect=${encodeURIComponent(redirectPath)}`}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Upload
-          </Link>
-        </div>
-      )}
       {allImages.length === 0 ? (
         <div className="py-20 text-center text-gray-500">
           <p>No artwork to display yet.</p>
         </div>
-      ) : category === "paintings" ? (
-        <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} />
       ) : (
         <ImageGrid images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} />
       )}

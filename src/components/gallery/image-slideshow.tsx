@@ -52,8 +52,8 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
   const image = images[index];
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative w-full max-w-3xl">
+    <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center">
+      <div className="relative flex w-full flex-1 items-center justify-center overflow-hidden">
         {isAdmin && (
           <Link
             href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
@@ -69,7 +69,7 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
           src={image.blobUrl}
           alt={image.title}
           onClick={() => setDialogOpen(true)}
-          className="max-h-[60vh] w-full cursor-pointer rounded-lg object-contain"
+          className="max-h-full max-w-full cursor-pointer object-contain"
         />
 
         {images.length > 1 && (
@@ -94,25 +94,20 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
         )}
       </div>
 
-      <div className="mt-3 text-center">
+      <div className="shrink-0 py-2 text-center">
         <h2 className="text-lg font-semibold">{image.title}</h2>
-        <div className="mt-1 flex items-center justify-center gap-2 text-sm text-gray-500">
+        <div className="mt-0.5 flex items-center justify-center gap-2 text-sm text-gray-500">
           {image.creatorName && <span>{image.creatorName}</span>}
           {image.creatorName && image.dateCreated && <span>&middot;</span>}
           {image.dateCreated && <span>{image.dateCreated}</span>}
+          {images.length > 1 && (
+            <>
+              <span>&middot;</span>
+              <span>{index + 1} / {images.length}</span>
+            </>
+          )}
         </div>
-        {image.description && (
-          <p className="mx-auto mt-3 max-w-xl text-sm text-gray-700 whitespace-pre-wrap">
-            {image.description}
-          </p>
-        )}
       </div>
-
-      {images.length > 1 && (
-        <p className="mt-2 text-xs text-gray-400">
-          {index + 1} / {images.length}
-        </p>
-      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
