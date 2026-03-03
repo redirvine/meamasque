@@ -91,8 +91,8 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
         );
       })}
 
-      {/* Remaining regular images */}
-      {regular.length > featured.length * 4 && (
+      {/* Remaining regular images not paired with featured */}
+      {featured.length > 0 && regular.length > featured.length * 4 && (
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {regular.slice(featured.length * 4).map((image) => renderCard(image))}
         </div>
