@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { ancestors, images, ancestorMemories, categories } from "@/db/schema";
-import { eq, count, desc } from "drizzle-orm";
+import { eq, count, desc, ne, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -36,6 +36,7 @@ export default async function AncestorPage({
       occupation: ancestors.occupation,
       immigration: ancestors.immigration,
       bio: ancestors.bio,
+      photoId: ancestors.photoId,
       photoUrl: images.blobUrl,
     })
     .from(ancestors)
@@ -63,7 +64,11 @@ export default async function AncestorPage({
     })
     .from(images)
     .leftJoin(categories, eq(images.categoryId, categories.id))
-    .where(eq(images.ancestorId, ancestor.id))
+    .where(
+      ancestor.photoId
+        ? and(eq(images.ancestorId, ancestor.id), ne(images.id, ancestor.photoId))
+        : eq(images.ancestorId, ancestor.id)
+    )
     .orderBy(desc(images.createdAt));
 
   const grouped = new Map<string, typeof works>();
