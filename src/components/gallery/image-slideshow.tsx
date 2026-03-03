@@ -3,6 +3,13 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface SlideshowImage {
   id: string;
@@ -15,6 +22,7 @@ interface SlideshowImage {
 
 export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { images: SlideshowImage[]; isAdmin?: boolean; redirectPath?: string }) {
   const [index, setIndex] = useState(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const prev = useCallback(() => {
     setIndex((i) => (i > 0 ? i - 1 : images.length - 1));
@@ -60,7 +68,8 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
         <img
           src={image.blobUrl}
           alt={image.title}
-          className="max-h-[60vh] w-full rounded-lg object-contain"
+          onClick={() => setDialogOpen(true)}
+          className="max-h-[60vh] w-full cursor-pointer rounded-lg object-contain"
         />
 
         {images.length > 1 && (
@@ -104,6 +113,43 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
           {index + 1} / {images.length}
         </p>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{image.title}</DialogTitle>
+            {(image.creatorName || image.dateCreated) && (
+              <DialogDescription>
+                {image.creatorName}
+                {image.creatorName && image.dateCreated && " \u00b7 "}
+                {image.dateCreated}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image.blobUrl}
+            alt={image.title}
+            className="w-full rounded-md"
+          />
+          {image.description && (
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
+              {image.description}
+            </p>
+          )}
+          {isAdmin && (
+            <div className="flex justify-end">
+              <Link
+                href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
+                className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit
+              </Link>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
