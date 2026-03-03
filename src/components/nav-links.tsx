@@ -55,7 +55,7 @@ export function NavLinks({ session }: { session: boolean }) {
               href={link.href}
               className={
                 active
-                  ? "border-b-2 border-white pb-0.5 text-sm font-medium text-white"
+                  ? "text-sm font-medium text-white"
                   : "text-sm font-medium text-gray-300 hover:text-white"
               }
             >
