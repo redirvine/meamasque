@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { images, users, categories } from "@/db/schema";
 import { eq, desc, and, ne, or, isNull } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
+import { ImageSlideshow } from "@/components/gallery/image-slideshow";
 import { auth } from "../../../../auth";
 import Link from "next/link";
 
@@ -83,6 +84,8 @@ export default async function GalleryPage({
         <div className="py-20 text-center text-gray-500">
           <p>No artwork to display yet.</p>
         </div>
+      ) : category === "paintings" ? (
+        <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} />
       ) : (
         <ImageGrid images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} />
       )}
