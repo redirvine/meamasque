@@ -1,23 +1,6 @@
 import Link from "next/link";
-import { LogIn, Menu, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { auth } from "../../auth";
-
-const navLinks = [
-  { href: "/gallery?category=masks", label: "Masks" },
-  { href: "/gallery?category=poems", label: "Poems" },
-  { href: "/gallery?category=paintings", label: "Paintings" },
-  { href: "/gallery?category=drawings", label: "Drawings" },
-  { href: "/plays", label: "Plays" },
-  { href: "/ancestors", label: "Ancestors" },
-];
+import { NavLinks } from "./nav-links";
 
 export async function SiteHeader() {
   const session = await auth();
@@ -28,81 +11,7 @@ export async function SiteHeader() {
         <Link href="/" className="text-xl font-bold tracking-tight text-white">
           Meamasque
         </Link>
-
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 sm:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-gray-300 hover:text-white"
-            >
-              {link.label}
-            </Link>
-          ))}
-          {session ? (
-            <Link
-              href="/admin"
-              className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
-            >
-              <Settings className="h-3 w-3" />
-              Admin
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
-            >
-              <LogIn className="h-3 w-3" />
-              Login
-            </Link>
-          )}
-        </nav>
-
-        {/* Mobile nav */}
-        <Sheet>
-          <SheetTrigger asChild className="sm:hidden">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-64">
-            <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
-            <nav className="mt-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <SheetClose key={link.href} asChild>
-                  <Link
-                    href={link.href}
-                    className="text-sm font-medium text-gray-300 hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </SheetClose>
-              ))}
-              {session ? (
-                <SheetClose asChild>
-                  <Link
-                    href="/admin"
-                    className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
-                  >
-                    <Settings className="h-3 w-3" />
-                    Admin
-                  </Link>
-                </SheetClose>
-              ) : (
-                <SheetClose asChild>
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
-                  >
-                    <LogIn className="h-3 w-3" />
-                    Login
-                  </Link>
-                </SheetClose>
-              )}
-            </nav>
-          </SheetContent>
-        </Sheet>
+        <NavLinks session={!!session} />
       </div>
     </header>
   );

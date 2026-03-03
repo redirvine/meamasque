@@ -45,8 +45,6 @@ export default async function AncestorsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Ancestors</h1>
-
       {allAncestors.length === 0 ? (
         <p className="text-gray-500">No ancestors added yet.</p>
       ) : (

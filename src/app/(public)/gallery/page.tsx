@@ -25,7 +25,6 @@ export default async function GalleryPage({
   if (!siteSubject) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="mb-6 text-3xl font-bold">Gallery</h1>
         <p className="text-gray-500">No artwork to display yet.</p>
       </div>
     );
@@ -40,7 +39,6 @@ export default async function GalleryPage({
   }
 
   const redirectPath = category ? `/gallery?category=${category}` : "/gallery";
-  const pageTitle = categoryRow?.name ?? "Gallery";
 
   // Fetch images filtered by category, or all non-Theatre images as fallback
   const allImages = await db
@@ -69,17 +67,16 @@ export default async function GalleryPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">{pageTitle}</h1>
-        {isAdmin && (
+      {isAdmin && (
+        <div className="mb-6 flex justify-end">
           <Link
             href={`/admin/images/new?redirect=${encodeURIComponent(redirectPath)}`}
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             Upload
           </Link>
-        )}
-      </div>
+        </div>
+      )}
       {allImages.length === 0 ? (
         <div className="py-20 text-center text-gray-500">
           <p>No artwork to display yet.</p>
