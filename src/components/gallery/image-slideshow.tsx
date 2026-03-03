@@ -60,7 +60,7 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
         <img
           src={image.blobUrl}
           alt={image.title}
-          className="w-full rounded-lg object-contain"
+          className="max-h-[60vh] w-full rounded-lg object-contain"
         />
 
         {images.length > 1 && (
@@ -85,8 +85,8 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
         )}
       </div>
 
-      <div className="mt-4 text-center">
-        <h2 className="text-xl font-semibold">{image.title}</h2>
+      <div className="mt-3 text-center">
+        <h2 className="text-lg font-semibold">{image.title}</h2>
         <div className="mt-1 flex items-center justify-center gap-2 text-sm text-gray-500">
           {image.creatorName && <span>{image.creatorName}</span>}
           {image.creatorName && image.dateCreated && <span>&middot;</span>}
@@ -100,7 +100,7 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
       </div>
 
       {images.length > 1 && (
-        <p className="mt-4 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-gray-400">
           {index + 1} / {images.length}
         </p>
       )}
