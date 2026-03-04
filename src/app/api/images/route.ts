@@ -84,6 +84,7 @@ export async function GET(request: NextRequest) {
       sortDate: images.sortDate,
       visibility: images.visibility,
       featured: images.featured,
+      slideshowOverlayText: images.slideshowOverlayText,
       createdAt: images.createdAt,
       categoryName: categories.name,
     })

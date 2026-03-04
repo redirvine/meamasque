@@ -17,6 +17,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Plus, Search, Trash2, Pencil, Star } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,7 +39,14 @@ interface Image {
   dateCreated: string | null;
   visibility: "public" | "private";
   featured: boolean | null;
+  slideshowOverlayText: string | null;
   createdAt: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 export default function ImagesPage() {
@@ -40,18 +55,27 @@ export default function ImagesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [viewImage, setViewImage] = useState<Image | null>(null);
+  const [slideshowOnly, setSlideshowOnly] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
 
   const loadImages = async () => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
+    if (slideshowOnly) params.set("visibility", "public");
+    if (categoryFilter !== "all") params.set("categoryId", categoryFilter);
     const res = await fetch(`/api/images?${params}`);
     const data = await res.json();
     setImages(data);
   };
 
   useEffect(() => {
+    fetch("/api/categories").then((r) => r.json()).then(setAllCategories);
+  }, []);
+
+  useEffect(() => {
     loadImages();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [slideshowOnly, categoryFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +159,7 @@ export default function ImagesPage() {
         </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="mb-6 flex gap-2">
+      <form onSubmit={handleSearch} className="mb-4 flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
@@ -149,6 +173,35 @@ export default function ImagesPage() {
           Search
         </Button>
       </form>
+
+      <div className="mb-6 flex flex-wrap items-end gap-4">
+        <div className="space-y-1">
+          <Label className="text-xs text-gray-500">Slideshow content</Label>
+          <Select value={slideshowOnly ? "yes" : "no"} onValueChange={(v) => setSlideshowOnly(v === "yes")}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="no">All</SelectItem>
+              <SelectItem value="yes">Slideshow only</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-gray-500">Category</Label>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {allCategories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {images.length === 0 ? (
         <Card>
@@ -187,6 +240,11 @@ export default function ImagesPage() {
               </div>
               <CardContent className="p-3">
                 <p className="truncate text-sm font-medium">{image.title}</p>
+                {slideshowOnly && image.slideshowOverlayText && (
+                  <p className="mt-1 truncate text-xs italic text-gray-500">
+                    {image.slideshowOverlayText}
+                  </p>
+                )}
                 <div className="mt-1 flex items-center gap-2">
                   <button type="button" onClick={() => toggleVisibility(image)}>
                     <Badge
