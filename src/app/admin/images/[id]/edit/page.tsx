@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Crop } from "lucide-react";
 import Link from "next/link";
+import { CropDialog } from "@/components/admin/crop-dialog";
 
 interface Image {
   id: string;
@@ -76,6 +77,7 @@ function EditImagePageContent({
   const [dateCreated, setDateCreated] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [slideshowOverlayText, setSlideshowOverlayText] = useState("");
+  const [cropOpen, setCropOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -163,6 +165,23 @@ function EditImagePageContent({
               src={image.blobUrl}
               alt={image.title}
               className="w-full rounded-lg"
+            />
+            <Button
+              variant="outline"
+              className="mt-3 w-full"
+              onClick={() => setCropOpen(true)}
+            >
+              <Crop className="mr-2 h-4 w-4" />
+              Crop Image
+            </Button>
+            <CropDialog
+              imageUrl={image.blobUrl}
+              imageId={image.id}
+              open={cropOpen}
+              onOpenChange={setCropOpen}
+              onCropped={(newUrl) =>
+                setImage({ ...image, blobUrl: newUrl })
+              }
             />
           </CardContent>
         </Card>
