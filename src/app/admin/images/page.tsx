@@ -39,6 +39,7 @@ export default function ImagesPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [viewImage, setViewImage] = useState<Image | null>(null);
 
   const loadImages = async () => {
     const params = new URLSearchParams();
@@ -162,14 +163,14 @@ export default function ImagesPage() {
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {images.map((image) => (
             <Card key={image.id} className="group overflow-hidden">
-              <div className="relative aspect-square">
+              <div className="relative aspect-square cursor-pointer" onClick={() => setViewImage(image)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.blobUrl}
                   alt={image.title}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 hidden items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:hover)]:flex">
+                <div className="absolute inset-0 hidden items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:hover)]:flex" onClick={(e) => e.stopPropagation()}>
                   <Link href={`/admin/images/${image.id}/edit`}>
                     <Button size="sm" variant="secondary">
                       <Pencil className="h-4 w-4" />
@@ -258,6 +259,27 @@ export default function ImagesPage() {
               {deleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden" showCloseButton={false}>
+          {viewImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={viewImage.blobUrl}
+                alt={viewImage.title}
+                className="max-h-[80dvh] w-full object-contain"
+              />
+              <div className="px-6 pb-4">
+                <h2 className="text-lg font-semibold">{viewImage.title}</h2>
+                {viewImage.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">{viewImage.description}</p>
+                )}
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
