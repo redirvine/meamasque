@@ -18,9 +18,10 @@ interface SlideshowImage {
   dateCreated: string | null;
   creatorName?: string | null;
   description?: string | null;
+  slideshowOverlayText?: string | null;
 }
 
-export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { images: SlideshowImage[]; isAdmin?: boolean; redirectPath?: string }) {
+export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScreen = false }: { images: SlideshowImage[]; isAdmin?: boolean; redirectPath?: string; fullScreen?: boolean }) {
   const [index, setIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -50,6 +51,80 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
   }
 
   const image = images[index];
+
+  if (fullScreen) {
+    return (
+      <div className="relative h-[calc(100dvh-4rem)] w-full overflow-hidden bg-black">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={image.blobUrl}
+          alt={image.title}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+
+        {isAdmin && (
+          <Link
+            href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
+            className="absolute top-3 right-3 z-10 rounded-full bg-black/40 p-1.5 text-white shadow transition-colors hover:bg-black/60"
+            title="Edit image"
+          >
+            <Pencil className="h-4 w-4" />
+          </Link>
+        )}
+
+        {image.slideshowOverlayText && (
+          <div className="absolute inset-0 flex items-center justify-center px-8">
+            <p className="max-w-2xl whitespace-pre-wrap text-center italic font-[family-name:var(--font-script)] text-2xl leading-relaxed text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-3xl">
+              {image.slideshowOverlayText}
+            </p>
+          </div>
+        )}
+
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={prev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60"
+              aria-label="Next image"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-6 pb-6 pt-20">
+          <Link
+            href={`/gallery/${image.id}`}
+            className="group text-white transition-colors hover:text-white/80"
+          >
+            <h2 className="text-xl font-semibold group-hover:underline">
+              {image.title}
+            </h2>
+            <div className="mt-1 flex items-center gap-2 text-sm text-white/70">
+              {image.creatorName && <span>{image.creatorName}</span>}
+              {image.creatorName && image.dateCreated && <span>&middot;</span>}
+              {image.dateCreated && <span>{image.dateCreated}</span>}
+              {images.length > 1 && (
+                <>
+                  <span>&middot;</span>
+                  <span>{index + 1} / {images.length}</span>
+                </>
+              )}
+            </div>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] flex-col items-center justify-center">

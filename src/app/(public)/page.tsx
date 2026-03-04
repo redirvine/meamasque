@@ -27,8 +27,6 @@ export default async function HomePage() {
     .orderBy(desc(images.createdAt));
 
   return (
-    <div className="mx-auto max-w-6xl px-4">
-      <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" />
-    </div>
+    <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen />
   );
 }
