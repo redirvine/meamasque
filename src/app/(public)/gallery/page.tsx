@@ -4,7 +4,6 @@ import { db } from "@/db";
 import { images, users, categories } from "@/db/schema";
 import { eq, desc, and, ne, or, isNull } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
-import { ImageSlideshow } from "@/components/gallery/image-slideshow";
 import { auth } from "../../../../auth";
 
 export default async function GalleryPage({
@@ -63,12 +62,6 @@ export default async function GalleryPage({
       )
     )
     .orderBy(desc(images.createdAt));
-
-  if (allImages.length > 0 && category === "paintings") {
-    return (
-      <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} />
-    );
-  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
