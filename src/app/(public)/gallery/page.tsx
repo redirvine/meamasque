@@ -13,7 +13,7 @@ export default async function GalleryPage({
 }) {
   const { category } = await searchParams;
   const session = await auth();
-  const isAdmin = !!session;
+  const isAdmin = session?.user?.role === "admin";
 
   // Find the site subject
   const siteSubject = await db.query.users.findFirst({

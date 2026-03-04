@@ -11,7 +11,7 @@ export async function SiteHeader() {
         <Link href="/" className="text-xl font-bold tracking-tight text-white">
           Meamasque
         </Link>
-        <NavLinks session={!!session} />
+        <NavLinks role={session?.user?.role ?? null} />
       </div>
     </header>
   );

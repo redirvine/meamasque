@@ -6,7 +6,7 @@ import { hash } from "bcryptjs";
 
 export async function GET() {
   const session = await auth();
-  if (!session) {
+  if (!session || session.user?.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -25,7 +25,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  if (!session) {
+  if (!session || session.user?.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         email,
         hashedPassword,
         name: name || null,
-        role: role || "admin",
+        role: role || "family",
       })
       .returning({
         id: users.id,

@@ -16,7 +16,7 @@ export default async function PlayDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await auth();
-  const isAdmin = !!session;
+  const isAdmin = session?.user?.role === "admin";
   const { id } = await params;
 
   const play = await db.query.plays.findFirst({

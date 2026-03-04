@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { LogIn, Menu, Settings } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -39,9 +39,12 @@ function isActive(
   return false;
 }
 
-export function NavLinks({ session }: { session: boolean }) {
+export function NavLinks({ role }: { role: string | null }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Not logged in — show nothing
+  if (!role) return null;
 
   return (
     <>
@@ -63,21 +66,13 @@ export function NavLinks({ session }: { session: boolean }) {
             </Link>
           );
         })}
-        {session ? (
+        {role === "admin" && (
           <Link
             href="/admin"
             className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
           >
             <Settings className="h-3 w-3" />
             Admin
-          </Link>
-        ) : (
-          <Link
-            href="/login"
-            className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
-          >
-            <LogIn className="h-3 w-3" />
-            Login
           </Link>
         )}
       </nav>
@@ -109,7 +104,7 @@ export function NavLinks({ session }: { session: boolean }) {
                 </SheetClose>
               );
             })}
-            {session ? (
+            {role === "admin" && (
               <SheetClose asChild>
                 <Link
                   href="/admin"
@@ -117,16 +112,6 @@ export function NavLinks({ session }: { session: boolean }) {
                 >
                   <Settings className="h-3 w-3" />
                   Admin
-                </Link>
-              </SheetClose>
-            ) : (
-              <SheetClose asChild>
-                <Link
-                  href="/login"
-                  className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-white"
-                >
-                  <LogIn className="h-3 w-3" />
-                  Login
                 </Link>
               </SheetClose>
             )}

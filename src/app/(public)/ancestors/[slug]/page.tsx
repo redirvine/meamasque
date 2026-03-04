@@ -17,7 +17,7 @@ export default async function AncestorPage({
   params: Promise<{ slug: string }>;
 }) {
   const session = await auth();
-  const isAdmin = !!session;
+  const isAdmin = session?.user?.role === "admin";
 
   const { slug } = await params;
 

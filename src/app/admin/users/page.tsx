@@ -19,6 +19,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Pencil, Trash2, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
@@ -39,6 +46,7 @@ export default function AdminUsersPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("family");
   const [saving, setSaving] = useState(false);
 
   const loadUsers = async () => {
@@ -57,6 +65,7 @@ export default function AdminUsersPage() {
     setEmail("");
     setName("");
     setPassword("");
+    setRole("family");
   };
 
   const openEdit = (user: AdminUser) => {
@@ -64,6 +73,7 @@ export default function AdminUsersPage() {
     setEmail(user.email);
     setName(user.name || "");
     setPassword("");
+    setRole(user.role);
   };
 
   const handleSave = async () => {
@@ -74,6 +84,7 @@ export default function AdminUsersPage() {
         if (email !== editUser.email) body.email = email;
         if (name !== (editUser.name || "")) body.name = name;
         if (password) body.password = password;
+        if (role !== editUser.role) body.role = role;
 
         if (Object.keys(body).length === 0) {
           toast.error("No changes to save");
@@ -98,7 +109,7 @@ export default function AdminUsersPage() {
         const res = await fetch("/api/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, name: name || undefined }),
+          body: JSON.stringify({ email, password, name: name || undefined, role }),
         });
 
         if (!res.ok) {
@@ -198,6 +209,14 @@ export default function AdminUsersPage() {
                     <span className="ml-2 text-xs text-blue-500">(you)</span>
                   )}
                   <br />
+                  <span className={
+                    user.role === "admin"
+                      ? "text-xs font-medium text-amber-600"
+                      : "text-xs font-medium text-green-600"
+                  }>
+                    {user.role === "admin" ? "Admin" : "Family"}
+                  </span>
+                  {" · "}
                   Created{" "}
                   {new Date(user.createdAt).toLocaleDateString()}
                 </CardDescription>
@@ -263,6 +282,21 @@ export default function AdminUsersPage() {
                   Only fill this in if you want to change the password.
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="family">Family</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-400">
+                Family users can view everything but cannot access admin features.
+              </p>
             </div>
           </div>
           <DialogFooter>

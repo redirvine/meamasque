@@ -14,7 +14,7 @@ export const metadata = {
 
 export default async function AncestorsPage() {
   const session = await auth();
-  const isAdmin = !!session;
+  const isAdmin = session?.user?.role === "admin";
 
   const memoryCountSq = db
     .select({

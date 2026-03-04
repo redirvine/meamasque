@@ -40,7 +40,7 @@ export default async function ImageDetailPage({
   if (!image) notFound();
 
   const session = await auth();
-  const isAdmin = !!session;
+  const isAdmin = session?.user?.role === "admin";
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
