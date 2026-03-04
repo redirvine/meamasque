@@ -3,14 +3,20 @@ export const dynamic = "force-dynamic";
 import { db } from "@/db";
 import { images, ancestors, users } from "@/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
-import Link from "next/link";
+import { auth } from "../../../auth";
+import { ImageSlideshow } from "@/components/gallery/image-slideshow";
 
 export default async function HomePage() {
-  const result = await db
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
+
+  const allImages = await db
     .select({
       id: images.id,
       title: images.title,
       blobUrl: images.blobUrl,
+      dateCreated: images.dateCreated,
+      description: images.description,
       slideshowOverlayText: images.slideshowOverlayText,
       creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
     })
@@ -18,53 +24,11 @@ export default async function HomePage() {
     .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
     .leftJoin(users, eq(images.creatorUserId, users.id))
     .where(eq(images.visibility, "public"))
-    .orderBy(desc(images.createdAt))
-    .limit(1);
-
-  const image = result[0];
-
-  if (!image) {
-    return (
-      <div className="flex h-[calc(100dvh-64px)] items-center justify-center text-gray-500">
-        <p>No artwork to display yet.</p>
-      </div>
-    );
-  }
+    .orderBy(desc(images.createdAt));
 
   return (
-    <div className="relative h-[calc(100dvh-64px)] w-full overflow-hidden bg-black">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={image.blobUrl}
-        alt={image.title}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-
-      {/* Centered overlay text */}
-      {image.slideshowOverlayText && (
-        <div className="absolute inset-0 flex items-center justify-center px-8">
-          <p className="max-w-2xl whitespace-pre-wrap text-center italic font-[family-name:var(--font-script)] text-2xl leading-relaxed text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-3xl">
-            {image.slideshowOverlayText}
-          </p>
-        </div>
-      )}
-
-      {/* Bottom gradient overlay with info */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-6 pb-6 pt-20">
-        <Link
-          href={`/gallery/${image.id}`}
-          className="group text-white transition-colors hover:text-white/80"
-        >
-          <h2 className="text-xl font-semibold group-hover:underline">
-            {image.title}
-          </h2>
-          {image.creatorName && (
-            <p className="mt-1 text-sm text-white/70">
-              {image.creatorName}
-            </p>
-          )}
-        </Link>
-      </div>
+    <div className="mx-auto max-w-6xl px-4">
+      <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" />
     </div>
   );
 }
