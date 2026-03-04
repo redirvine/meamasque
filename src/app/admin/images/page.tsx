@@ -169,7 +169,7 @@ export default function ImagesPage() {
                   alt={image.title}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                <div className="absolute inset-0 hidden items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:hover)]:flex">
                   <Link href={`/admin/images/${image.id}/edit`}>
                     <Button size="sm" variant="secondary">
                       <Pencil className="h-4 w-4" />
@@ -215,6 +215,21 @@ export default function ImagesPage() {
                       {image.dateCreated}
                     </span>
                   )}
+                  <div className="ml-auto flex gap-1 [@media(hover:hover)]:hidden">
+                    <Link href={`/admin/images/${image.id}/edit`}>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+                      onClick={() => setDeleteId(image.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
