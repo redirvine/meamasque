@@ -49,7 +49,7 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
       <button
         type="button"
         onClick={() => setSelectedImage(image)}
-        className="group block h-full w-full overflow-hidden rounded-lg border bg-white text-left transition-shadow hover:shadow-lg"
+        className="group block w-full overflow-hidden rounded-lg border bg-white text-left transition-shadow hover:shadow-lg"
       >
         <div className={`overflow-hidden ${large ? "aspect-auto h-full min-h-[300px]" : "aspect-square"}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -80,7 +80,7 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
         const sideImages = regular.slice(batchStart, batchStart + batchSize);
 
         return (
-          <div key={featuredImage.id} className="mb-4 grid gap-4 md:grid-cols-2">
+          <div key={featuredImage.id} className="mb-4 grid items-start gap-4 md:grid-cols-2">
             {renderCard(featuredImage, true)}
             {sideImages.length > 0 && (
               <div className="grid grid-cols-2 gap-4">
@@ -93,14 +93,14 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
 
       {/* Remaining regular images not paired with featured */}
       {featured.length > 0 && regular.length > featured.length * 4 && (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {regular.slice(featured.length * 4).map((image) => renderCard(image))}
         </div>
       )}
 
       {/* If no featured images, show all in regular grid */}
       {featured.length === 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {regular.map((image) => renderCard(image))}
         </div>
       )}
