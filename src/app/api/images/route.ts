@@ -15,6 +15,7 @@ const createImageSchema = z.object({
   dateCreated: z.string().optional(),
   sortDate: z.string().optional(),
   visibility: z.enum(["public", "private"]).default("public"),
+  slideshowOverlayText: z.string().optional().nullable(),
 });
 
 export async function POST(request: NextRequest) {
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
       dateCreated: data.dateCreated ?? null,
       sortDate: data.sortDate ? new Date(data.sortDate) : null,
       visibility: data.visibility,
+      slideshowOverlayText: data.slideshowOverlayText ?? null,
     })
     .returning();
 

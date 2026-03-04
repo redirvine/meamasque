@@ -62,6 +62,7 @@ function UploadPageContent() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [dateCreated, setDateCreated] = useState("");
+  const [slideshowOverlayText, setSlideshowOverlayText] = useState("");
 
   useEffect(() => {
     fetch("/api/users")
@@ -114,6 +115,7 @@ function UploadPageContent() {
             categoryId: categoryId || null,
             visibility,
             dateCreated: dateCreated || undefined,
+            slideshowOverlayText: slideshowOverlayText || null,
           }),
         });
       }
@@ -228,6 +230,16 @@ function UploadPageContent() {
                 className="mt-2"
                 rows={6}
               />
+
+              <div className="space-y-2">
+                <Label>Slideshow Overlay Text</Label>
+                <Textarea
+                  value={slideshowOverlayText}
+                  onChange={(e) => setSlideshowOverlayText(e.target.value)}
+                  rows={3}
+                  placeholder="Text displayed over image on home page"
+                />
+              </div>
 
               <Button
                 onClick={handleSaveAll}

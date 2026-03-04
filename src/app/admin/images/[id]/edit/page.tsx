@@ -30,6 +30,7 @@ interface Image {
   categoryId: string | null;
   dateCreated: string | null;
   visibility: "public" | "private";
+  slideshowOverlayText: string | null;
 }
 
 interface Creator {
@@ -74,6 +75,7 @@ function EditImagePageContent({
   const [categoryId, setCategoryId] = useState("");
   const [dateCreated, setDateCreated] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [slideshowOverlayText, setSlideshowOverlayText] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -94,6 +96,7 @@ function EditImagePageContent({
       setCategoryId(img.categoryId ?? "");
       setDateCreated(img.dateCreated ?? "");
       setVisibility(img.visibility);
+      setSlideshowOverlayText(img.slideshowOverlayText ?? "");
       setUserCreators(usrs);
       setAncestorCreators(ancs);
       setCategories(cats);
@@ -123,6 +126,7 @@ function EditImagePageContent({
           categoryId: categoryId || null,
           dateCreated: dateCreated || null,
           visibility,
+          slideshowOverlayText: slideshowOverlayText || null,
         }),
       });
       toast.success("Image updated");
@@ -179,6 +183,16 @@ function EditImagePageContent({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Slideshow Overlay Text</Label>
+              <Textarea
+                value={slideshowOverlayText}
+                onChange={(e) => setSlideshowOverlayText(e.target.value)}
+                rows={3}
+                placeholder="Text displayed over image on home page"
               />
             </div>
 

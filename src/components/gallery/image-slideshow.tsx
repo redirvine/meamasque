@@ -52,7 +52,7 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath }: { imag
   const image = images[index];
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center">
+    <div className="flex h-[calc(100dvh-4rem)] flex-col items-center justify-center">
       <div className="relative flex w-full flex-1 items-center justify-center overflow-hidden">
         {isAdmin && (
           <Link

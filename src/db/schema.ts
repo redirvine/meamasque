@@ -60,6 +60,7 @@ export const images = sqliteTable("images", {
     .notNull()
     .default("public"),
   featured: integer("featured", { mode: "boolean" }).default(false),
+  slideshowOverlayText: text("slideshow_overlay_text"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
