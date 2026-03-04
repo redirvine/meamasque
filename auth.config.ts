@@ -16,13 +16,28 @@ export default {
       }
 
       if (isLoggedIn && nextUrl.pathname.startsWith("/admin")) {
-        const role = (auth as { user?: { role?: string } })?.user?.role;
-        if (role !== "admin") {
+        if (auth?.user?.role !== "admin") {
           return Response.redirect(new URL("/", nextUrl));
         }
       }
 
       return true;
+    },
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (token.id) {
+        session.user.id = token.id as string;
+      }
+      if (token.role) {
+        session.user.role = token.role as string;
+      }
+      return session;
     },
   },
   providers: [],
