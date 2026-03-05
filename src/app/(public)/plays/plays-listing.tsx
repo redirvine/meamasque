@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Camera, BookOpen, Drama, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
+import { Camera, BookOpen, Drama, Pencil, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
+  DialogClose,
   DialogTitle,
+  DialogHeader,
   DialogDescription,
 } from "@/components/ui/dialog";
 
@@ -175,8 +177,77 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
         ))}
       </div>
 
+      {/* Image lightbox - black background, centered arrows */}
       <Dialog
-        open={selectedIndex !== null}
+        open={selectedIndex !== null && (loading || current?.type === "image")}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedIndex(null);
+            setItems([]);
+          }
+        }}
+      >
+        <DialogContent
+          className="max-w-[90vw] max-h-[90vh] sm:max-w-[90vw] p-0 border-none bg-black/95 overflow-hidden"
+          showCloseButton={false}
+        >
+          <VisuallyHidden.Root>
+            <DialogTitle>{dialogTitle}</DialogTitle>
+          </VisuallyHidden.Root>
+          <DialogClose className="absolute top-3 right-3 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70">
+            <X className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+          {loading ? (
+            <div className="flex h-64 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            </div>
+          ) : current?.type === "image" ? (
+            <div className="relative flex flex-col items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={current.data.blobUrl}
+                alt={current.data.title || dialogTitle}
+                className="max-h-[80vh] max-w-full object-contain"
+              />
+              {items.length > 1 && (
+                <>
+                  <button
+                    onClick={goPrev}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    onClick={goNext}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+                </>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-3 pt-8">
+                {items.length > 1 && (
+                  <p className="text-center text-sm text-white/80">
+                    {selectedIndex !== null ? selectedIndex + 1 : 0} / {items.length}
+                  </p>
+                )}
+                {current.data.caption && (
+                  <p className="mt-1 text-center text-sm text-white/90">
+                    {current.data.caption}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {/* Memory dialog - white card style */}
+      <Dialog
+        open={selectedIndex !== null && !loading && current?.type === "memory"}
         onOpenChange={(open) => {
           if (!open) {
             setSelectedIndex(null);
@@ -185,49 +256,19 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
         }}
       >
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          {loading ? (
+          {current?.type === "memory" && (
             <>
               <DialogHeader>
-                <DialogTitle>{dialogTitle}</DialogTitle>
-                <DialogDescription>Loading…</DialogDescription>
-              </DialogHeader>
-              <div className="flex items-center justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
-              </div>
-            </>
-          ) : current ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>
-                  {current.type === "image"
-                    ? current.data.title || dialogTitle
-                    : "Memory"}
-                </DialogTitle>
+                <DialogTitle>Memory</DialogTitle>
                 <DialogDescription>
                   {selectedIndex !== null && `${selectedIndex + 1} / ${items.length}`}
                 </DialogDescription>
               </DialogHeader>
-
-              {current.type === "image" ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={current.data.blobUrl}
-                    alt={current.data.title || dialogTitle}
-                    className="w-full rounded-md"
-                  />
-                  {current.data.caption && (
-                    <p className="text-sm text-gray-500">{current.data.caption}</p>
-                  )}
-                </>
-              ) : (
-                <div className="rounded-lg bg-gray-50 p-6">
-                  <p className="whitespace-pre-wrap text-gray-700">
-                    {current.data.content}
-                  </p>
-                </div>
-              )}
-
+              <div className="rounded-lg bg-gray-50 p-6">
+                <p className="whitespace-pre-wrap text-gray-700">
+                  {current.data.content}
+                </p>
+              </div>
               {items.length > 1 && (
                 <div className="flex justify-between pt-2">
                   <button
@@ -247,7 +288,7 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
                 </div>
               )}
             </>
-          ) : null}
+          )}
         </DialogContent>
       </Dialog>
     </>
