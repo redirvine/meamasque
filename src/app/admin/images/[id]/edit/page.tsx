@@ -179,9 +179,11 @@ function EditImagePageContent({
               imageId={image.id}
               open={cropOpen}
               onOpenChange={setCropOpen}
-              onCropped={(newUrl) =>
-                setImage({ ...image, blobUrl: newUrl })
-              }
+              onCropped={(newUrl) => {
+                const preload = new window.Image();
+                preload.onload = () => setImage({ ...image, blobUrl: newUrl });
+                preload.src = newUrl;
+              }}
             />
           </CardContent>
         </Card>
