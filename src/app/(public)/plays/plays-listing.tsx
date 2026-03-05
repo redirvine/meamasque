@@ -98,16 +98,18 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
     <>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {plays.map((p) => (
-          <Link
+          <div
             key={p.id}
-            href={`/plays/${p.id}`}
             className="group relative flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md"
           >
+            {/* Card link covers the entire card */}
+            <Link
+              href={`/plays/${p.id}`}
+              className="absolute inset-0 z-0"
+              aria-label={p.play}
+            />
             {isAdmin && (
-              <span
-                onClick={(e) => e.stopPropagation()}
-                className="absolute top-2 right-2 z-10"
-              >
+              <span className="absolute top-2 right-2 z-10">
                 <Link
                   href={`/admin/plays?edit=${p.id}`}
                   className="rounded-full bg-white/80 p-1.5 text-gray-400 shadow transition-colors hover:bg-white hover:text-gray-700"
@@ -145,15 +147,11 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
                 </p>
               )}
               {(p.imageCount > 0 || p.memoryCount > 0) && (
-                <div className="mt-auto flex gap-3 pt-3">
+                <div className="relative z-10 mt-auto flex gap-3 pt-3">
                   {p.imageCount > 0 && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openMedia(p, "photos");
-                      }}
+                      onClick={() => openMedia(p, "photos")}
                       className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
                     >
                       <Camera className="h-3.5 w-3.5" />
@@ -163,11 +161,7 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
                   {p.memoryCount > 0 && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openMedia(p, "memories");
-                      }}
+                      onClick={() => openMedia(p, "memories")}
                       className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
                     >
                       <BookOpen className="h-3.5 w-3.5" />
@@ -177,7 +171,7 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
                 </div>
               )}
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
