@@ -22,24 +22,19 @@ export async function generateThumbnail(
     const metadata = await sharp(buffer).metadata();
     if (!metadata.width || !metadata.height) return null;
 
-    // Skip resize if already narrow enough
+    // rotate() with no args auto-orients based on EXIF data
     const needsResize = metadata.width > THUMB_WIDTH;
-
+    const pipeline = sharp(buffer).rotate();
     const output = needsResize
-      ? await sharp(buffer).resize({ width: THUMB_WIDTH }).toBuffer()
-      : buffer;
+      ? await pipeline.resize({ width: THUMB_WIDTH }).toBuffer()
+      : await pipeline.toBuffer();
 
     // Determine format from metadata
     const ext = metadata.format === "png" ? "png" : metadata.format === "webp" ? "webp" : "jpg";
     const contentType =
       ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
 
-    const blob = await put(`thumb-${imageId}.${ext}`, output, {
-      access: "public",
-      contentType,
-    });
-
-    // Delete old thumbnail if it exists
+    // Delete old thumbnail BEFORE uploading (same filename pattern)
     if (oldThumbnailUrl) {
       try {
         await del(oldThumbnailUrl);
@@ -48,9 +43,14 @@ export async function generateThumbnail(
       }
     }
 
+    const blob = await put(`thumb-${imageId}.${ext}`, output, {
+      access: "public",
+      contentType,
+    });
+
     return blob.url;
-  } catch {
-    console.error(`Failed to generate thumbnail for image ${imageId}`);
+  } catch (err) {
+    console.error(`Failed to generate thumbnail for image ${imageId}`, err);
     return null;
   }
 }

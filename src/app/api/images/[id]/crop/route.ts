@@ -96,15 +96,22 @@ export async function POST(
     // Old blob may not exist (dev mode), continue
   }
 
-  // Generate new thumbnail from cropped image
-  const thumbnailUrl = await generateThumbnail(cropped, id, image.thumbnailUrl);
-
-  // Update DB with new blob URL and thumbnail
+  // Update DB with new blob URL
   const [updated] = await db
     .update(images)
-    .set({ blobUrl: blob.url, thumbnailUrl, updatedAt: new Date() })
+    .set({ blobUrl: blob.url, updatedAt: new Date() })
     .where(eq(images.id, id))
     .returning();
 
-  return NextResponse.json({ blobUrl: updated.blobUrl, thumbnailUrl: updated.thumbnailUrl });
+  // Regenerate thumbnail in the background — don't block the crop response
+  generateThumbnail(cropped, id, image.thumbnailUrl).then(async (thumbnailUrl) => {
+    if (thumbnailUrl) {
+      await db
+        .update(images)
+        .set({ thumbnailUrl })
+        .where(eq(images.id, id));
+    }
+  });
+
+  return NextResponse.json({ blobUrl: updated.blobUrl });
 }

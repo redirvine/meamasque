@@ -5,19 +5,21 @@ import { eq } from "drizzle-orm";
 import { generateThumbnail } from "../lib/thumbnail";
 
 async function main() {
-  const rows = await db
-    .select({ id: images.id, blobUrl: images.blobUrl })
-    .from(images)
-    .where(isNull(images.thumbnailUrl));
+  const forceAll = process.argv.includes("--all");
 
-  console.log(`Found ${rows.length} images without thumbnails`);
+  const rows = await db
+    .select({ id: images.id, blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
+    .from(images)
+    .where(forceAll ? undefined : isNull(images.thumbnailUrl));
+
+  console.log(`Found ${rows.length} images to process${forceAll ? " (--all)" : ""}`);
 
   let success = 0;
   let failed = 0;
 
   for (const row of rows) {
     try {
-      const thumbnailUrl = await generateThumbnail(row.blobUrl, row.id);
+      const thumbnailUrl = await generateThumbnail(row.blobUrl, row.id, row.thumbnailUrl);
       if (thumbnailUrl) {
         await db
           .update(images)
