@@ -77,6 +77,11 @@ function AncestorsAdminPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [associatedImages, setAssociatedImages] = useState<
+    { id: string; title: string; blobUrl: string }[]
+  >([]);
+  const [showAdditionalImagePicker, setShowAdditionalImagePicker] =
+    useState(false);
 
   // Form state
   const [name, setName] = useState("");
@@ -142,6 +147,7 @@ function AncestorsAdminPage() {
     setPhotoId(null);
     setPhotoUrl(null);
     setMemories([]);
+    setAssociatedImages([]);
   };
 
   const openEdit = async (ancestor: Ancestor) => {
@@ -161,8 +167,9 @@ function AncestorsAdminPage() {
     setPhotoId(ancestor.photoId);
     setPhotoUrl(null);
     setMemories([]);
+    setAssociatedImages([]);
 
-    // Fetch full ancestor data including photo URL and memories
+    // Fetch full ancestor data including photo URL, memories, and photos
     try {
       const res = await fetch(`/api/ancestors/${ancestor.id}`);
       if (res.ok) {
@@ -170,6 +177,15 @@ function AncestorsAdminPage() {
         if (data.memories) {
           setMemories(
             data.memories.map((m: { content: string }) => m.content)
+          );
+        }
+        if (data.photos) {
+          setAssociatedImages(
+            data.photos.map((p: { id: string; title: string; blobUrl: string }) => ({
+              id: p.id,
+              title: p.title,
+              blobUrl: p.blobUrl,
+            }))
           );
         }
       }
@@ -215,6 +231,7 @@ function AncestorsAdminPage() {
           body: JSON.stringify({
             ...data,
             memories: memories.filter((m) => m.trim() !== ""),
+            imageIds: associatedImages.map((img) => img.id),
           }),
         });
         if (!res.ok) throw new Error("Update failed");
@@ -497,6 +514,44 @@ function AncestorsAdminPage() {
               )}
             </div>
             <div className="space-y-2">
+              <Label>Additional Photos</Label>
+              {associatedImages.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {associatedImages.map((img) => (
+                    <div key={img.id} className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={img.blobUrl}
+                        alt={img.title}
+                        className="h-16 w-16 rounded-md object-cover"
+                      />
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="absolute -right-2 -top-2 h-5 w-5"
+                        onClick={() =>
+                          setAssociatedImages((prev) =>
+                            prev.filter((i) => i.id !== img.id)
+                          )
+                        }
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAdditionalImagePicker(true)}
+              >
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Add Photos
+              </Button>
+            </div>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Memories</Label>
                 <Button
@@ -570,6 +625,21 @@ function AncestorsAdminPage() {
         }}
         selectedIds={photoId ? [photoId] : []}
         multiple={false}
+      />
+
+      {/* Additional Photos Picker */}
+      <ImagePicker
+        open={showAdditionalImagePicker}
+        onClose={() => setShowAdditionalImagePicker(false)}
+        onSelect={(imgs) => {
+          setAssociatedImages((prev) => {
+            const existingIds = new Set(prev.map((i) => i.id));
+            const newImages = imgs.filter((i) => !existingIds.has(i.id));
+            return [...prev, ...newImages];
+          });
+        }}
+        selectedIds={associatedImages.map((i) => i.id)}
+        multiple={true}
       />
 
       {/* Delete Confirmation */}

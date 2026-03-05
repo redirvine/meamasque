@@ -22,6 +22,7 @@ export function CollapsibleSections({
   memoryCount,
   ancestorId,
   ancestorName,
+  additionalPhotos,
   photoGroups,
   isAdmin,
   redirectPath,
@@ -30,11 +31,13 @@ export function CollapsibleSections({
   memoryCount: number;
   ancestorId: string;
   ancestorName: string;
+  additionalPhotos?: PhotoGroup["images"];
   photoGroups: PhotoGroup[];
   isAdmin: boolean;
   redirectPath?: string;
 }) {
-  const hasSections = !!bio || memoryCount > 0 || isAdmin || photoGroups.length > 0;
+  const hasAdditionalPhotos = additionalPhotos && additionalPhotos.length > 0;
+  const hasSections = !!bio || memoryCount > 0 || isAdmin || photoGroups.length > 0 || hasAdditionalPhotos;
 
   if (!hasSections) return null;
 
@@ -75,6 +78,19 @@ export function CollapsibleSections({
               <AddMemoryForm ancestorId={ancestorId} />
             </div>
           )}
+        </details>
+      )}
+
+      {hasAdditionalPhotos && (
+        <details className="mt-8 group" open>
+          <summary className="mb-4 flex cursor-pointer list-none items-center gap-2 text-xl font-semibold [&::-webkit-details-marker]:hidden">
+            <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-0 -rotate-90" />
+            Photos
+            <span className="text-sm font-normal text-gray-500">
+              ({additionalPhotos.length})
+            </span>
+          </summary>
+          <ImageGrid images={additionalPhotos} isAdmin={isAdmin} redirectPath={redirectPath} />
         </details>
       )}
 

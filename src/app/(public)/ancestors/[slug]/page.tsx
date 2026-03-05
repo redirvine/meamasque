@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories, categories } from "@/db/schema";
-import { eq, count, desc, ne, and } from "drizzle-orm";
+import { ancestors, images, ancestorMemories, ancestorPhotos, categories } from "@/db/schema";
+import { eq, count, desc, asc, ne, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -52,6 +52,20 @@ export default async function AncestorPage({
     .from(ancestorMemories)
     .where(eq(ancestorMemories.ancestorId, ancestor.id));
   const memoryCount = memoryCountResult?.count ?? 0;
+
+  const additionalPhotos = await db
+    .select({
+      id: images.id,
+      title: images.title,
+      blobUrl: images.blobUrl,
+      thumbnailUrl: images.thumbnailUrl,
+      description: images.description,
+      dateCreated: images.dateCreated,
+    })
+    .from(ancestorPhotos)
+    .innerJoin(images, eq(ancestorPhotos.imageId, images.id))
+    .where(eq(ancestorPhotos.ancestorId, ancestor.id))
+    .orderBy(asc(ancestorPhotos.sortOrder));
 
   const works = await db
     .select({
@@ -154,6 +168,14 @@ export default async function AncestorPage({
           memoryCount={memoryCount}
           ancestorId={ancestor.id}
           ancestorName={ancestor.name}
+          additionalPhotos={additionalPhotos.map((p) => ({
+            id: p.id,
+            title: p.title ?? "",
+            blobUrl: p.blobUrl ?? "",
+            thumbnailUrl: p.thumbnailUrl,
+            dateCreated: p.dateCreated,
+            description: p.description,
+          }))}
           photoGroups={Array.from(grouped.entries()).map(
             ([categoryName, imgs]) => ({
               categoryName,

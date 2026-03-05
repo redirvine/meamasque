@@ -111,6 +111,20 @@ export const ancestors = sqliteTable("ancestors", {
     .$defaultFn(() => new Date()),
 });
 
+// AncestorPhotos — junction table for ancestor-image associations
+export const ancestorPhotos = sqliteTable("ancestor_photos", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  ancestorId: text("ancestor_id")
+    .notNull()
+    .references(() => ancestors.id, { onDelete: "cascade" }),
+  imageId: text("image_id")
+    .notNull()
+    .references(() => images.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
 // AncestorMemories — text memories attached to ancestors
 export const ancestorMemories = sqliteTable("ancestor_memories", {
   id: text("id")

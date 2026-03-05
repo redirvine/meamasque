@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef } from "react";
 import { upload } from "@vercel/blob/client";
-import heic2any from "heic2any";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +23,7 @@ async function convertHeicToJpeg(file: File): Promise<File> {
   if (!HEIC_TYPES.includes(file.type) && !file.name.toLowerCase().endsWith(".heic") && !file.name.toLowerCase().endsWith(".heif")) {
     return file;
   }
+  const { default: heic2any } = await import("heic2any");
   const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
   const jpegBlob = Array.isArray(blob) ? blob[0] : blob;
   const newName = file.name.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");

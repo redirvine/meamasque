@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { ancestors, ancestorMemories } from "@/db/schema";
+import { ancestors, ancestorMemories, ancestorPhotos, images } from "@/db/schema";
 import { auth } from "../../../../../auth";
 import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
@@ -21,6 +21,7 @@ const updateAncestorSchema = z.object({
   bio: z.string().optional().nullable(),
   photoId: z.string().optional().nullable(),
   memories: z.array(z.string()).optional(),
+  imageIds: z.array(z.string()).optional(),
 });
 
 export async function GET(
@@ -51,7 +52,19 @@ export async function GET(
     .where(eq(ancestorMemories.ancestorId, id))
     .orderBy(asc(ancestorMemories.sortOrder));
 
-  return NextResponse.json({ ...ancestor, memories });
+  const photos = await db
+    .select({
+      id: images.id,
+      title: images.title,
+      blobUrl: images.blobUrl,
+      sortOrder: ancestorPhotos.sortOrder,
+    })
+    .from(ancestorPhotos)
+    .innerJoin(images, eq(ancestorPhotos.imageId, images.id))
+    .where(eq(ancestorPhotos.ancestorId, id))
+    .orderBy(asc(ancestorPhotos.sortOrder));
+
+  return NextResponse.json({ ...ancestor, memories, photos });
 }
 
 export async function PATCH(
@@ -74,7 +87,7 @@ export async function PATCH(
     );
   }
 
-  const { memories, ...ancestorData } = parsed.data;
+  const { memories, imageIds, ...ancestorData } = parsed.data;
 
   const [updated] = await db
     .update(ancestors)
@@ -94,6 +107,20 @@ export async function PATCH(
         memories.map((content, index) => ({
           ancestorId: id,
           content,
+          sortOrder: index,
+        }))
+      );
+    }
+  }
+
+  if (imageIds !== undefined) {
+    await db.delete(ancestorPhotos).where(eq(ancestorPhotos.ancestorId, id));
+
+    if (imageIds.length > 0) {
+      await db.insert(ancestorPhotos).values(
+        imageIds.map((imageId, index) => ({
+          ancestorId: id,
+          imageId,
           sortOrder: index,
         }))
       );
