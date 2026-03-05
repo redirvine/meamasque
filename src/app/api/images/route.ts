@@ -4,7 +4,7 @@ import { images, categories } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { eq, desc, and, like, SQL } from "drizzle-orm";
 import { z } from "zod";
-import { generateThumbnail } from "@/lib/thumbnail";
+import { generateThumbnail, convertToWebSafe } from "@/lib/thumbnail";
 import { logAudit } from "@/lib/audit";
 
 const createImageSchema = z.object({
@@ -38,12 +38,18 @@ export async function POST(request: NextRequest) {
 
   const data = parsed.data;
 
+  // Convert HEIC/HEIF/TIFF to JPEG before storing
+  let blobUrl = data.blobUrl;
+  const tempId = crypto.randomUUID().slice(0, 8);
+  const convertedUrl = await convertToWebSafe(blobUrl, tempId);
+  if (convertedUrl) blobUrl = convertedUrl;
+
   const [image] = await db
     .insert(images)
     .values({
       title: data.title,
       description: data.description ?? null,
-      blobUrl: data.blobUrl,
+      blobUrl,
       ancestorId: data.ancestorId ?? null,
       creatorUserId: data.creatorUserId ?? null,
       categoryId: data.categoryId ?? null,
@@ -57,7 +63,7 @@ export async function POST(request: NextRequest) {
   logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "create", resource: "image", resourceId: image.id, detail: `Created image '${image.title}'` });
 
   // Generate thumbnail in the background — don't block the response
-  generateThumbnail(data.blobUrl, image.id).then(async (thumbnailUrl) => {
+  generateThumbnail(blobUrl, image.id).then(async (thumbnailUrl) => {
     if (thumbnailUrl) {
       await db
         .update(images)
