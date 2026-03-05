@@ -33,6 +33,7 @@ export default async function PlaysPage() {
       description: plays.description,
       year: plays.year,
       primaryImageUrl: images.blobUrl,
+      primaryImageThumbnailUrl: images.thumbnailUrl,
       imageCount: sql<number>`(
         SELECT COUNT(*) FROM (
           SELECT image_id AS iid FROM play_images WHERE play_id = ${plays.id}

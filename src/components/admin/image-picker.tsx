@@ -17,6 +17,7 @@ interface ImageItem {
   id: string;
   title: string;
   blobUrl: string;
+  thumbnailUrl?: string | null;
   dateCreated: string | null;
 }
 
@@ -118,7 +119,7 @@ export function ImagePicker({
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={image.blobUrl}
+                      src={image.thumbnailUrl ?? image.blobUrl}
                       alt={image.title}
                       className="h-full w-full object-cover"
                     />

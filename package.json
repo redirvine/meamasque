@@ -13,7 +13,8 @@
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
     "db:seed": "dotenv -e .env.local -- npx tsx src/db/seed.ts",
     "db:backup": "dotenv -e .env.local -- npx tsx src/db/backup.ts",
-    "db:backup-blobs": "dotenv -e .env.local -- npx tsx src/db/backup-blobs.ts"
+    "db:backup-blobs": "dotenv -e .env.local -- npx tsx src/db/backup-blobs.ts",
+    "db:generate-thumbnails": "dotenv -e .env.local -- npx tsx src/db/generate-thumbnails.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.1",

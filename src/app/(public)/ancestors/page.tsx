@@ -36,6 +36,7 @@ export default async function AncestorsPage() {
       died: ancestors.died,
       birthplace: ancestors.birthplace,
       photoUrl: images.blobUrl,
+      photoThumbnailUrl: images.thumbnailUrl,
       memoryCount: sql<number>`coalesce(${memoryCountSq.count}, 0)`.as("memoryCount"),
     })
     .from(ancestors)
@@ -67,7 +68,7 @@ export default async function AncestorsPage() {
               {ancestor.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={ancestor.photoUrl}
+                  src={ancestor.photoThumbnailUrl ?? ancestor.photoUrl}
                   alt={ancestor.name}
                   className="aspect-[3/2] w-full object-cover"
                 />

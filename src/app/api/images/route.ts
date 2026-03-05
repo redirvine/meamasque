@@ -4,6 +4,7 @@ import { images, categories } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { eq, desc, and, like, SQL } from "drizzle-orm";
 import { z } from "zod";
+import { generateThumbnail } from "@/lib/thumbnail";
 
 const createImageSchema = z.object({
   title: z.string().min(1),
@@ -52,6 +53,16 @@ export async function POST(request: NextRequest) {
     })
     .returning();
 
+  // Generate thumbnail in the background — don't block the response
+  generateThumbnail(data.blobUrl, image.id).then(async (thumbnailUrl) => {
+    if (thumbnailUrl) {
+      await db
+        .update(images)
+        .set({ thumbnailUrl })
+        .where(eq(images.id, image.id));
+    }
+  });
+
   return NextResponse.json(image, { status: 201 });
 }
 
@@ -77,6 +88,7 @@ export async function GET(request: NextRequest) {
       title: images.title,
       description: images.description,
       blobUrl: images.blobUrl,
+      thumbnailUrl: images.thumbnailUrl,
       ancestorId: images.ancestorId,
       creatorUserId: images.creatorUserId,
       categoryId: images.categoryId,

@@ -11,6 +11,7 @@ type Play = {
   description: string | null;
   year: number | null;
   primaryImageUrl: string | null;
+  primaryImageThumbnailUrl?: string | null;
   imageCount: number;
   memoryCount: number;
 };
@@ -41,7 +42,7 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
           {p.primaryImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={p.primaryImageUrl}
+              src={p.primaryImageThumbnailUrl ?? p.primaryImageUrl}
               alt={p.play}
               className="aspect-[3/2] w-full object-cover"
             />

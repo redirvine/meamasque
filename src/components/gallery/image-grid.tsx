@@ -15,6 +15,7 @@ interface GalleryImage {
   id: string;
   title: string;
   blobUrl: string;
+  thumbnailUrl?: string | null;
   dateCreated: string | null;
   creatorName?: string | null;
   description?: string | null;
@@ -54,7 +55,7 @@ export function ImageGrid({ images, isAdmin = false, redirectPath }: { images: G
         <div className={`overflow-hidden ${large ? "aspect-auto h-full min-h-[300px]" : "aspect-square"}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={image.blobUrl}
+            src={image.thumbnailUrl ?? image.blobUrl}
             alt={image.title}
             className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
           />

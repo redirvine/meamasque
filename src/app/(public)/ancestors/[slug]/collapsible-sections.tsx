@@ -11,6 +11,7 @@ type PhotoGroup = {
     id: string;
     title: string;
     blobUrl: string;
+    thumbnailUrl?: string | null;
     dateCreated: string | null;
     description?: string | null;
   }[];

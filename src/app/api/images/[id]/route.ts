@@ -108,6 +108,15 @@ export async function DELETE(
     // Blob may not exist (dev mode), continue with DB deletion
   }
 
+  // Delete thumbnail if present
+  if (image.thumbnailUrl) {
+    try {
+      await del(image.thumbnailUrl);
+    } catch {
+      // Thumbnail may not exist, continue
+    }
+  }
+
   await db.delete(images).where(eq(images.id, id));
 
   return NextResponse.json({ success: true });

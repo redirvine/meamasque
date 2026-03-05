@@ -33,6 +33,7 @@ interface Image {
   title: string;
   description: string | null;
   blobUrl: string;
+  thumbnailUrl: string | null;
   ancestorId: string | null;
   categoryId: string | null;
   categoryName: string | null;
@@ -219,7 +220,7 @@ export default function ImagesPage() {
               <div className="relative aspect-square cursor-pointer" onClick={() => setViewImage(image)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={image.blobUrl}
+                  src={image.thumbnailUrl ?? image.blobUrl}
                   alt={image.title}
                   className="h-full w-full object-cover"
                 />

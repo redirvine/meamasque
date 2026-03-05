@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { put, del } from "@vercel/blob";
 import sharp from "sharp";
 import { z } from "zod";
+import { generateThumbnail } from "@/lib/thumbnail";
 
 const cropSchema = z.object({
   x: z.number().min(0).max(100),
@@ -95,12 +96,15 @@ export async function POST(
     // Old blob may not exist (dev mode), continue
   }
 
-  // Update DB with new blob URL
+  // Generate new thumbnail from cropped image
+  const thumbnailUrl = await generateThumbnail(cropped, id, image.thumbnailUrl);
+
+  // Update DB with new blob URL and thumbnail
   const [updated] = await db
     .update(images)
-    .set({ blobUrl: blob.url, updatedAt: new Date() })
+    .set({ blobUrl: blob.url, thumbnailUrl, updatedAt: new Date() })
     .where(eq(images.id, id))
     .returning();
 
-  return NextResponse.json({ blobUrl: updated.blobUrl });
+  return NextResponse.json({ blobUrl: updated.blobUrl, thumbnailUrl: updated.thumbnailUrl });
 }
