@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { hash } from "bcryptjs";
+import { logAudit } from "@/lib/audit";
 
 export async function GET() {
   const session = await auth();
@@ -63,6 +64,8 @@ export async function POST(request: NextRequest) {
         role: users.role,
         createdAt: users.createdAt,
       });
+
+    logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "create", resource: "user", resourceId: user.id, detail: `Created user '${user.email}'` });
 
     return NextResponse.json(user);
   } catch (error: unknown) {

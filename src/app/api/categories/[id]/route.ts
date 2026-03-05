@@ -4,6 +4,7 @@ import { categories } from "@/db/schema";
 import { auth } from "../../../../../auth";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 const updateCategorySchema = z.object({
   name: z.string().min(1).optional(),
@@ -41,6 +42,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "category", resourceId: id, detail: `Updated category '${updated.name}'` });
+
   return NextResponse.json(updated);
 }
 
@@ -54,7 +57,12 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  const category = await db.query.categories.findFirst({ where: eq(categories.id, id) });
+
   await db.delete(categories).where(eq(categories.id, id));
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "delete", resource: "category", resourceId: id, detail: `Deleted category '${category?.name ?? id}'` });
 
   return NextResponse.json({ success: true });
 }

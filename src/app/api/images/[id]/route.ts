@@ -5,6 +5,7 @@ import { auth } from "../../../../../auth";
 import { eq } from "drizzle-orm";
 import { del } from "@vercel/blob";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 const updateImageSchema = z.object({
   title: z.string().min(1).optional(),
@@ -80,6 +81,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "image", resourceId: id, detail: `Updated image '${updated.title}'` });
+
   return NextResponse.json(updated);
 }
 
@@ -118,6 +121,8 @@ export async function DELETE(
   }
 
   await db.delete(images).where(eq(images.id, id));
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "delete", resource: "image", resourceId: id, detail: `Deleted image '${image.title}'` });
 
   return NextResponse.json({ success: true });
 }

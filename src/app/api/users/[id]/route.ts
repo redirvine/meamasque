@@ -4,6 +4,7 @@ import { users } from "@/db/schema";
 import { eq, count } from "drizzle-orm";
 import { auth } from "../../../../../auth";
 import { hash } from "bcryptjs";
+import { logAudit } from "@/lib/audit";
 
 export async function PATCH(
   request: NextRequest,
@@ -37,6 +38,9 @@ export async function PATCH(
 
   try {
     await db.update(users).set(updates).where(eq(users.id, id));
+
+    logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "user", resourceId: id, detail: `Updated user '${email || id}'` });
+
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     if (
@@ -80,6 +84,11 @@ export async function DELETE(
     );
   }
 
+  const user = await db.query.users.findFirst({ where: eq(users.id, id) });
+
   await db.delete(users).where(eq(users.id, id));
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "delete", resource: "user", resourceId: id, detail: `Deleted user '${user?.email ?? id}'` });
+
   return NextResponse.json({ success: true });
 }

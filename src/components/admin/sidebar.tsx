@@ -13,6 +13,7 @@ import {
   Drama,
   Info,
   UserCog,
+  ClipboardList,
   LogOut,
   Menu,
   X,
@@ -30,6 +31,7 @@ const navItems = [
   { href: "/admin/about", label: "About", icon: Info },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
   { href: "/admin/users", label: "Admin Users", icon: UserCog },
+  { href: "/admin/audit", label: "Audit Log", icon: ClipboardList },
 ];
 
 function NavLink({

@@ -4,6 +4,7 @@ import { ancestors, ancestorMemories, images } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { eq, sql, count } from "drizzle-orm";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 const createAncestorSchema = z.object({
   name: z.string().min(1),
@@ -93,6 +94,8 @@ export async function POST(request: NextRequest) {
       photoId: parsed.data.photoId ?? null,
     })
     .returning();
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "create", resource: "ancestor", resourceId: ancestor.id, detail: `Created ancestor '${ancestor.name}'` });
 
   return NextResponse.json(ancestor, { status: 201 });
 }

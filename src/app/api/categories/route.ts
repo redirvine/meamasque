@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 const createCategorySchema = z.object({
   name: z.string().min(1),
@@ -41,6 +42,8 @@ export async function POST(request: NextRequest) {
       description: parsed.data.description ?? null,
     })
     .returning();
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "create", resource: "category", resourceId: category.id, detail: `Created category '${category.name}'` });
 
   return NextResponse.json(category, { status: 201 });
 }

@@ -4,6 +4,7 @@ import { ancestors, ancestorMemories } from "@/db/schema";
 import { auth } from "../../../../../auth";
 import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 const updateAncestorSchema = z.object({
   name: z.string().min(1).optional(),
@@ -99,6 +100,8 @@ export async function PATCH(
     }
   }
 
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "ancestor", resourceId: id, detail: `Updated ancestor '${updated.name}'` });
+
   return NextResponse.json(updated);
 }
 
@@ -112,7 +115,12 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  const ancestor = await db.query.ancestors.findFirst({ where: eq(ancestors.id, id) });
+
   await db.delete(ancestors).where(eq(ancestors.id, id));
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "delete", resource: "ancestor", resourceId: id, detail: `Deleted ancestor '${ancestor?.name ?? id}'` });
 
   return NextResponse.json({ success: true });
 }

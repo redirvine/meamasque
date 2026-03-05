@@ -5,6 +5,7 @@ import { auth } from "../../../../auth";
 import { eq, desc, and, like, SQL } from "drizzle-orm";
 import { z } from "zod";
 import { generateThumbnail } from "@/lib/thumbnail";
+import { logAudit } from "@/lib/audit";
 
 const createImageSchema = z.object({
   title: z.string().min(1),
@@ -52,6 +53,8 @@ export async function POST(request: NextRequest) {
       slideshowOverlayText: data.slideshowOverlayText ?? null,
     })
     .returning();
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "create", resource: "image", resourceId: image.id, detail: `Created image '${image.title}'` });
 
   // Generate thumbnail in the background — don't block the response
   generateThumbnail(data.blobUrl, image.id).then(async (thumbnailUrl) => {

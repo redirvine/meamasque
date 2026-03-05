@@ -4,6 +4,7 @@ import { plays, playImages, playMemories, images } from "@/db/schema";
 import { auth } from "../../../../../auth";
 import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 
 const updatePlaySchema = z.object({
@@ -118,6 +119,8 @@ export async function PATCH(
     }
   }
 
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "play", resourceId: id, detail: `Updated play '${updated.play}'` });
+
   return NextResponse.json(updated);
 }
 
@@ -131,7 +134,12 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  const play = await db.query.plays.findFirst({ where: eq(plays.id, id) });
+
   await db.delete(plays).where(eq(plays.id, id));
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "delete", resource: "play", resourceId: id, detail: `Deleted play '${play?.play ?? id}'` });
 
   return NextResponse.json({ success: true });
 }

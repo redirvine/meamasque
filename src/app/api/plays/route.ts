@@ -4,6 +4,7 @@ import { plays, images, playMemories } from "@/db/schema";
 import { auth } from "../../../../auth";
 import { eq, desc, sql, count } from "drizzle-orm";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 
 const createPlaySchema = z.object({
   play: z.string().min(1),
@@ -84,6 +85,8 @@ export async function POST(request: NextRequest) {
       primaryImageId: parsed.data.primaryImageId ?? null,
     })
     .returning();
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "create", resource: "play", resourceId: play.id, detail: `Created play '${play.play}'` });
 
   return NextResponse.json(play, { status: 201 });
 }

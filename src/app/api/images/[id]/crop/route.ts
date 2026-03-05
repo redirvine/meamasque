@@ -7,6 +7,7 @@ import { put, del } from "@vercel/blob";
 import sharp from "sharp";
 import { z } from "zod";
 import { generateThumbnail } from "@/lib/thumbnail";
+import { logAudit } from "@/lib/audit";
 
 const cropSchema = z.object({
   x: z.number().min(0).max(100),
@@ -102,6 +103,8 @@ export async function POST(
     .set({ blobUrl: blob.url, updatedAt: new Date() })
     .where(eq(images.id, id))
     .returning();
+
+  logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "image", resourceId: id, detail: `Cropped image '${image.title}'` });
 
   // Regenerate thumbnail in the background — don't block the crop response
   generateThumbnail(cropped, id, image.thumbnailUrl).then(async (thumbnailUrl) => {

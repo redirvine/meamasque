@@ -1,4 +1,5 @@
 import { AdminSidebar } from "@/components/admin/sidebar";
+import { PageViewTracker } from "@/components/admin/page-view-tracker";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function AdminLayout({
@@ -10,6 +11,7 @@ export default function AdminLayout({
     <div className="flex h-screen">
       <AdminSidebar />
       <main className="flex-1 overflow-y-auto bg-gray-50 pt-14 px-4 pb-4 md:p-8">{children}</main>
+      <PageViewTracker />
       <Toaster />
     </div>
   );

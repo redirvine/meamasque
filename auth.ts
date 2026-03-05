@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { logAudit } from "@/lib/audit";
 import authConfig from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -24,10 +25,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: eq(users.email, email),
         });
 
-        if (!user) return null;
+        if (!user) {
+          logAudit({ userEmail: email, action: "login_failed", detail: `Failed login for ${email} (unknown user)` });
+          return null;
+        }
 
         const passwordMatch = await compare(password, user.hashedPassword);
-        if (!passwordMatch) return null;
+        if (!passwordMatch) {
+          logAudit({ userId: user.id, userEmail: email, action: "login_failed", detail: `Failed login for ${email} (wrong password)` });
+          return null;
+        }
+
+        logAudit({ userId: user.id, userEmail: user.email, action: "login", detail: `${user.email} logged in` });
 
         return {
           id: user.id,

@@ -174,6 +174,24 @@ export const playMemories = sqliteTable("play_memories", {
     .$defaultFn(() => new Date()),
 });
 
+// AuditLogs — tracks logins, mutations, and page views
+export const auditLogs = sqliteTable("audit_logs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: text("user_id"),
+  userEmail: text("user_email").notNull(),
+  action: text("action", {
+    enum: ["login", "login_failed", "create", "update", "delete", "page_view"],
+  }).notNull(),
+  resource: text("resource"),
+  resourceId: text("resource_id"),
+  detail: text("detail"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // SiteAbout — single-row table for the About page content
 export const siteAbout = sqliteTable("site_about", {
   id: text("id")
