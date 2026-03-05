@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { upload } from "@vercel/blob/client";
+import heic2any from "heic2any";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,8 +18,21 @@ interface UploadZoneProps {
   onUploadComplete: (files: { name: string; blobUrl: string }[]) => void;
 }
 
+const HEIC_TYPES = ["image/heic", "image/heif"];
+
+async function convertHeicToJpeg(file: File): Promise<File> {
+  if (!HEIC_TYPES.includes(file.type) && !file.name.toLowerCase().endsWith(".heic") && !file.name.toLowerCase().endsWith(".heif")) {
+    return file;
+  }
+  const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+  const jpegBlob = Array.isArray(blob) ? blob[0] : blob;
+  const newName = file.name.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
+  return new File([jpegBlob], newName, { type: "image/jpeg" });
+}
+
 async function uploadFile(file: File): Promise<string> {
-  const blob = await upload(file.name, file, {
+  const converted = await convertHeicToJpeg(file);
+  const blob = await upload(converted.name, converted, {
     access: "public",
     handleUploadUrl: "/api/upload",
   });
