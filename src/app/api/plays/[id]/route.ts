@@ -5,6 +5,7 @@ import { auth } from "../../../../../auth";
 import { eq, asc } from "drizzle-orm";
 import { z } from "zod";
 
+
 const updatePlaySchema = z.object({
   play: z.string().min(1).optional(),
   role: z.string().optional().nullable(),
@@ -20,11 +21,6 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const { id } = await params;
   const play = await db.query.plays.findFirst({
     where: eq(plays.id, id),
