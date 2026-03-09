@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Menu, Settings } from "lucide-react";
+import { Menu, Settings, LogIn, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -43,8 +44,17 @@ export function NavLinks({ role }: { role: string | null }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Not logged in — show nothing
-  if (!role) return null;
+  if (!role) {
+    return (
+      <Link
+        href="/login"
+        className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+      >
+        <LogIn className="h-4 w-4" />
+        Login
+      </Link>
+    );
+  }
 
   return (
     <>
@@ -75,6 +85,13 @@ export function NavLinks({ role }: { role: string | null }) {
             Admin
           </Link>
         )}
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+        >
+          <LogOut className="h-3 w-3" />
+          Logout
+        </button>
       </nav>
 
       {/* Mobile nav */}
@@ -115,6 +132,15 @@ export function NavLinks({ role }: { role: string | null }) {
                 </Link>
               </SheetClose>
             )}
+            <SheetClose asChild>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+              >
+                <LogOut className="h-3 w-3" />
+                Logout
+              </button>
+            </SheetClose>
           </nav>
         </SheetContent>
       </Sheet>
