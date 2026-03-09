@@ -49,7 +49,7 @@ export function NavLinks({ role }: { role: string | null }) {
   return (
     <>
       {/* Desktop nav */}
-      <nav className="hidden items-center gap-6 md:flex">
+      <nav className="hidden items-center gap-6 lg:flex">
         {navLinks.map((link) => {
           const active = isActive(link.href, pathname, searchParams);
           return (
@@ -79,7 +79,7 @@ export function NavLinks({ role }: { role: string | null }) {
 
       {/* Mobile nav */}
       <Sheet>
-        <SheetTrigger asChild className="md:hidden">
+        <SheetTrigger asChild className="lg:hidden">
           <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
             <Menu className="h-5 w-5" />
           </Button>
