@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { comments, users } from "@/db/schema";
 import { auth } from "../../../../auth";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
+import { sendCommentNotificationEmail } from "@/lib/email";
 
 const VALID_TYPES = ["image", "play", "ancestor"] as const;
 type ResourceType = (typeof VALID_TYPES)[number];
@@ -102,6 +103,24 @@ export async function POST(request: Request) {
       content,
     })
     .returning();
+
+  // Notify admin users (fire-and-forget)
+  db.select({ email: users.email })
+    .from(users)
+    .where(and(eq(users.role, "admin"), ne(users.id, session.user.id)))
+    .then((rows) => {
+      const emails = rows.map((r) => r.email);
+      if (emails.length > 0) {
+        sendCommentNotificationEmail(
+          emails,
+          session.user.name || "Someone",
+          resourceType,
+          resourceId,
+          content
+        ).catch(() => {});
+      }
+    })
+    .catch(() => {});
 
   return NextResponse.json(
     { ...newComment, userName: session.user.name },
