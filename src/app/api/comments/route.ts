@@ -110,7 +110,6 @@ export async function POST(request: Request) {
     .where(and(eq(users.role, "admin"), ne(users.id, session.user.id)))
     .then((rows) => {
       const emails = rows.map((r) => r.email);
-      console.log("[comments] admin emails to notify:", emails, "commenter:", session.user.id);
       if (emails.length > 0) {
         sendCommentNotificationEmail(
           emails,
@@ -118,10 +117,10 @@ export async function POST(request: Request) {
           resourceType,
           resourceId,
           content
-        ).catch((err) => console.error("[comments] email send failed:", err));
+        ).catch(() => {});
       }
     })
-    .catch((err) => console.error("[comments] admin query failed:", err));
+    .catch(() => {});
 
   return NextResponse.json(
     { ...newComment, userName: session.user.name },
