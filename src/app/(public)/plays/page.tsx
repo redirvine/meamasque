@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { plays, images, playMemories } from "@/db/schema";
+import { plays, images, playMemories, categories } from "@/db/schema";
 import { eq, desc, count, sql } from "drizzle-orm";
 import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
@@ -23,6 +23,10 @@ export default async function PlaysPage() {
     .from(playMemories)
     .groupBy(playMemories.playId)
     .as("mc");
+
+  const theatreCategory = await db.query.categories.findFirst({
+    where: eq(categories.name, "Theatre"),
+  });
 
   const allPlays = await db
     .select({
@@ -49,11 +53,16 @@ export default async function PlaysPage() {
     .orderBy(desc(plays.year), desc(plays.createdAt));
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-8">
       {allPlays.length === 0 ? (
         <p className="text-gray-500">No plays added yet.</p>
       ) : (
-        <PlaysListing plays={allPlays} isAdmin={isAdmin} />
+        <PlaysListing
+          plays={allPlays}
+          isAdmin={isAdmin}
+          headerText={theatreCategory?.descriptionHeader}
+          headerDescription={theatreCategory?.description}
+        />
       )}
     </div>
   );

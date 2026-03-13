@@ -42,7 +42,17 @@ type MediaItem =
   | { type: "image"; data: PlayImage }
   | { type: "memory"; data: PlayMemory };
 
-export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmin?: boolean }) {
+export function PlaysListing({
+  plays,
+  isAdmin = false,
+  headerText,
+  headerDescription,
+}: {
+  plays: Play[];
+  isAdmin?: boolean;
+  headerText?: string | null;
+  headerDescription?: string | null;
+}) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [items, setItems] = useState<MediaItem[]>([]);
   const [dialogTitle, setDialogTitle] = useState("");
@@ -96,86 +106,113 @@ export function PlaysListing({ plays, isAdmin = false }: { plays: Play[]; isAdmi
 
   const current = selectedIndex !== null ? items[selectedIndex] : null;
 
+  const renderCard = (p: Play, large = false) => (
+    <div
+      key={p.id}
+      className={`group relative overflow-hidden rounded-lg border bg-white transition-shadow hover:shadow-lg ${large ? "h-full" : ""}`}
+    >
+      {/* Card link covers the entire card */}
+      <Link
+        href={`/plays/${p.id}`}
+        className="absolute inset-0 z-0"
+        aria-label={p.play}
+      />
+      {isAdmin && (
+        <span className="absolute top-2 right-2 z-10">
+          <Link
+            href={`/admin/plays?edit=${p.id}`}
+            className="rounded-full bg-white/80 p-1.5 text-gray-400 shadow transition-colors hover:bg-white hover:text-gray-700"
+            title="Edit play"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Link>
+        </span>
+      )}
+      <div className={`overflow-hidden ${large ? "aspect-auto h-full min-h-[300px]" : "aspect-square"}`}>
+        {p.primaryImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={p.primaryImageThumbnailUrl ?? p.primaryImageUrl}
+            alt={p.play}
+            className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+            <Drama className={`${large ? "h-16 w-16" : "h-12 w-12"} text-gray-300`} />
+          </div>
+        )}
+      </div>
+      <div className={large
+        ? "absolute bottom-0 left-0 right-0 rounded-b-lg bg-gradient-to-t from-black/70 to-transparent p-4 text-white"
+        : "p-3"
+      }>
+        <p className={`truncate font-medium ${large ? "text-base" : "text-sm"}`}>{p.play}</p>
+        <div className={`mt-1 flex items-center gap-2 text-xs ${large ? "text-white/70" : "text-gray-500"}`}>
+          {p.role && <span>{p.role}</span>}
+          {p.role && (p.year != null || p.location) && <span>&middot;</span>}
+          {p.year != null && <span>{p.year}</span>}
+          {p.year != null && p.location && <span>&middot;</span>}
+          {p.location && <span>{p.location}</span>}
+        </div>
+        {(p.imageCount > 0 || p.memoryCount > 0) && (
+          <div className="relative z-10 flex gap-3 pt-2">
+            {p.imageCount > 0 && (
+              <button
+                type="button"
+                onClick={() => openMedia(p, "photos")}
+                className={`inline-flex items-center gap-1 text-xs transition-colors cursor-pointer ${large ? "text-white/80 hover:text-white" : "text-blue-600 hover:text-blue-800"}`}
+              >
+                <Camera className="h-3 w-3" />
+                {p.imageCount} {p.imageCount === 1 ? "photo" : "photos"}
+              </button>
+            )}
+            {p.memoryCount > 0 && (
+              <button
+                type="button"
+                onClick={() => openMedia(p, "memories")}
+                className={`inline-flex items-center gap-1 text-xs transition-colors cursor-pointer ${large ? "text-white/80 hover:text-white" : "text-blue-600 hover:text-blue-800"}`}
+              >
+                <BookOpen className="h-3 w-3" />
+                {p.memoryCount} {p.memoryCount === 1 ? "memory" : "memories"}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const hasDescription = headerDescription?.trim();
+  const sideCount = hasDescription ? 3 : 4;
+  const sidePlays = plays.slice(1, 1 + sideCount);
+  const remainingPlays = plays.slice(1 + sideCount);
+
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        {plays.map((p) => (
-          <div
-            key={p.id}
-            className="group relative flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md"
-          >
-            {/* Card link covers the entire card */}
-            <Link
-              href={`/plays/${p.id}`}
-              className="absolute inset-0 z-0"
-              aria-label={p.play}
-            />
-            {isAdmin && (
-              <span className="absolute top-2 right-2 z-10">
-                <Link
-                  href={`/admin/plays?edit=${p.id}`}
-                  className="rounded-full bg-white/80 p-1.5 text-gray-400 shadow transition-colors hover:bg-white hover:text-gray-700"
-                  title="Edit play"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </Link>
-              </span>
-            )}
-            {p.primaryImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={p.primaryImageThumbnailUrl ?? p.primaryImageUrl}
-                alt={p.play}
-                className="aspect-[3/2] w-full object-cover"
-              />
-            ) : (
-              <div className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                <Drama className="h-12 w-12 text-gray-300" />
+      {/* Featured section: primary play + side grid */}
+      <div className="mb-4 grid gap-4 md:grid-cols-2">
+        {renderCard(plays[0], true)}
+        {(sidePlays.length > 0 || hasDescription) && (
+          <div className="grid grid-cols-2 gap-4">
+            {hasDescription && (
+              <div className="flex flex-col rounded-lg bg-white p-4">
+                {headerText?.trim() && (
+                  <h2 className="mb-4 text-xl font-bold leading-tight text-gray-900">{headerText}</h2>
+                )}
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{headerDescription}</p>
               </div>
             )}
-            <div className="flex flex-1 flex-col p-4">
-              <h2 className="text-lg font-semibold">{p.play}</h2>
-              {p.role && (
-                <p className="text-sm text-gray-600">{p.role}</p>
-              )}
-              <div className="mt-1 flex gap-2 text-sm text-gray-500">
-                {p.year != null && <span>{p.year}</span>}
-                {p.year != null && p.location && <span>&middot;</span>}
-                {p.location && <span>{p.location}</span>}
-              </div>
-              {p.description && (
-                <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-sm text-gray-700">
-                  {p.description}
-                </p>
-              )}
-              {(p.imageCount > 0 || p.memoryCount > 0) && (
-                <div className="relative z-10 mt-auto flex gap-3 pt-3">
-                  {p.imageCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => openMedia(p, "photos")}
-                      className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
-                    >
-                      <Camera className="h-3.5 w-3.5" />
-                      {p.imageCount} {p.imageCount === 1 ? "photo" : "photos"}
-                    </button>
-                  )}
-                  {p.memoryCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => openMedia(p, "memories")}
-                      className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
-                    >
-                      <BookOpen className="h-3.5 w-3.5" />
-                      {p.memoryCount} {p.memoryCount === 1 ? "memory" : "memories"}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            {sidePlays.map((p) => renderCard(p))}
           </div>
-        ))}
+        )}
       </div>
+
+      {/* Remaining plays in regular grid */}
+      {remainingPlays.length > 0 && (
+        <div className="grid items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {remainingPlays.map((p) => renderCard(p))}
+        </div>
+      )}
 
       {/* Image lightbox - black background, centered arrows */}
       <Dialog
