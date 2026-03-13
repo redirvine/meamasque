@@ -22,6 +22,7 @@ interface Category {
   name: string;
   slug: string;
   description: string | null;
+  descriptionHeader: string | null;
 }
 
 export default function CategoriesAdminPage() {
@@ -33,6 +34,7 @@ export default function CategoriesAdminPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionHeader, setDescriptionHeader] = useState("");
   const [saving, setSaving] = useState(false);
 
   const loadCategories = async () => {
@@ -48,6 +50,7 @@ export default function CategoriesAdminPage() {
     setName("");
     setSlug("");
     setDescription("");
+    setDescriptionHeader("");
   };
 
   const openEdit = (cat: Category) => {
@@ -55,6 +58,7 @@ export default function CategoriesAdminPage() {
     setName(cat.name);
     setSlug(cat.slug);
     setDescription(cat.description ?? "");
+    setDescriptionHeader(cat.descriptionHeader ?? "");
   };
 
   const handleSave = async () => {
@@ -68,6 +72,7 @@ export default function CategoriesAdminPage() {
             name,
             slug,
             description: description || null,
+            descriptionHeader: descriptionHeader || null,
           }),
         });
         toast.success("Category updated");
@@ -79,6 +84,7 @@ export default function CategoriesAdminPage() {
             name,
             slug,
             description: description || undefined,
+            descriptionHeader: descriptionHeader || undefined,
           }),
         });
         toast.success("Category created");
@@ -183,6 +189,14 @@ export default function CategoriesAdminPage() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="url-friendly-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description Header</Label>
+              <Input
+                value={descriptionHeader}
+                onChange={(e) => setDescriptionHeader(e.target.value)}
+                placeholder="Large heading text for gallery"
               />
             </div>
             <div className="space-y-2">

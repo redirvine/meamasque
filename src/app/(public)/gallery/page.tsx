@@ -29,7 +29,7 @@ export default async function GalleryPage({
   }
 
   // Look up category by slug if provided
-  let categoryRow: { id: string; name: string; description: string | null } | undefined;
+  let categoryRow: { id: string; name: string; description: string | null; descriptionHeader: string | null } | undefined;
   if (category) {
     categoryRow = await db.query.categories.findFirst({
       where: eq(categories.slug, category),
@@ -71,7 +71,7 @@ export default async function GalleryPage({
           <p>No artwork to display yet.</p>
         </div>
       ) : (
-        <ImageGrid images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} categoryDescription={categoryRow?.description} />
+        <ImageGrid images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} />
       )}
     </div>
   );

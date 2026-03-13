@@ -9,6 +9,7 @@ const createCategorySchema = z.object({
   name: z.string().min(1),
   slug: z.string().min(1),
   description: z.string().optional(),
+  descriptionHeader: z.string().optional(),
 });
 
 export async function GET() {
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
       name: parsed.data.name,
       slug: parsed.data.slug,
       description: parsed.data.description ?? null,
+      descriptionHeader: parsed.data.descriptionHeader ?? null,
     })
     .returning();
 

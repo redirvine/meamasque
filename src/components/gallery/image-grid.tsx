@@ -22,7 +22,7 @@ interface GalleryImage {
   featured?: boolean | null;
 }
 
-export function ImageGrid({ images, isAdmin = false, redirectPath, categoryDescription }: { images: GalleryImage[]; isAdmin?: boolean; redirectPath?: string; categoryDescription?: string | null }) {
+export function ImageGrid({ images, isAdmin = false, redirectPath, categoryDescription, categoryDescriptionHeader }: { images: GalleryImage[]; isAdmin?: boolean; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null }) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   if (images.length === 0) {
@@ -86,7 +86,10 @@ export function ImageGrid({ images, isAdmin = false, redirectPath, categoryDescr
             {(sideImages.length > 0 || hasDescription) && (
               <div className="grid grid-cols-2 gap-4">
                 {hasDescription && (
-                  <div className="flex rounded-lg border-2 border-gray-400 bg-white p-4">
+                  <div className="flex flex-col justify-center rounded-lg border-2 border-gray-400 bg-white p-4">
+                    {categoryDescriptionHeader?.trim() && (
+                      <h2 className="mb-2 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
+                    )}
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
                   </div>
                 )}
