@@ -102,8 +102,8 @@ export function NavLinks({ role }: { role: string | null }) {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-64">
-          <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
+        <SheetContent side="right" className="w-64 bg-white">
+          <SheetTitle className="text-lg font-bold text-gray-900">Menu</SheetTitle>
           <nav className="mt-6 flex flex-col gap-4">
             {navLinks.map((link) => {
               const active = isActive(link.href, pathname, searchParams);
@@ -113,8 +113,8 @@ export function NavLinks({ role }: { role: string | null }) {
                     href={link.href}
                     className={
                       active
-                        ? "border-l-2 border-white pl-2 text-sm font-medium text-white"
-                        : "text-sm font-medium text-gray-300 hover:text-white"
+                        ? "border-l-2 border-gray-900 pl-2 text-sm font-medium text-gray-900"
+                        : "text-sm font-medium text-gray-600 hover:text-gray-900"
                     }
                   >
                     {link.label}
@@ -126,7 +126,7 @@ export function NavLinks({ role }: { role: string | null }) {
               <SheetClose asChild>
                 <Link
                   href="/admin"
-                  className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+                  className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
                 >
                   <Settings className="h-3 w-3" />
                   Admin
@@ -136,7 +136,7 @@ export function NavLinks({ role }: { role: string | null }) {
             <SheetClose asChild>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
               >
                 <LogOut className="h-3 w-3" />
                 Logout
