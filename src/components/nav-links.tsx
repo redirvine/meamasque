@@ -15,6 +15,7 @@ import {
 
 const navLinks = [
   { href: "/gallery?category=masks", label: "Masks" },
+  { href: "/gallery?category=mixed-media", label: "Mixed Media" },
   { href: "/gallery?category=poems", label: "Poems" },
   { href: "/gallery?category=paintings", label: "Paintings" },
   { href: "/gallery?category=drawings", label: "Drawings" },
