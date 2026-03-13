@@ -86,7 +86,7 @@ export function ImageGrid({ images, isAdmin = false, redirectPath, categoryDescr
             {(sideImages.length > 0 || hasDescription) && (
               <div className="grid grid-cols-2 gap-4">
                 {hasDescription && (
-                  <div className="flex rounded-lg border bg-white p-4">
+                  <div className="flex rounded-lg border-2 border-gray-400 bg-white p-4">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
                   </div>
                 )}
