@@ -207,6 +207,28 @@ export const auditLogs = sqliteTable("audit_logs", {
     .$defaultFn(() => new Date()),
 });
 
+// Comments — threaded comments on images, plays, and ancestors
+export const comments = sqliteTable("comments", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  resourceType: text("resource_type", {
+    enum: ["image", "play", "ancestor"],
+  }).notNull(),
+  resourceId: text("resource_id").notNull(),
+  parentId: text("parent_id"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // SiteAbout — single-row table for the About page content
 export const siteAbout = sqliteTable("site_about", {
   id: text("id")

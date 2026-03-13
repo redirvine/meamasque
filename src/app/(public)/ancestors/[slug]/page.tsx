@@ -10,6 +10,7 @@ import { auth } from "../../../../../auth";
 import { CollapsibleSections } from "./collapsible-sections";
 import { AncestorPhoto } from "./ancestor-photo";
 import { CollapseToggle } from "./collapse-toggle";
+import { CommentsSection } from "@/components/comments/comments-section";
 
 export default async function AncestorPage({
   params,
@@ -191,6 +192,13 @@ export default async function AncestorPage({
           )}
           isAdmin={isAdmin}
           redirectPath={`/ancestors/${slug}`}
+        />
+
+        <CommentsSection
+          resourceType="ancestor"
+          resourceId={ancestor.id}
+          currentUserId={session?.user?.id}
+          isAdmin={isAdmin}
         />
       </article>
     </div>

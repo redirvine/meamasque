@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { auth } from "../../../../../auth";
+import { CommentsSection } from "@/components/comments/comments-section";
 
 export default async function ImageDetailPage({
   params,
@@ -101,6 +102,13 @@ export default async function ImageDetailPage({
         {image.description && (
           <p className="mt-4 text-gray-600">{image.description}</p>
         )}
+
+        <CommentsSection
+          resourceType="image"
+          resourceId={id}
+          currentUserId={session?.user?.id}
+          isAdmin={isAdmin}
+        />
       </div>
     </div>
   );
