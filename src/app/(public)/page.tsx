@@ -33,7 +33,7 @@ export default async function HomePage() {
     <div className="flex h-[calc(100dvh-4rem)] flex-col md:flex-row">
       {/* Slideshow column */}
       <div className="min-h-[50dvh] w-full md:w-[60%] md:min-h-0 md:h-full p-6 md:p-12 md:pr-4">
-        <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen fillParent />
+        <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen fillParent currentUserId={session?.user?.id} />
       </div>
 
       {/* About column */}

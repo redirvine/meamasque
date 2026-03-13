@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import { CommentsSection } from "@/components/comments/comments-section";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ interface SlideshowImage {
   slideshowOverlayText?: string | null;
 }
 
-export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScreen = false, fillParent = false }: { images: SlideshowImage[]; isAdmin?: boolean; redirectPath?: string; fullScreen?: boolean; fillParent?: boolean }) {
+export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScreen = false, fillParent = false, currentUserId }: { images: SlideshowImage[]; isAdmin?: boolean; redirectPath?: string; fullScreen?: boolean; fillParent?: boolean; currentUserId?: string }) {
   const [index, setIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -88,7 +89,8 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
             ref={imgRef}
             src={image.blobUrl}
             alt={image.title}
-            className="max-h-full max-w-full object-contain"
+            onClick={() => setDialogOpen(true)}
+            className="max-h-full max-w-full cursor-pointer object-contain"
           />
         </div>
 
@@ -134,6 +136,38 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
             </div>
           )}
         </div>
+
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{image.title}</DialogTitle>
+              {(image.creatorName || image.dateCreated) && (
+                <DialogDescription>
+                  {image.creatorName}
+                  {image.creatorName && image.dateCreated && " \u00b7 "}
+                  {image.dateCreated}
+                </DialogDescription>
+              )}
+            </DialogHeader>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image.blobUrl}
+              alt={image.title}
+              className="w-full rounded-md"
+            />
+            {image.description && (
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                {image.description}
+              </p>
+            )}
+            <CommentsSection
+              resourceType="image"
+              resourceId={image.id}
+              currentUserId={currentUserId}
+              isAdmin={isAdmin}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
       ) : (
       <div className="relative h-[calc(100dvh-4rem)] w-full overflow-hidden bg-black">
