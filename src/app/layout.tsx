@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${geistMono.variable} ${cormorantGaramond.variable} antialiased`}
+        className={`${playfair.variable} ${playfair.className} ${geistMono.variable} ${cormorantGaramond.variable} antialiased`}
       >
         {children}
       </body>
