@@ -32,12 +32,12 @@ export default async function HomePage() {
   return (
     <div className="flex h-[calc(100dvh-4rem)] flex-col md:flex-row">
       {/* Slideshow column */}
-      <div className="min-h-[50dvh] w-full md:w-[60%] md:min-h-0 md:h-full p-6 md:p-12">
+      <div className="min-h-[50dvh] w-full md:w-[60%] md:min-h-0 md:h-full p-6 md:p-12 md:pr-4">
         <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen fillParent />
       </div>
 
       {/* About column */}
-      <div className="flex w-full flex-col justify-center px-4 py-8 md:w-[40%] md:py-0 md:pr-6">
+      <div className="flex w-full flex-col justify-center px-4 py-8 md:w-[40%] md:py-0 md:pl-0 md:pr-6">
         <h1 className="mb-4 text-3xl font-bold">{about?.name ?? "Meamasque"}</h1>
         {about?.bio && (
           <p className="whitespace-pre-wrap text-gray-700">{about.bio}</p>
