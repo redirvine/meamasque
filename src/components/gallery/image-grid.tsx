@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { CommentsSection } from "@/components/comments/comments-section";
 
 interface GalleryImage {
   id: string;
@@ -22,7 +23,7 @@ interface GalleryImage {
   featured?: boolean | null;
 }
 
-export function ImageGrid({ images, isAdmin = false, redirectPath, categoryDescription, categoryDescriptionHeader }: { images: GalleryImage[]; isAdmin?: boolean; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null }) {
+export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath, categoryDescription, categoryDescriptionHeader }: { images: GalleryImage[]; isAdmin?: boolean; currentUserId?: string; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null }) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   if (images.length === 0) {
@@ -154,6 +155,12 @@ export function ImageGrid({ images, isAdmin = false, redirectPath, categoryDescr
                   </Link>
                 </div>
               )}
+              <CommentsSection
+                resourceType="image"
+                resourceId={selectedImage.id}
+                currentUserId={currentUserId}
+                isAdmin={isAdmin}
+              />
             </>
           )}
         </DialogContent>

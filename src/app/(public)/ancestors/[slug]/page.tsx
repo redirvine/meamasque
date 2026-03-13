@@ -191,6 +191,7 @@ export default async function AncestorPage({
             })
           )}
           isAdmin={isAdmin}
+          currentUserId={session?.user?.id}
           redirectPath={`/ancestors/${slug}`}
         />
 

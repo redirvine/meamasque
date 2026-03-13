@@ -25,6 +25,7 @@ export function CollapsibleSections({
   additionalPhotos,
   photoGroups,
   isAdmin,
+  currentUserId,
   redirectPath,
 }: {
   bio: string | null;
@@ -34,6 +35,7 @@ export function CollapsibleSections({
   additionalPhotos?: PhotoGroup["images"];
   photoGroups: PhotoGroup[];
   isAdmin: boolean;
+  currentUserId?: string;
   redirectPath?: string;
 }) {
   const hasAdditionalPhotos = additionalPhotos && additionalPhotos.length > 0;
@@ -90,7 +92,7 @@ export function CollapsibleSections({
               ({additionalPhotos.length})
             </span>
           </summary>
-          <ImageGrid images={additionalPhotos} isAdmin={isAdmin} redirectPath={redirectPath} />
+          <ImageGrid images={additionalPhotos} isAdmin={isAdmin} currentUserId={currentUserId} redirectPath={redirectPath} />
         </details>
       )}
 
@@ -103,7 +105,7 @@ export function CollapsibleSections({
               ({images.length})
             </span>
           </summary>
-          <ImageGrid images={images} isAdmin={isAdmin} redirectPath={redirectPath} />
+          <ImageGrid images={images} isAdmin={isAdmin} currentUserId={currentUserId} redirectPath={redirectPath} />
         </details>
       ))}
     </div>

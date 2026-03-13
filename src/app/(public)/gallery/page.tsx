@@ -71,7 +71,7 @@ export default async function GalleryPage({
           <p>No artwork to display yet.</p>
         </div>
       ) : (
-        <ImageGrid images={allImages} isAdmin={isAdmin} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} />
+        <ImageGrid images={allImages} isAdmin={isAdmin} currentUserId={session?.user?.id} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} />
       )}
     </div>
   );
