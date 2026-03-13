@@ -107,18 +107,16 @@ export function PlaysListing({
   const current = selectedIndex !== null ? items[selectedIndex] : null;
 
   const renderCard = (p: Play, large = false) => (
-    <div
+    <Link
       key={p.id}
-      className={`group relative overflow-hidden rounded-lg border bg-white transition-shadow hover:shadow-lg ${large ? "h-full" : ""}`}
+      href={`/plays/${p.id}`}
+      className={`group relative block overflow-hidden rounded-lg border bg-white transition-shadow hover:shadow-lg ${large ? "h-full" : ""}`}
     >
-      {/* Card link covers the entire card */}
-      <Link
-        href={`/plays/${p.id}`}
-        className="absolute inset-0 z-0"
-        aria-label={p.play}
-      />
       {isAdmin && (
-        <span className="absolute top-2 right-2 z-10">
+        <span
+          className="absolute top-2 right-2 z-10"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Link
             href={`/admin/plays?edit=${p.id}`}
             className="rounded-full bg-white/80 p-1.5 text-gray-400 shadow transition-colors hover:bg-white hover:text-gray-700"
@@ -155,11 +153,11 @@ export function PlaysListing({
           {p.location && <span>{p.location}</span>}
         </div>
         {(p.imageCount > 0 || p.memoryCount > 0) && (
-          <div className="relative z-10 flex gap-3 pt-2">
+          <div className="flex gap-3 pt-2">
             {p.imageCount > 0 && (
               <button
                 type="button"
-                onClick={() => openMedia(p, "photos")}
+                onClick={(e) => { e.preventDefault(); openMedia(p, "photos"); }}
                 className={`inline-flex items-center gap-1 text-xs transition-colors cursor-pointer ${large ? "text-white/80 hover:text-white" : "text-blue-600 hover:text-blue-800"}`}
               >
                 <Camera className="h-3 w-3" />
@@ -169,7 +167,7 @@ export function PlaysListing({
             {p.memoryCount > 0 && (
               <button
                 type="button"
-                onClick={() => openMedia(p, "memories")}
+                onClick={(e) => { e.preventDefault(); openMedia(p, "memories"); }}
                 className={`inline-flex items-center gap-1 text-xs transition-colors cursor-pointer ${large ? "text-white/80 hover:text-white" : "text-blue-600 hover:text-blue-800"}`}
               >
                 <BookOpen className="h-3 w-3" />
@@ -179,7 +177,7 @@ export function PlaysListing({
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 
   const hasDescription = headerDescription?.trim();
