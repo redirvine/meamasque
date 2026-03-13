@@ -94,14 +94,16 @@ export default async function AuditPage({
               logs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell className="text-xs text-gray-500">
-                    {log.createdAt.toLocaleDateString("en-AU", {
+                    {log.createdAt.toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
+                      timeZone: "America/New_York",
                     })}{" "}
-                    {log.createdAt.toLocaleTimeString("en-AU", {
+                    {log.createdAt.toLocaleTimeString("en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
+                      timeZone: "America/New_York",
                     })}
                   </TableCell>
                   <TableCell className="text-sm">{log.userEmail}</TableCell>

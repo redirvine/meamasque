@@ -90,7 +90,7 @@ function SidebarContent({
                 "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors",
                 isActive
                   ? "bg-gray-100 text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-gray-800 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -103,7 +103,7 @@ function SidebarContent({
       <div className="p-4">
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 text-gray-600"
+          className="w-full justify-start gap-3 text-gray-800"
           onClick={() => signOut({ callbackUrl: "/" })}
         >
           <LogOut className="h-4 w-4" />
