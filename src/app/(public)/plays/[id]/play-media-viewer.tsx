@@ -36,11 +36,20 @@ export function PlayMediaViewer({
   playTitle: string;
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   const items: MediaItem[] = [
     ...images.map((img) => ({ type: "image" as const, data: img })),
     ...memories.map((mem) => ({ type: "memory" as const, data: mem })),
   ];
+
+  const prevPhoto = useCallback(() => {
+    setPhotoIndex((i) => (i > 0 ? i - 1 : images.length - 1));
+  }, [images.length]);
+
+  const nextPhoto = useCallback(() => {
+    setPhotoIndex((i) => (i < images.length - 1 ? i + 1 : 0));
+  }, [images.length]);
 
   const goNext = useCallback(() => {
     setSelectedIndex((i) => (i !== null ? (i + 1) % items.length : null));
@@ -69,28 +78,47 @@ export function PlayMediaViewer({
       {images.length > 0 && (
         <div className="mt-8">
           <h2 className="mb-4 text-xl font-semibold">Photos</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {images.map((img, i) => (
-              <figure key={img.id}>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setSelectedIndex(photoIndex)}
+              className="w-full cursor-pointer overflow-hidden rounded-lg transition-shadow hover:shadow-lg"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={images[photoIndex].blobUrl}
+                alt={images[photoIndex].title || playTitle}
+                className="w-full rounded-lg object-cover"
+              />
+            </button>
+            {images.length > 1 && (
+              <>
                 <button
                   type="button"
-                  onClick={() => setSelectedIndex(i)}
-                  className="w-full cursor-pointer overflow-hidden rounded-lg transition-shadow hover:shadow-lg"
+                  onClick={prevPhoto}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60"
+                  aria-label="Previous photo"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img.blobUrl}
-                    alt={img.title || playTitle}
-                    className="w-full rounded-lg object-cover"
-                  />
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
-                {img.caption && (
-                  <figcaption className="mt-1 text-center text-sm text-gray-500">
-                    {img.caption}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
+                <button
+                  type="button"
+                  onClick={nextPhoto}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60"
+                  aria-label="Next photo"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </>
+            )}
+          </div>
+          <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+            <span>
+              {images[photoIndex].caption ?? ""}
+            </span>
+            {images.length > 1 && (
+              <span>{photoIndex + 1} / {images.length}</span>
+            )}
           </div>
         </div>
       )}
