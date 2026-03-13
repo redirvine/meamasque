@@ -65,18 +65,20 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
         {isAdmin && (
           <Link
             href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
-            className="absolute top-3 right-3 z-10 rounded-full bg-black/40 p-1.5 text-white shadow transition-colors hover:bg-black/60"
+            className="absolute top-3 right-3 z-20 rounded-full bg-black/40 p-1.5 text-white shadow transition-colors hover:bg-black/60"
             title="Edit image"
           >
             <Pencil className="h-4 w-4" />
           </Link>
         )}
 
-        {image.slideshowOverlayText && (
-          <div className="absolute inset-0 flex items-center justify-center px-8">
-            <p className="max-w-2xl whitespace-pre-wrap text-center italic font-[family-name:var(--font-script)] text-2xl leading-relaxed text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-3xl">
-              {image.slideshowOverlayText}
-            </p>
+        {image.slideshowOverlayText?.trim() && (
+          <div className="absolute top-4 left-4 z-10 max-w-sm md:max-w-md">
+            <div className="rounded-2xl bg-black/40 px-5 py-3 backdrop-blur-md">
+              <p className="whitespace-pre-wrap italic font-[family-name:var(--font-script)] text-lg leading-relaxed text-white/90 md:text-xl">
+                {image.slideshowOverlayText}
+              </p>
+            </div>
           </div>
         )}
 
@@ -85,7 +87,7 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
             <button
               type="button"
               onClick={prev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60 z-10"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-6 w-6" />
@@ -93,7 +95,7 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
             <button
               type="button"
               onClick={next}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white transition-colors hover:bg-black/60 z-10"
               aria-label="Next image"
             >
               <ChevronRight className="h-6 w-6" />
