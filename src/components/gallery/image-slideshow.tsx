@@ -83,15 +83,6 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
       fillParent ? (
       <div className="flex h-full w-full flex-col">
         <div ref={containerRef} className="relative flex flex-1 items-center justify-center overflow-hidden">
-          {isAdmin && (
-            <Link
-              href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
-              className="absolute top-3 right-3 z-20 rounded-full bg-white/80 p-1.5 text-gray-500 shadow transition-colors hover:bg-white hover:text-gray-700"
-              title="Edit image"
-            >
-              <Pencil className="h-4 w-4" />
-            </Link>
-          )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={imgRef}
