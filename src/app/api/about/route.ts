@@ -15,7 +15,7 @@ async function getOrCreateAbout() {
 
   const [created] = await db
     .insert(siteAbout)
-    .values({ name: "Meamasque" })
+    .values({ name: "Mary Elizabeth Atwood" })
     .returning();
   return created;
 }

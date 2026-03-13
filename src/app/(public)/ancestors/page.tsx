@@ -8,7 +8,7 @@ import { BookOpen, Pencil, User } from "lucide-react";
 import { auth } from "../../../../auth";
 
 export const metadata = {
-  title: "Ancestors - Meamasque",
+  title: "Ancestors - Mary Elizabeth Atwood",
   description: "Family history and ancestors",
 };
 

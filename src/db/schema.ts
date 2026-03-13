@@ -234,7 +234,7 @@ export const siteAbout = sqliteTable("site_about", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createId()),
-  name: text("name").notNull().default("Meamasque"),
+  name: text("name").notNull().default("Mary Elizabeth Atwood"),
   bio: text("bio"),
 });
 

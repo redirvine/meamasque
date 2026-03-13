@@ -7,7 +7,7 @@ import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
 
 export const metadata = {
-  title: "Plays - Meamasque",
+  title: "Plays - Mary Elizabeth Atwood",
   description: "Acting history and performances",
 };
 

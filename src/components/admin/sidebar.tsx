@@ -70,7 +70,7 @@ function SidebarContent({
     <>
       <div className="p-6">
         <NavLink href="/admin" onNavigate={onNavigate} className="text-xl font-bold">
-          Meamasque
+          Mary Elizabeth Atwood
         </NavLink>
         <p className="text-sm text-gray-500">Admin Panel</p>
       </div>

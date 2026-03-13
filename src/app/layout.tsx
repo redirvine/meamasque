@@ -21,7 +21,7 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Meamasque",
+  title: "Mary Elizabeth Atwood",
   description: "A family art portfolio and story collection",
 };
 

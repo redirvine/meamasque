@@ -9,7 +9,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-gray-700 bg-gray-800/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold tracking-tight text-white">
-          Meamasque
+          Mary Elizabeth Atwood
         </Link>
         <NavLinks role={session?.user?.role ?? null} />
       </div>

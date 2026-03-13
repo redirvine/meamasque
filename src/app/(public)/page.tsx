@@ -38,7 +38,7 @@ export default async function HomePage() {
 
       {/* About column */}
       <div className="flex w-full flex-col justify-center px-4 py-8 md:w-[40%] md:py-0 md:pl-0 md:pr-6">
-        <h1 className="mb-4 text-3xl font-bold">{about?.name ?? "Meamasque"}</h1>
+        <h1 className="mb-4 text-3xl font-bold">{about?.name ?? "Mary Elizabeth Atwood"}</h1>
         {about?.bio && (
           <p className="whitespace-pre-wrap text-gray-700">{about.bio}</p>
         )}
