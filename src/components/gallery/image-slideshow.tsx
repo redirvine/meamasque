@@ -72,16 +72,6 @@ export function ImageSlideshow({ images, isAdmin = false, redirectPath, fullScre
           </Link>
         )}
 
-        {image.slideshowOverlayText?.trim() && (
-          <div className="absolute top-4 left-4 z-10 max-w-sm md:max-w-md">
-            <div className="rounded-2xl bg-black/40 px-5 py-3 backdrop-blur-md">
-              <p className="whitespace-pre-wrap italic font-[family-name:var(--font-script)] text-lg leading-relaxed text-white/90 md:text-xl">
-                {image.slideshowOverlayText}
-              </p>
-            </div>
-          </div>
-        )}
-
         {images.length > 1 && (
           <>
             <button
