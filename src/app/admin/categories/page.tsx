@@ -155,6 +155,9 @@ export default function CategoriesAdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {cat.descriptionHeader && (
+                <h3 className="mb-2 text-lg font-bold leading-tight text-gray-900">{cat.descriptionHeader}</h3>
+              )}
               {cat.description && (
                 <p className="text-sm text-gray-600">{cat.description}</p>
               )}
