@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, ancestors, users } from "@/db/schema";
+import { images, ancestors, users, siteAbout } from "@/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { auth } from "../../../auth";
 import { ImageSlideshow } from "@/components/gallery/image-slideshow";
@@ -10,23 +10,39 @@ export default async function HomePage() {
   const session = await auth();
   const isAdmin = session?.user?.role === "admin";
 
-  const allImages = await db
-    .select({
-      id: images.id,
-      title: images.title,
-      blobUrl: images.blobUrl,
-      dateCreated: images.dateCreated,
-      description: images.description,
-      slideshowOverlayText: images.slideshowOverlayText,
-      creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
-    })
-    .from(images)
-    .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
-    .leftJoin(users, eq(images.creatorUserId, users.id))
-    .where(eq(images.visibility, "public"))
-    .orderBy(desc(images.createdAt));
+  const [allImages, about] = await Promise.all([
+    db
+      .select({
+        id: images.id,
+        title: images.title,
+        blobUrl: images.blobUrl,
+        dateCreated: images.dateCreated,
+        description: images.description,
+        slideshowOverlayText: images.slideshowOverlayText,
+        creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
+      })
+      .from(images)
+      .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
+      .leftJoin(users, eq(images.creatorUserId, users.id))
+      .where(eq(images.visibility, "public"))
+      .orderBy(desc(images.createdAt)),
+    db.query.siteAbout.findFirst(),
+  ]);
 
   return (
-    <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen />
+    <div className="flex h-[calc(100dvh-4rem)] flex-col md:flex-row">
+      {/* Slideshow column */}
+      <div className="min-h-[50dvh] w-full md:w-[65%] md:min-h-0 md:h-full p-8 md:p-16">
+        <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen fillParent />
+      </div>
+
+      {/* About column */}
+      <div className="flex w-full flex-col justify-center px-8 py-8 md:w-[35%] md:py-0">
+        <h1 className="mb-4 text-3xl font-bold">{about?.name ?? "Meamasque"}</h1>
+        {about?.bio && (
+          <p className="whitespace-pre-wrap text-gray-700">{about.bio}</p>
+        )}
+      </div>
+    </div>
   );
 }
