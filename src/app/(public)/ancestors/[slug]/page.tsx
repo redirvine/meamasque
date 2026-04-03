@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { ancestors, images, ancestorMemories, ancestorPhotos, categories } from "@/db/schema";
-import { eq, count, desc, asc, ne, and } from "drizzle-orm";
+import { eq, count, desc, asc, ne, and, notInArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -68,6 +68,12 @@ export default async function AncestorPage({
     .where(eq(ancestorPhotos.ancestorId, ancestor.id))
     .orderBy(asc(ancestorPhotos.sortOrder));
 
+  // Exclude the primary photo and any additional photos from the works query
+  const excludeIds = [
+    ...(ancestor.photoId ? [ancestor.photoId] : []),
+    ...additionalPhotos.map((p) => p.id),
+  ];
+
   const works = await db
     .select({
       id: images.id,
@@ -81,9 +87,10 @@ export default async function AncestorPage({
     .from(images)
     .leftJoin(categories, eq(images.categoryId, categories.id))
     .where(
-      ancestor.photoId
-        ? and(eq(images.ancestorId, ancestor.id), ne(images.id, ancestor.photoId))
-        : eq(images.ancestorId, ancestor.id)
+      and(
+        eq(images.ancestorId, ancestor.id),
+        excludeIds.length > 0 ? notInArray(images.id, excludeIds) : undefined
+      )
     )
     .orderBy(desc(images.createdAt));
 
