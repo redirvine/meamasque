@@ -54,7 +54,9 @@ export default async function HomePage() {
       firstAncestor[0]?.thumbnailUrl ?? firstAncestor[0]?.blobUrl ?? null,
   };
 
-  const tiles = [...categoryTiles, playsTile, ancestorsTile];
+  const tiles = [...categoryTiles, playsTile, ancestorsTile].filter(
+    (t) => t.imageUrl
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
