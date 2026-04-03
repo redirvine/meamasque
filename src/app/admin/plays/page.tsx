@@ -27,6 +27,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ImagePicker } from "@/components/admin/image-picker";
@@ -46,6 +47,7 @@ interface Play {
   year: number | null;
   primaryImageId: string | null;
   primaryImageUrl: string | null;
+  featured: boolean | null;
   imageCount: number;
   memoryCount: number;
 }
@@ -287,6 +289,31 @@ function PlaysAdminPage() {
     }
   };
 
+  const toggleFeatured = async (p: Play) => {
+    const newFeatured = !p.featured;
+    setPlays((prev) =>
+      prev.map((pl) =>
+        pl.id === p.id ? { ...pl, featured: newFeatured } : pl
+      )
+    );
+    try {
+      const res = await fetch(`/api/plays/${p.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featured: newFeatured }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(newFeatured ? "Marked as featured" : "Removed from featured");
+    } catch {
+      setPlays((prev) =>
+        prev.map((pl) =>
+          pl.id === p.id ? { ...pl, featured: p.featured } : pl
+        )
+      );
+      toast.error("Failed to update featured status");
+    }
+  };
+
   const isFormOpen = showCreate || !!editPlay;
 
   return (
@@ -320,7 +347,20 @@ function PlaysAdminPage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between">
                 <h2 className="text-lg font-semibold">{p.play}</h2>
-                <div className="flex gap-1">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleFeatured(p)}
+                    title={p.featured ? "Remove from featured" : "Mark as featured"}
+                  >
+                    <Star
+                      className={`h-5 w-5 ${
+                        p.featured
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300 hover:text-yellow-400"
+                      }`}
+                    />
+                  </button>
                   <Button
                     size="icon"
                     variant="ghost"

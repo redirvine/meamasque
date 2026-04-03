@@ -155,6 +155,7 @@ export const plays = sqliteTable("plays", {
   primaryImageId: text("primary_image_id").references(() => images.id, {
     onDelete: "set null",
   }),
+  featured: integer("featured", { mode: "boolean" }).default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),

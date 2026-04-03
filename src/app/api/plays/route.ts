@@ -39,7 +39,9 @@ export async function GET() {
       description: plays.description,
       year: plays.year,
       primaryImageId: plays.primaryImageId,
+      featured: plays.featured,
       primaryImageUrl: images.blobUrl,
+      primaryImageThumbnailUrl: images.thumbnailUrl,
       createdAt: plays.createdAt,
       imageCount: sql<number>`(
         SELECT COUNT(*) FROM (

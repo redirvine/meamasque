@@ -14,6 +14,7 @@ const updatePlaySchema = z.object({
   description: z.string().optional().nullable(),
   year: z.number().int().optional().nullable(),
   primaryImageId: z.string().optional().nullable(),
+  featured: z.boolean().optional(),
   imageIds: z.array(z.string()).optional(),
   memories: z.array(z.string()).optional(),
 });

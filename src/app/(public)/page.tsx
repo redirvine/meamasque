@@ -36,17 +36,19 @@ export default async function HomePage() {
       })
   );
 
-  // Plays tile: use the most recent play's primary image
-  const firstPlay = await db
+  // Plays tile: use a random featured play's primary image
+  const featuredPlays = await db
     .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
     .from(plays)
-    .leftJoin(images, eq(plays.primaryImageId, images.id))
-    .limit(1);
+    .innerJoin(images, eq(plays.primaryImageId, images.id))
+    .where(eq(plays.featured, true));
+
+  const playImg = pickRandom(featuredPlays);
 
   const playsTile: CategoryTile = {
     label: "Plays",
     href: "/plays",
-    imageUrl: firstPlay[0]?.thumbnailUrl ?? firstPlay[0]?.blobUrl ?? null,
+    imageUrl: playImg?.thumbnailUrl ?? playImg?.blobUrl ?? null,
   };
 
   // Ancestors tile: use the first ancestor's photo
