@@ -73,7 +73,7 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
         return (
           <div key={featuredImage.id}>
             {/* Row 1: featured image + description text */}
-            <div className="mb-4 grid items-start gap-4 md:grid-cols-2">
+            <div className="mb-4 grid gap-4 md:grid-cols-2">
               {renderCard(featuredImage, true)}
               {hasDescription && (
                 <div className="p-4">
