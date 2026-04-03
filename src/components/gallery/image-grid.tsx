@@ -40,15 +40,6 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
 
   const renderCard = (image: GalleryImage, large = false) => (
     <div key={image.id} className="relative">
-      {isAdmin && (
-        <Link
-          href={`/admin/images/${image.id}/edit${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
-          className="absolute top-2 right-2 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 shadow transition-colors hover:bg-white hover:text-gray-700"
-          title="Edit image"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-        </Link>
-      )}
       <button
         type="button"
         onClick={() => setSelectedImage(image)}
