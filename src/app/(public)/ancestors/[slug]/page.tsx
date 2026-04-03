@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories, ancestorPhotos, categories } from "@/db/schema";
-import { eq, count, desc, asc, ne, and, notInArray } from "drizzle-orm";
+import { ancestors, images, ancestorMemories, ancestorPhotos, categories, comments } from "@/db/schema";
+import { eq, count, desc, asc, ne, and, notInArray, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -94,6 +94,28 @@ export default async function AncestorPage({
     )
     .orderBy(desc(images.createdAt));
 
+  // Fetch comment counts for all images on this page
+  const allImageIds = [
+    ...additionalPhotos.map((p) => p.id),
+    ...works.map((w) => w.id),
+  ];
+  const imageCommentCounts = allImageIds.length > 0
+    ? await db
+        .select({
+          resourceId: comments.resourceId,
+          count: count().as("count"),
+        })
+        .from(comments)
+        .where(
+          and(
+            eq(comments.resourceType, "image"),
+            inArray(comments.resourceId, allImageIds)
+          )
+        )
+        .groupBy(comments.resourceId)
+    : [];
+  const commentCountMap = new Map(imageCommentCounts.map((c) => [c.resourceId, c.count]));
+
   const grouped = new Map<string, typeof works>();
   for (const work of works) {
     const key = work.categoryName ?? "Other";
@@ -183,6 +205,7 @@ export default async function AncestorPage({
             thumbnailUrl: p.thumbnailUrl,
             dateCreated: p.dateCreated,
             description: p.description,
+            commentCount: commentCountMap.get(p.id) ?? 0,
           }))}
           photoGroups={Array.from(grouped.entries()).map(
             ([categoryName, imgs]) => ({
@@ -194,6 +217,7 @@ export default async function AncestorPage({
                 thumbnailUrl: img.thumbnailUrl,
                 dateCreated: img.dateCreated,
                 description: img.description,
+                commentCount: commentCountMap.get(img.id) ?? 0,
               })),
             })
           )}

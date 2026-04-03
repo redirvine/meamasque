@@ -14,6 +14,7 @@ type PhotoGroup = {
     thumbnailUrl?: string | null;
     dateCreated: string | null;
     description?: string | null;
+    commentCount?: number;
   }[];
 };
 
