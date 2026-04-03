@@ -76,23 +76,24 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
 
   return (
     <>
-      {categoryDescription?.trim() && (
-        <div className="mb-4 p-4">
-          {categoryDescriptionHeader?.trim() && (
-            <h2 className="mb-2 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
-          )}
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
-        </div>
-      )}
-
       {featured.map((featuredImage) => {
-        const sideImages = regular.slice(0, 4);
+        const hasDescription = categoryDescription?.trim();
+        const sideCount = hasDescription ? 2 : 4;
+        const sideImages = regular.slice(0, sideCount);
 
         return (
           <div key={featuredImage.id} className="mb-4 grid gap-4 md:grid-cols-2">
             {renderCard(featuredImage, true)}
-            {sideImages.length > 0 && (
+            {(sideImages.length > 0 || hasDescription) && (
               <div className="grid grid-cols-2 gap-4">
+                {hasDescription && (
+                  <div className="col-span-2 flex flex-col p-4">
+                    {categoryDescriptionHeader?.trim() && (
+                      <h2 className="mb-2 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
+                    )}
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
+                  </div>
+                )}
                 {sideImages.map((img) => renderCard(img))}
               </div>
             )}
@@ -101,11 +102,15 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
       })}
 
       {/* Remaining regular images not paired with featured */}
-      {featured.length > 0 && regular.length > 4 && (
-        <div className="grid items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {regular.slice(4).map((image) => renderCard(image))}
-        </div>
-      )}
+      {featured.length > 0 && (() => {
+        const hasDescription = categoryDescription?.trim();
+        const sideCount = hasDescription ? 2 : 4;
+        return regular.length > sideCount ? (
+          <div className="grid items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {regular.slice(sideCount).map((image) => renderCard(image))}
+          </div>
+        ) : null;
+      })()}
 
       {/* If no featured images, show all in regular grid */}
       {featured.length === 0 && (
