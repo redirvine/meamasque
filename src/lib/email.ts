@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { db } from "@/db";
-import { ancestors } from "@/db/schema";
+import { ancestors, images, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -16,7 +16,17 @@ async function buildResourceUrl(resourceType: string, resourceId: string): Promi
     return `${appUrl}/ancestors/${ancestor?.slug ?? resourceId}`;
   }
   if (resourceType === "play") return `${appUrl}/plays/${resourceId}`;
-  if (resourceType === "image") return `${appUrl}/gallery`;
+  if (resourceType === "image") {
+    const result = await db
+      .select({ categorySlug: categories.slug })
+      .from(images)
+      .leftJoin(categories, eq(images.categoryId, categories.id))
+      .where(eq(images.id, resourceId))
+      .limit(1);
+    const slug = result[0]?.categorySlug;
+    const base = slug ? `/gallery?category=${slug}` : "/gallery";
+    return `${appUrl}${base}${slug ? "&" : "?"}image=${resourceId}`;
+  }
   return `${appUrl}/${resourceType}/${resourceId}`;
 }
 

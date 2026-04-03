@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MessageCircle, Pencil } from "lucide-react";
 import {
@@ -24,8 +24,15 @@ interface GalleryImage {
   commentCount?: number;
 }
 
-export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath, categoryDescription, categoryDescriptionHeader }: { images: GalleryImage[]; isAdmin?: boolean; currentUserId?: string; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null }) {
+export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath, categoryDescription, categoryDescriptionHeader, openImageId }: { images: GalleryImage[]; isAdmin?: boolean; currentUserId?: string; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null; openImageId?: string }) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+
+  useEffect(() => {
+    if (openImageId) {
+      const img = images.find((i) => i.id === openImageId);
+      if (img) setSelectedImage(img);
+    }
+  }, [openImageId, images]);
 
   if (images.length === 0) {
     return (

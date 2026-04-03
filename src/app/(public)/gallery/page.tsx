@@ -9,9 +9,9 @@ import { auth } from "../../../../auth";
 export default async function GalleryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; image?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, image: openImageId } = await searchParams;
   const session = await auth();
   const isAdmin = session?.user?.role === "admin";
 
@@ -95,7 +95,7 @@ export default async function GalleryPage({
           <p>No artwork to display yet.</p>
         </div>
       ) : (
-        <ImageGrid images={imagesWithComments} isAdmin={isAdmin} currentUserId={session?.user?.id} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} />
+        <ImageGrid images={imagesWithComments} isAdmin={isAdmin} currentUserId={session?.user?.id} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} openImageId={openImageId} />
       )}
     </div>
   );
