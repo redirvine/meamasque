@@ -85,16 +85,18 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
           <div key={featuredImage.id} className="mb-4 grid gap-4 md:grid-cols-2">
             {renderCard(featuredImage, true)}
             {(sideImages.length > 0 || hasDescription) && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-4">
                 {hasDescription && (
-                  <div className="col-span-2 flex flex-col p-4">
+                  <div className="flex flex-col p-4">
                     {categoryDescriptionHeader?.trim() && (
                       <h2 className="mb-2 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
                     )}
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
                   </div>
                 )}
-                {sideImages.map((img) => renderCard(img))}
+                <div className="mt-auto grid grid-cols-2 gap-4">
+                  {sideImages.map((img) => renderCard(img))}
+                </div>
               </div>
             )}
           </div>
