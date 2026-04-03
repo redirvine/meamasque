@@ -1,14 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { NavLinks } from "./nav-links";
+
+const categoryLabels: Record<string, string> = {
+  masks: "Masks",
+  "mixed-media": "Mixed Media",
+  poems: "Poems",
+  paintings: "Paintings",
+  drawings: "Drawings",
+  theatre: "Theatre",
+  clay: "Clay",
+};
 
 export function SiteHeaderClient({ role }: { role: string | null }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isHome = pathname === "/";
   const isGallery = pathname === "/gallery" || pathname.startsWith("/gallery/");
   const minimal = isHome || isGallery;
+
+  const categorySlug = isGallery ? searchParams.get("category") : null;
+  const categoryLabel = categorySlug ? categoryLabels[categorySlug] ?? categorySlug : null;
 
   return (
     <header
@@ -27,7 +41,11 @@ export function SiteHeaderClient({ role }: { role: string | null }) {
         >
           Mary Elizabeth Atwood
         </Link>
-        <NavLinks role={role} isHome={minimal} />
+        {categoryLabel ? (
+          <span className="text-sm font-medium text-gray-500">{categoryLabel}</span>
+        ) : (
+          <NavLinks role={role} isHome={minimal} />
+        )}
       </div>
     </header>
   );
