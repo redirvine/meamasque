@@ -17,9 +17,9 @@ const categoryLabels: Record<string, string> = {
 export function SiteHeaderClient({ role }: { role: string | null }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isHome = pathname === "/";
   const isGallery = pathname === "/gallery" || pathname.startsWith("/gallery/");
-  const minimal = isHome || isGallery;
+  const isAdmin = pathname.startsWith("/admin");
+  const minimal = !isAdmin;
 
   const categorySlug = isGallery ? searchParams.get("category") : null;
   const categoryLabel = categorySlug ? categoryLabels[categorySlug] ?? categorySlug : null;
