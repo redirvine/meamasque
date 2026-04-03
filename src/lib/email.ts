@@ -1,14 +1,24 @@
 import { Resend } from "resend";
+import { db } from "@/db";
+import { ancestors } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-const resourcePaths: Record<string, string> = {
-  image: "/gallery",
-  play: "/plays",
-  ancestor: "/ancestors",
-};
+async function buildResourceUrl(resourceType: string, resourceId: string): Promise<string> {
+  if (resourceType === "ancestor") {
+    const ancestor = await db.query.ancestors.findFirst({
+      where: eq(ancestors.id, resourceId),
+      columns: { slug: true },
+    });
+    return `${appUrl}/ancestors/${ancestor?.slug ?? resourceId}`;
+  }
+  if (resourceType === "play") return `${appUrl}/plays/${resourceId}`;
+  if (resourceType === "image") return `${appUrl}/gallery`;
+  return `${appUrl}/${resourceType}/${resourceId}`;
+}
 
 export async function sendCommentNotificationEmail(
   adminEmails: string[],
@@ -19,8 +29,7 @@ export async function sendCommentNotificationEmail(
 ) {
   if (adminEmails.length === 0) return;
 
-  const path = resourcePaths[resourceType] || `/${resourceType}`;
-  const resourceUrl = `${appUrl}${path}/${resourceId}`;
+  const resourceUrl = await buildResourceUrl(resourceType, resourceId);
 
   await resend.emails.send({
     from: "Mary Elizabeth Atwood <noreply@meamasque.com>",
