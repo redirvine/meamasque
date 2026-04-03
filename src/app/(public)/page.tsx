@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { images, categories, plays, ancestors } from "@/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, isNull } from "drizzle-orm";
 import { CategoryGrid, type CategoryTile } from "./category-grid";
 
 export default async function HomePage() {
@@ -15,7 +15,7 @@ export default async function HomePage() {
         const img = await db
           .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
           .from(images)
-          .where(eq(images.categoryId, cat.id))
+          .where(and(eq(images.categoryId, cat.id), isNull(images.ancestorId)))
           .orderBy(desc(images.highlight), desc(images.createdAt))
           .limit(1);
         return {
