@@ -1,48 +1,64 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, ancestors, users, siteAbout } from "@/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
-import { auth } from "../../../auth";
-import { ImageSlideshow } from "@/components/gallery/image-slideshow";
+import { images, categories, plays, ancestors } from "@/db/schema";
+import { eq, desc, and } from "drizzle-orm";
+import { CategoryGrid, type CategoryTile } from "./category-grid";
 
 export default async function HomePage() {
-  const session = await auth();
-  const isAdmin = session?.user?.role === "admin";
-
-  const [allImages, about] = await Promise.all([
-    db
-      .select({
-        id: images.id,
-        title: images.title,
-        blobUrl: images.blobUrl,
-        dateCreated: images.dateCreated,
-        description: images.description,
-        slideshowOverlayText: images.slideshowOverlayText,
-        creatorName: sql<string | null>`COALESCE(${users.name}, ${ancestors.name})`,
+  // Fetch all categories and find one representative image each
+  const allCategories = await db.query.categories.findMany();
+  const categoryTiles = await Promise.all(
+    allCategories
+      .filter((c) => c.name !== "Theatre") // Theatre is covered by Plays
+      .map(async (cat) => {
+        const img = await db
+          .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
+          .from(images)
+          .where(eq(images.categoryId, cat.id))
+          .orderBy(desc(images.highlight), desc(images.createdAt))
+          .limit(1);
+        return {
+          label: cat.name,
+          href: `/gallery?category=${cat.slug}`,
+          imageUrl: img[0]?.thumbnailUrl ?? img[0]?.blobUrl ?? null,
+        } satisfies CategoryTile;
       })
-      .from(images)
-      .leftJoin(ancestors, eq(images.ancestorId, ancestors.id))
-      .leftJoin(users, eq(images.creatorUserId, users.id))
-      .where(eq(images.visibility, "public"))
-      .orderBy(desc(images.createdAt)),
-    db.query.siteAbout.findFirst(),
-  ]);
+  );
+
+  // Plays tile: use the most recent play's primary image
+  const firstPlay = await db
+    .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
+    .from(plays)
+    .leftJoin(images, eq(plays.primaryImageId, images.id))
+    .orderBy(desc(plays.year), desc(plays.createdAt))
+    .limit(1);
+
+  const playsTile: CategoryTile = {
+    label: "Plays",
+    href: "/plays",
+    imageUrl: firstPlay[0]?.thumbnailUrl ?? firstPlay[0]?.blobUrl ?? null,
+  };
+
+  // Ancestors tile: use the first ancestor's photo
+  const firstAncestor = await db
+    .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
+    .from(ancestors)
+    .innerJoin(images, eq(ancestors.photoId, images.id))
+    .limit(1);
+
+  const ancestorsTile: CategoryTile = {
+    label: "Ancestors",
+    href: "/ancestors",
+    imageUrl:
+      firstAncestor[0]?.thumbnailUrl ?? firstAncestor[0]?.blobUrl ?? null,
+  };
+
+  const tiles = [...categoryTiles, playsTile, ancestorsTile];
 
   return (
-    <div className="flex h-[calc(100dvh-4rem)] flex-col md:flex-row">
-      {/* Slideshow column */}
-      <div className="min-h-[50dvh] w-full md:w-[60%] md:min-h-0 md:h-full p-6 md:p-12 md:pr-4">
-        <ImageSlideshow images={allImages} isAdmin={isAdmin} redirectPath="/" fullScreen fillParent currentUserId={session?.user?.id} />
-      </div>
-
-      {/* About column */}
-      <div className="flex w-full flex-col justify-center px-4 py-8 md:w-[40%] md:py-0 md:pl-0 md:pr-6">
-        <h1 className="mb-4 text-3xl font-bold">{about?.name ?? "Mary Elizabeth Atwood"}</h1>
-        {about?.bio && (
-          <p className="whitespace-pre-wrap text-gray-700">{about.bio}</p>
-        )}
-      </div>
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <CategoryGrid tiles={tiles} />
     </div>
   );
 }

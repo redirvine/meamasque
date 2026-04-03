@@ -61,6 +61,7 @@ export const images = sqliteTable("images", {
     .notNull()
     .default("public"),
   featured: integer("featured", { mode: "boolean" }).default(false),
+  highlight: integer("highlight", { mode: "boolean" }).default(false),
   thumbnailUrl: text("thumbnail_url"),
   slideshowOverlayText: text("slideshow_overlay_text"),
   createdAt: integer("created_at", { mode: "timestamp" })

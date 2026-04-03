@@ -41,37 +41,34 @@ function isActive(
   return false;
 }
 
-export function NavLinks({ role }: { role: string | null }) {
+export function NavLinks({ role, isHome = false }: { role: string | null; isHome?: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  if (!role) {
-    return (
-      <Link
-        href="/login"
-        className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
-      >
-        <LogIn className="h-4 w-4" />
-        Login
-      </Link>
-    );
-  }
+  // On homepage, hide all nav links (they're shown as image tiles)
+  const visibleLinks = isHome ? [] : navLinks;
+
+  const linkClass = isHome
+    ? "text-sm font-medium text-gray-600 hover:text-gray-900"
+    : "text-sm font-medium text-gray-300 hover:text-white";
+  const activeLinkClass = isHome
+    ? "text-sm font-medium text-gray-900"
+    : "text-sm font-medium text-white";
+  const iconBtnClass = isHome
+    ? "text-gray-900 hover:bg-gray-100"
+    : "text-white hover:bg-white/10";
 
   return (
     <>
       {/* Desktop nav */}
       <nav className="hidden items-center gap-6 sm:flex">
-        {navLinks.map((link) => {
+        {visibleLinks.map((link) => {
           const active = isActive(link.href, pathname, searchParams);
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={
-                active
-                  ? "text-sm font-medium text-white"
-                  : "text-sm font-medium text-gray-300 hover:text-white"
-              }
+              className={active ? activeLinkClass : linkClass}
             >
               {link.label}
             </Link>
@@ -80,32 +77,42 @@ export function NavLinks({ role }: { role: string | null }) {
         {role === "admin" && (
           <Link
             href="/admin"
-            className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
+            className={`flex items-center gap-1 ${linkClass}`}
           >
             <Settings className="h-3 w-3" />
             Admin
           </Link>
         )}
-        <button
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white"
-        >
-          <LogOut className="h-3 w-3" />
-          Logout
-        </button>
+        {role ? (
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className={`flex items-center gap-1 ${linkClass}`}
+          >
+            <LogOut className="h-3 w-3" />
+            Logout
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className={`flex items-center gap-1 ${linkClass}`}
+          >
+            <LogIn className="h-4 w-4" />
+            Login
+          </Link>
+        )}
       </nav>
 
       {/* Mobile nav */}
       <Sheet>
         <SheetTrigger asChild className="sm:hidden">
-          <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" className={iconBtnClass}>
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-64 bg-white">
           <SheetTitle className="text-lg font-bold text-gray-900">Menu</SheetTitle>
           <nav className="mt-6 flex flex-col gap-4">
-            {navLinks.map((link) => {
+            {visibleLinks.map((link) => {
               const active = isActive(link.href, pathname, searchParams);
               return (
                 <SheetClose key={link.href} asChild>
@@ -134,13 +141,23 @@ export function NavLinks({ role }: { role: string | null }) {
               </SheetClose>
             )}
             <SheetClose asChild>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                <LogOut className="h-3 w-3" />
-                Logout
-              </button>
+              {role ? (
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  <LogOut className="h-3 w-3" />
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </Link>
+              )}
             </SheetClose>
           </nav>
         </SheetContent>

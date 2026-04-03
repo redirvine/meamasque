@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 
-const authPages = ["/login", "/forgot-password", "/reset-password"];
+const publicPages = ["/", "/login", "/forgot-password", "/reset-password"];
 
 export default {
   pages: {
@@ -9,9 +9,11 @@ export default {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isAuthPage = authPages.some((p) => nextUrl.pathname.startsWith(p));
+      const isPublicPage =
+        nextUrl.pathname === "/" ||
+        publicPages.some((p) => p !== "/" && nextUrl.pathname.startsWith(p));
 
-      if (!isLoggedIn && !isAuthPage) {
+      if (!isLoggedIn && !isPublicPage) {
         return Response.redirect(new URL("/login", nextUrl));
       }
 
