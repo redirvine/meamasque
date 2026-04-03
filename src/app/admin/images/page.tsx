@@ -56,14 +56,14 @@ export default function ImagesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [viewImage, setViewImage] = useState<Image | null>(null);
-  const [slideshowOnly, setSlideshowOnly] = useState(false);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [allCategories, setAllCategories] = useState<Category[]>([]);
 
   const loadImages = async () => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
-    if (slideshowOnly) params.set("visibility", "public");
+    if (featuredOnly) params.set("featured", "true");
     if (categoryFilter !== "all") params.set("categoryId", categoryFilter);
     const res = await fetch(`/api/images?${params}`);
     const data = await res.json();
@@ -76,7 +76,7 @@ export default function ImagesPage() {
 
   useEffect(() => {
     loadImages();
-  }, [slideshowOnly, categoryFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [featuredOnly, categoryFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,14 +177,14 @@ export default function ImagesPage() {
 
       <div className="mb-6 flex flex-wrap items-end gap-4">
         <div className="space-y-1">
-          <Label className="text-xs text-gray-500">Slideshow content</Label>
-          <Select value={slideshowOnly ? "yes" : "no"} onValueChange={(v) => setSlideshowOnly(v === "yes")}>
+          <Label className="text-xs text-gray-500">Featured</Label>
+          <Select value={featuredOnly ? "yes" : "no"} onValueChange={(v) => setFeaturedOnly(v === "yes")}>
             <SelectTrigger className="w-36">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="no">All</SelectItem>
-              <SelectItem value="yes">Slideshow only</SelectItem>
+              <SelectItem value="yes">Featured</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -241,7 +241,7 @@ export default function ImagesPage() {
               </div>
               <CardContent className="p-3">
                 <p className="truncate text-sm font-medium">{image.title}</p>
-                {slideshowOnly && image.slideshowOverlayText && (
+                {featuredOnly && image.slideshowOverlayText && (
                   <p className="mt-1 truncate text-xs italic text-gray-500">
                     {image.slideshowOverlayText}
                   </p>

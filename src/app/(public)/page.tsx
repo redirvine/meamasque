@@ -2,26 +2,36 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { images, categories, plays, ancestors } from "@/db/schema";
-import { eq, desc, and, isNull } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { CategoryGrid, type CategoryTile } from "./category-grid";
 
+function pickRandom<T>(arr: T[]): T | undefined {
+  if (arr.length === 0) return undefined;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 export default async function HomePage() {
-  // Fetch all categories and find one representative image each
+  // Fetch all categories and find a random featured image each
   const allCategories = await db.query.categories.findMany();
   const categoryTiles = await Promise.all(
     allCategories
       .filter((c) => c.name !== "Theatre") // Theatre is covered by Plays
       .map(async (cat) => {
-        const img = await db
+        const featuredImages = await db
           .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
           .from(images)
-          .where(and(eq(images.categoryId, cat.id), isNull(images.ancestorId)))
-          .orderBy(desc(images.highlight), desc(images.createdAt))
-          .limit(1);
+          .where(
+            and(
+              eq(images.categoryId, cat.id),
+              isNull(images.ancestorId),
+              eq(images.featured, true)
+            )
+          );
+        const img = pickRandom(featuredImages);
         return {
           label: cat.name,
           href: `/gallery?category=${cat.slug}`,
-          imageUrl: img[0]?.thumbnailUrl ?? img[0]?.blobUrl ?? null,
+          imageUrl: img?.thumbnailUrl ?? img?.blobUrl ?? null,
         } satisfies CategoryTile;
       })
   );
@@ -31,7 +41,6 @@ export default async function HomePage() {
     .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
     .from(plays)
     .leftJoin(images, eq(plays.primaryImageId, images.id))
-    .orderBy(desc(plays.year), desc(plays.createdAt))
     .limit(1);
 
   const playsTile: CategoryTile = {

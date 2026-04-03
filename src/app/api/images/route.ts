@@ -81,6 +81,7 @@ export async function GET(request: NextRequest) {
   const categoryId = searchParams.get("categoryId");
   const search = searchParams.get("search");
   const visibility = searchParams.get("visibility");
+  const featured = searchParams.get("featured");
 
   const conditions: SQL[] = [];
 
@@ -89,6 +90,7 @@ export async function GET(request: NextRequest) {
   if (visibility === "public" || visibility === "private") {
     conditions.push(eq(images.visibility, visibility));
   }
+  if (featured === "true") conditions.push(eq(images.featured, true));
   if (search) conditions.push(like(images.title, `%${search}%`));
 
   const results = await db
