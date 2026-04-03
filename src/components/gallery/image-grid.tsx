@@ -78,7 +78,7 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
     <>
       {featured.map((featuredImage) => {
         const hasDescription = categoryDescription?.trim();
-        const sideCount = hasDescription ? 3 : 4;
+        const sideCount = hasDescription ? 2 : 4;
         const sideImages = regular.slice(0, sideCount);
 
         return (
@@ -87,9 +87,9 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
             {(sideImages.length > 0 || hasDescription) && (
               <div className="grid grid-cols-2 gap-4">
                 {hasDescription && (
-                  <div className="flex flex-col rounded-lg bg-white p-4">
+                  <div className="col-span-2 flex flex-col p-4">
                     {categoryDescriptionHeader?.trim() && (
-                      <h2 className="mb-4 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
+                      <h2 className="mb-2 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
                     )}
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
                   </div>
@@ -104,7 +104,7 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
       {/* Remaining regular images not paired with featured */}
       {featured.length > 0 && (() => {
         const hasDescription = categoryDescription?.trim();
-        const sideCount = hasDescription ? 3 : 4;
+        const sideCount = hasDescription ? 2 : 4;
         return regular.length > sideCount ? (
           <div className="grid items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {regular.slice(sideCount).map((image) => renderCard(image))}
