@@ -18,11 +18,17 @@ export function SiteHeaderClient({ role }: { role: string | null }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isGallery = pathname === "/gallery" || pathname.startsWith("/gallery/");
+  const isAncestors = pathname === "/ancestors" || pathname.startsWith("/ancestors/");
+  const isPlays = pathname === "/plays" || pathname.startsWith("/plays/");
   const isAdmin = pathname.startsWith("/admin");
   const minimal = !isAdmin;
 
   const categorySlug = isGallery ? searchParams.get("category") : null;
   const categoryLabel = categorySlug ? categoryLabels[categorySlug] ?? categorySlug : null;
+
+  const pageTitle = categoryLabel
+    ?? (isAncestors ? "Ancestors" : null)
+    ?? (isPlays ? "Plays" : null);
 
   return (
     <header
@@ -41,8 +47,8 @@ export function SiteHeaderClient({ role }: { role: string | null }) {
         >
           Mary Elizabeth Atwood
         </Link>
-        {categoryLabel ? (
-          <span className="text-sm font-medium text-gray-500">{categoryLabel}</span>
+        {pageTitle ? (
+          <span className="text-sm font-medium text-gray-500">{pageTitle}</span>
         ) : (
           <NavLinks role={role} isHome={minimal} />
         )}
