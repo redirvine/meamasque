@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { plays, images, playMemories, categories, comments } from "@/db/schema";
-import { eq, desc, count, sql, and } from "drizzle-orm";
+import { eq, desc, count, sql, and, inArray } from "drizzle-orm";
 import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
 
@@ -64,7 +64,7 @@ export default async function PlaysPage() {
         .where(
           and(
             eq(comments.resourceType, "play"),
-            sql`${comments.resourceId} IN (${sql.join(playIds.map(id => sql`${id}`), sql`, `)})`
+            inArray(comments.resourceId, playIds)
           )
         )
         .groupBy(comments.resourceId)

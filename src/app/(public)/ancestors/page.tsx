@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { ancestors, images, ancestorMemories, comments } from "@/db/schema";
-import { eq, sql, count, and } from "drizzle-orm";
+import { eq, sql, count, and, inArray } from "drizzle-orm";
 import Link from "next/link";
 import { BookOpen, MessageCircle, Pencil, User } from "lucide-react";
 import { auth } from "../../../../auth";
@@ -56,7 +56,7 @@ export default async function AncestorsPage() {
         .where(
           and(
             eq(comments.resourceType, "ancestor"),
-            sql`${comments.resourceId} IN (${sql.join(ancestorIds.map(id => sql`${id}`), sql`, `)})`
+            inArray(comments.resourceId, ancestorIds)
           )
         )
         .groupBy(comments.resourceId)

@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { images, users, categories, comments } from "@/db/schema";
-import { eq, desc, and, ne, or, isNull, sql, count } from "drizzle-orm";
+import { eq, desc, and, ne, or, isNull, inArray, count } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { auth } from "../../../../auth";
 
@@ -76,7 +76,7 @@ export default async function GalleryPage({
         .where(
           and(
             eq(comments.resourceType, "image"),
-            sql`${comments.resourceId} IN (${sql.join(imageIds.map(id => sql`${id}`), sql`, `)})`
+            inArray(comments.resourceId, imageIds)
           )
         )
         .groupBy(comments.resourceId)
