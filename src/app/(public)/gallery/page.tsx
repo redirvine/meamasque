@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, users, categories } from "@/db/schema";
-import { eq, desc, and, ne, or, isNull } from "drizzle-orm";
+import { images, users, categories, comments } from "@/db/schema";
+import { eq, desc, and, ne, or, isNull, sql, count } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { auth } from "../../../../auth";
 
@@ -64,6 +64,30 @@ export default async function GalleryPage({
     )
     .orderBy(desc(images.createdAt));
 
+  // Fetch comment counts for all images in one query
+  const imageIds = allImages.map((img) => img.id);
+  const commentCounts = imageIds.length > 0
+    ? await db
+        .select({
+          resourceId: comments.resourceId,
+          count: count().as("count"),
+        })
+        .from(comments)
+        .where(
+          and(
+            eq(comments.resourceType, "image"),
+            sql`${comments.resourceId} IN (${sql.join(imageIds.map(id => sql`${id}`), sql`, `)})`
+          )
+        )
+        .groupBy(comments.resourceId)
+    : [];
+
+  const commentCountMap = new Map(commentCounts.map((c) => [c.resourceId, c.count]));
+  const imagesWithComments = allImages.map((img) => ({
+    ...img,
+    commentCount: commentCountMap.get(img.id) ?? 0,
+  }));
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       {allImages.length === 0 ? (
@@ -71,7 +95,7 @@ export default async function GalleryPage({
           <p>No artwork to display yet.</p>
         </div>
       ) : (
-        <ImageGrid images={allImages} isAdmin={isAdmin} currentUserId={session?.user?.id} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} />
+        <ImageGrid images={imagesWithComments} isAdmin={isAdmin} currentUserId={session?.user?.id} redirectPath={redirectPath} categoryDescription={categoryRow?.description} categoryDescriptionHeader={categoryRow?.descriptionHeader} />
       )}
     </div>
   );

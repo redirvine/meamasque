@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { plays, images, playMemories, categories } from "@/db/schema";
-import { eq, desc, count, sql } from "drizzle-orm";
+import { plays, images, playMemories, categories, comments } from "@/db/schema";
+import { eq, desc, count, sql, and } from "drizzle-orm";
 import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
 
@@ -52,13 +52,37 @@ export default async function PlaysPage() {
     .leftJoin(memoryCountSq, eq(plays.id, memoryCountSq.playId))
     .orderBy(desc(plays.year), desc(plays.createdAt));
 
+  // Fetch comment counts for plays
+  const playIds = allPlays.map((p) => p.id);
+  const commentCounts = playIds.length > 0
+    ? await db
+        .select({
+          resourceId: comments.resourceId,
+          count: count().as("count"),
+        })
+        .from(comments)
+        .where(
+          and(
+            eq(comments.resourceType, "play"),
+            sql`${comments.resourceId} IN (${sql.join(playIds.map(id => sql`${id}`), sql`, `)})`
+          )
+        )
+        .groupBy(comments.resourceId)
+    : [];
+
+  const commentCountMap = new Map(commentCounts.map((c) => [c.resourceId, c.count]));
+  const playsWithComments = allPlays.map((p) => ({
+    ...p,
+    commentCount: commentCountMap.get(p.id) ?? 0,
+  }));
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       {allPlays.length === 0 ? (
         <p className="text-gray-500">No plays added yet.</p>
       ) : (
         <PlaysListing
-          plays={allPlays}
+          plays={playsWithComments}
           isAdmin={isAdmin}
           headerText={theatreCategory?.descriptionHeader}
           headerDescription={theatreCategory?.description}

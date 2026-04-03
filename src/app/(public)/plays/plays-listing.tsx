@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Camera, BookOpen, Drama, Pencil, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Camera, BookOpen, Drama, MessageCircle, Pencil, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
@@ -24,6 +24,7 @@ type Play = {
   primaryImageThumbnailUrl?: string | null;
   imageCount: number;
   memoryCount: number;
+  commentCount?: number;
 };
 
 interface PlayImage {
@@ -151,6 +152,15 @@ export function PlaysListing({
           {p.year != null && <span>{p.year}</span>}
           {p.year != null && p.location && <span>&middot;</span>}
           {p.location && <span>{p.location}</span>}
+          {(p.commentCount ?? 0) > 0 && (
+            <>
+              {(p.role || p.year != null || p.location) && <span>&middot;</span>}
+              <span className="inline-flex items-center gap-0.5">
+                <MessageCircle className="h-3 w-3" />
+                {p.commentCount}
+              </span>
+            </>
+          )}
         </div>
         {(p.imageCount > 0 || p.memoryCount > 0) && (
           <div className="flex gap-3 pt-2">

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { MessageCircle, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ interface GalleryImage {
   creatorName?: string | null;
   description?: string | null;
   featured?: boolean | null;
+  commentCount?: number;
 }
 
 export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath, categoryDescription, categoryDescriptionHeader }: { images: GalleryImage[]; isAdmin?: boolean; currentUserId?: string; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null }) {
@@ -59,6 +60,15 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
             {image.creatorName && <span>{image.creatorName}</span>}
             {image.creatorName && image.dateCreated && <span>&middot;</span>}
             {image.dateCreated && <span>{image.dateCreated}</span>}
+            {(image.commentCount ?? 0) > 0 && (
+              <>
+                {(image.creatorName || image.dateCreated) && <span>&middot;</span>}
+                <span className="inline-flex items-center gap-0.5">
+                  <MessageCircle className="h-3 w-3" />
+                  {image.commentCount}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </button>

@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories } from "@/db/schema";
-import { eq, sql, count } from "drizzle-orm";
+import { ancestors, images, ancestorMemories, comments } from "@/db/schema";
+import { eq, sql, count, and } from "drizzle-orm";
 import Link from "next/link";
-import { BookOpen, Pencil, User } from "lucide-react";
+import { BookOpen, MessageCircle, Pencil, User } from "lucide-react";
 import { auth } from "../../../../auth";
 
 export const metadata = {
@@ -43,6 +43,26 @@ export default async function AncestorsPage() {
     .leftJoin(images, eq(ancestors.photoId, images.id))
     .leftJoin(memoryCountSq, eq(ancestors.id, memoryCountSq.ancestorId))
     .orderBy(ancestors.name);
+
+  // Fetch comment counts for ancestors
+  const ancestorIds = allAncestors.map((a) => a.id);
+  const commentCounts = ancestorIds.length > 0
+    ? await db
+        .select({
+          resourceId: comments.resourceId,
+          count: count().as("count"),
+        })
+        .from(comments)
+        .where(
+          and(
+            eq(comments.resourceType, "ancestor"),
+            sql`${comments.resourceId} IN (${sql.join(ancestorIds.map(id => sql`${id}`), sql`, `)})`
+          )
+        )
+        .groupBy(comments.resourceId)
+    : [];
+
+  const commentCountMap = new Map(commentCounts.map((c) => [c.resourceId, c.count]));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -99,12 +119,20 @@ export default async function AncestorsPage() {
                     {ancestor.died ?? "?"}
                   </p>
                 )}
-                {ancestor.memoryCount > 0 && (
+                {(ancestor.memoryCount > 0 || (commentCountMap.get(ancestor.id) ?? 0) > 0) && (
                   <div className="mt-auto flex gap-3 pt-3">
-                    <span className="inline-flex items-center gap-1 text-sm text-blue-600">
-                      <BookOpen className="h-3.5 w-3.5" />
-                      {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
-                    </span>
+                    {ancestor.memoryCount > 0 && (
+                      <span className="inline-flex items-center gap-1 text-sm text-blue-600">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        {ancestor.memoryCount} {ancestor.memoryCount === 1 ? "memory" : "memories"}
+                      </span>
+                    )}
+                    {(commentCountMap.get(ancestor.id) ?? 0) > 0 && (
+                      <span className="inline-flex items-center gap-1 text-sm text-gray-500">
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        {commentCountMap.get(ancestor.id)} {commentCountMap.get(ancestor.id) === 1 ? "comment" : "comments"}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
