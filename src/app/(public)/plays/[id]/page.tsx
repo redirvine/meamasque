@@ -9,6 +9,7 @@ import { ArrowLeft, Pencil } from "lucide-react";
 import { auth } from "../../../../../auth";
 import { AddMemoryForm } from "./add-memory-form";
 import { CommentsSection } from "@/components/comments/comments-section";
+import { LikeButton } from "@/components/likes/like-button";
 import { PlayMediaViewer } from "./play-media-viewer";
 
 export default async function PlayDetailPage({
@@ -122,6 +123,14 @@ export default async function PlayDetailPage({
             <AddMemoryForm playId={id} />
           </div>
         )}
+
+        <div className="mt-8">
+          <LikeButton
+            resourceType="play"
+            resourceId={id}
+            currentUserId={session?.user?.id}
+          />
+        </div>
 
         <CommentsSection
           resourceType="play"

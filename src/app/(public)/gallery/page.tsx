@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, users, categories, comments } from "@/db/schema";
+import { images, users, categories, comments, likes } from "@/db/schema";
 import { eq, desc, and, ne, or, isNull, inArray, count } from "drizzle-orm";
 import { ImageGrid } from "@/components/gallery/image-grid";
 import { auth } from "../../../../auth";
@@ -83,9 +83,29 @@ export default async function GalleryPage({
     : [];
 
   const commentCountMap = new Map(commentCounts.map((c) => [c.resourceId, c.count]));
+
+  // Fetch like counts for all images in one query
+  const likeCounts = imageIds.length > 0
+    ? await db
+        .select({
+          resourceId: likes.resourceId,
+          count: count().as("count"),
+        })
+        .from(likes)
+        .where(
+          and(
+            eq(likes.resourceType, "image"),
+            inArray(likes.resourceId, imageIds)
+          )
+        )
+        .groupBy(likes.resourceId)
+    : [];
+
+  const likeCountMap = new Map(likeCounts.map((l) => [l.resourceId, l.count]));
   const imagesWithComments = allImages.map((img) => ({
     ...img,
     commentCount: commentCountMap.get(img.id) ?? 0,
+    likeCount: likeCountMap.get(img.id) ?? 0,
   }));
 
   return (

@@ -231,6 +231,23 @@ export const comments = sqliteTable("comments", {
     .$defaultFn(() => new Date()),
 });
 
+// Likes — toggleable likes on images, plays, and ancestors
+export const likes = sqliteTable("likes", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  resourceType: text("resource_type", {
+    enum: ["image", "play", "ancestor"],
+  }).notNull(),
+  resourceId: text("resource_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // SiteAbout — single-row table for the About page content
 export const siteAbout = sqliteTable("site_about", {
   id: text("id")

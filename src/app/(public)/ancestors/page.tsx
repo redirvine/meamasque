@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories, comments } from "@/db/schema";
+import { ancestors, images, ancestorMemories, comments, likes } from "@/db/schema";
 import { eq, sql, count, and, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { BookOpen, MessageCircle, User } from "lucide-react";
+import { BookOpen, Heart, MessageCircle, User } from "lucide-react";
 
 export const metadata = {
   title: "Ancestors - Mary Elizabeth Atwood",
@@ -60,6 +60,25 @@ export default async function AncestorsPage() {
 
   const commentCountMap = new Map(commentCounts.map((c) => [c.resourceId, c.count]));
 
+  // Fetch like counts for ancestors
+  const likeCounts = ancestorIds.length > 0
+    ? await db
+        .select({
+          resourceId: likes.resourceId,
+          count: count().as("count"),
+        })
+        .from(likes)
+        .where(
+          and(
+            eq(likes.resourceType, "ancestor"),
+            inArray(likes.resourceId, ancestorIds)
+          )
+        )
+        .groupBy(likes.resourceId)
+    : [];
+
+  const likeCountMap = new Map(likeCounts.map((l) => [l.resourceId, l.count]));
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       {allAncestors.length === 0 ? (
@@ -106,8 +125,14 @@ export default async function AncestorsPage() {
                     {ancestor.died ?? "?"}
                   </p>
                 )}
-                {(ancestor.memoryCount > 0 || (commentCountMap.get(ancestor.id) ?? 0) > 0) && (
+                {(ancestor.memoryCount > 0 || (commentCountMap.get(ancestor.id) ?? 0) > 0 || (likeCountMap.get(ancestor.id) ?? 0) > 0) && (
                   <div className="mt-auto flex gap-3 pt-3">
+                    {(likeCountMap.get(ancestor.id) ?? 0) > 0 && (
+                      <span className="inline-flex items-center gap-1 text-sm text-gray-500">
+                        <Heart className="h-3.5 w-3.5" />
+                        {likeCountMap.get(ancestor.id)}
+                      </span>
+                    )}
                     {ancestor.memoryCount > 0 && (
                       <span className="inline-flex items-center gap-1 text-sm text-blue-600">
                         <BookOpen className="h-3.5 w-3.5" />

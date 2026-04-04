@@ -15,6 +15,7 @@ type PhotoGroup = {
     dateCreated: string | null;
     description?: string | null;
     commentCount?: number;
+    likeCount?: number;
   }[];
 };
 

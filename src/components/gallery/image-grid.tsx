@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MessageCircle, Pencil } from "lucide-react";
+import { Heart, MessageCircle, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { CommentsSection } from "@/components/comments/comments-section";
+import { LikeButton } from "@/components/likes/like-button";
 
 interface GalleryImage {
   id: string;
@@ -22,6 +23,7 @@ interface GalleryImage {
   description?: string | null;
   featured?: boolean | null;
   commentCount?: number;
+  likeCount?: number;
 }
 
 export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath, categoryDescription, categoryDescriptionHeader, openImageId }: { images: GalleryImage[]; isAdmin?: boolean; currentUserId?: string; redirectPath?: string; categoryDescription?: string | null; categoryDescriptionHeader?: string | null; openImageId?: string }) {
@@ -67,9 +69,18 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
             {image.creatorName && <span>{image.creatorName}</span>}
             {image.creatorName && image.dateCreated && <span>&middot;</span>}
             {image.dateCreated && <span>{image.dateCreated}</span>}
-            {(image.commentCount ?? 0) > 0 && (
+            {(image.likeCount ?? 0) > 0 && (
               <>
                 {(image.creatorName || image.dateCreated) && <span>&middot;</span>}
+                <span className="inline-flex items-center gap-0.5">
+                  <Heart className="h-3 w-3" />
+                  {image.likeCount}
+                </span>
+              </>
+            )}
+            {(image.commentCount ?? 0) > 0 && (
+              <>
+                {(image.creatorName || image.dateCreated || (image.likeCount ?? 0) > 0) && <span>&middot;</span>}
                 <span className="inline-flex items-center gap-0.5">
                   <MessageCircle className="h-3 w-3" />
                   {image.commentCount}
@@ -155,6 +166,11 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
                   </Link>
                 </div>
               )}
+              <LikeButton
+                resourceType="image"
+                resourceId={selectedImage.id}
+                currentUserId={currentUserId}
+              />
               <CommentsSection
                 resourceType="image"
                 resourceId={selectedImage.id}

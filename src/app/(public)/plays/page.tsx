@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { plays, images, playMemories, categories, comments } from "@/db/schema";
+import { plays, images, playMemories, categories, comments, likes } from "@/db/schema";
 import { eq, desc, count, sql, and, inArray } from "drizzle-orm";
 import { auth } from "../../../../auth";
 import { PlaysListing } from "./plays-listing";
@@ -71,9 +71,29 @@ export default async function PlaysPage() {
     : [];
 
   const commentCountMap = new Map(commentCounts.map((c) => [c.resourceId, c.count]));
+
+  // Fetch like counts for plays
+  const likeCounts = playIds.length > 0
+    ? await db
+        .select({
+          resourceId: likes.resourceId,
+          count: count().as("count"),
+        })
+        .from(likes)
+        .where(
+          and(
+            eq(likes.resourceType, "play"),
+            inArray(likes.resourceId, playIds)
+          )
+        )
+        .groupBy(likes.resourceId)
+    : [];
+
+  const likeCountMap = new Map(likeCounts.map((l) => [l.resourceId, l.count]));
   const playsWithComments = allPlays.map((p) => ({
     ...p,
     commentCount: commentCountMap.get(p.id) ?? 0,
+    likeCount: likeCountMap.get(p.id) ?? 0,
   }));
 
   return (

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories, ancestorPhotos, categories, comments } from "@/db/schema";
+import { ancestors, images, ancestorMemories, ancestorPhotos, categories, comments, likes } from "@/db/schema";
 import { eq, count, desc, asc, ne, and, notInArray, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { CollapsibleSections } from "./collapsible-sections";
 import { AncestorPhoto } from "./ancestor-photo";
 import { CollapseToggle } from "./collapse-toggle";
 import { CommentsSection } from "@/components/comments/comments-section";
+import { LikeButton } from "@/components/likes/like-button";
 
 export default async function AncestorPage({
   params,
@@ -116,6 +117,24 @@ export default async function AncestorPage({
     : [];
   const commentCountMap = new Map(imageCommentCounts.map((c) => [c.resourceId, c.count]));
 
+  // Fetch like counts for all images on this page
+  const imageLikeCounts = allImageIds.length > 0
+    ? await db
+        .select({
+          resourceId: likes.resourceId,
+          count: count().as("count"),
+        })
+        .from(likes)
+        .where(
+          and(
+            eq(likes.resourceType, "image"),
+            inArray(likes.resourceId, allImageIds)
+          )
+        )
+        .groupBy(likes.resourceId)
+    : [];
+  const likeCountMap = new Map(imageLikeCounts.map((l) => [l.resourceId, l.count]));
+
   const grouped = new Map<string, typeof works>();
   for (const work of works) {
     const key = work.categoryName ?? "Other";
@@ -206,6 +225,7 @@ export default async function AncestorPage({
             dateCreated: p.dateCreated,
             description: p.description,
             commentCount: commentCountMap.get(p.id) ?? 0,
+            likeCount: likeCountMap.get(p.id) ?? 0,
           }))}
           photoGroups={Array.from(grouped.entries()).map(
             ([categoryName, imgs]) => ({
@@ -218,6 +238,7 @@ export default async function AncestorPage({
                 dateCreated: img.dateCreated,
                 description: img.description,
                 commentCount: commentCountMap.get(img.id) ?? 0,
+                likeCount: likeCountMap.get(img.id) ?? 0,
               })),
             })
           )}
@@ -225,6 +246,14 @@ export default async function AncestorPage({
           currentUserId={session?.user?.id}
           redirectPath={`/ancestors/${slug}`}
         />
+
+        <div className="mt-8">
+          <LikeButton
+            resourceType="ancestor"
+            resourceId={ancestor.id}
+            currentUserId={session?.user?.id}
+          />
+        </div>
 
         <CommentsSection
           resourceType="ancestor"

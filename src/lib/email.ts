@@ -54,6 +54,28 @@ export async function sendCommentNotificationEmail(
   });
 }
 
+export async function sendLikeNotificationEmail(
+  adminEmails: string[],
+  userName: string,
+  resourceType: string,
+  resourceId: string
+) {
+  if (adminEmails.length === 0) return;
+
+  const resourceUrl = await buildResourceUrl(resourceType, resourceId);
+
+  await resend.emails.send({
+    from: "Mary Elizabeth Atwood <noreply@meamasque.com>",
+    to: adminEmails,
+    subject: `${userName} liked a ${resourceType}`,
+    html: `
+      <h2>New Like</h2>
+      <p><strong>${userName}</strong> liked a <strong>${resourceType}</strong>.</p>
+      <p><a href="${resourceUrl}">View it on the site</a></p>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
