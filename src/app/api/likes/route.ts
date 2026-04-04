@@ -107,10 +107,10 @@ export async function POST(request: Request) {
           session.user.name || "Someone",
           resourceType,
           resourceId
-        ).catch(() => {});
+        ).catch((err) => console.error("Like email send failed:", err));
       }
     })
-    .catch(() => {});
+    .catch((err) => console.error("Like email admin query failed:", err));
 
   return NextResponse.json(newLike, { status: 201 });
 }
