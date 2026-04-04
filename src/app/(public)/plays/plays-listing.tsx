@@ -201,7 +201,7 @@ export function PlaysListing({
   );
 
   const hasDescription = headerDescription?.trim();
-  const sideCount = hasDescription ? 3 : 4;
+  const sideCount = 4;
   const sidePlays = plays.slice(1, 1 + sideCount);
   const remainingPlays = plays.slice(1 + sideCount);
 
@@ -213,7 +213,7 @@ export function PlaysListing({
         {(sidePlays.length > 0 || hasDescription) && (
           <div className="grid grid-cols-2 gap-4">
             {hasDescription && (
-              <div className="flex flex-col rounded-lg bg-white p-4">
+              <div className="col-span-2 flex flex-col rounded-lg bg-white p-4">
                 {headerText?.trim() && (
                   <h2 className="mb-4 text-xl font-bold leading-tight text-gray-900">{headerText}</h2>
                 )}
