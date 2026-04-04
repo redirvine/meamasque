@@ -42,7 +42,7 @@ export async function sendCommentNotificationEmail(
   const resourceUrl = await buildResourceUrl(resourceType, resourceId);
 
   await resend.emails.send({
-    from: "Mary Elizabeth Atwood <noreply@meamasque.com>",
+    from: "Mary Elizabeth Atwood <noreply@maryelizabethatwood.com>",
     to: adminEmails,
     subject: `New comment from ${commenterName}`,
     html: `
@@ -65,7 +65,7 @@ export async function sendLikeNotificationEmail(
   const resourceUrl = await buildResourceUrl(resourceType, resourceId);
 
   await resend.emails.send({
-    from: "Mary Elizabeth Atwood <noreply@meamasque.com>",
+    from: "Mary Elizabeth Atwood <noreply@maryelizabethatwood.com>",
     to: adminEmails,
     subject: `${userName} liked a ${resourceType}`,
     html: `
@@ -80,7 +80,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
   await resend.emails.send({
-    from: "Mary Elizabeth Atwood <noreply@meamasque.com>",
+    from: "Mary Elizabeth Atwood <noreply@maryelizabethatwood.com>",
     to: email,
     subject: "Reset your password",
     html: `
