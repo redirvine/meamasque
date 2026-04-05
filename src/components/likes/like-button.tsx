@@ -91,7 +91,7 @@ export function LikeButton({
       type="button"
       onClick={toggle}
       disabled={!currentUserId || loading}
-      className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-red-500 disabled:opacity-50 disabled:cursor-default"
+      className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-default"
     >
       <Heart
         className={`h-4 w-4 transition-colors ${liked ? "fill-red-500 text-red-500" : ""}`}
