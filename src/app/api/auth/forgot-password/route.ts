@@ -28,12 +28,10 @@ export async function POST(request: NextRequest) {
 
   const rawToken = generateToken();
   const hashed = hashToken(rawToken);
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
   await db.insert(passwordResetTokens).values({
     userId: user.id,
     hashedToken: hashed,
-    expiresAt,
   });
 
   try {

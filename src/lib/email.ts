@@ -76,6 +76,20 @@ export async function sendLikeNotificationEmail(
   });
 }
 
+export async function sendWelcomeEmail(email: string, token: string) {
+  const resetUrl = `${appUrl}/reset-password?token=${token}`;
+
+  await resend.emails.send({
+    from: "Mary Elizabeth Atwood <noreply@maryelizabethatwood.com>",
+    to: email,
+    subject: "Welcome",
+    html: `
+      <p>Welcome to Mary Elizabeth Atwood's website.</p>
+      <p><a href="${resetUrl}">Click here to set your password</a></p>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
@@ -87,7 +101,6 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       <h2>Password Reset</h2>
       <p>You requested a password reset for your account.</p>
       <p><a href="${resetUrl}">Click here to reset your password</a></p>
-      <p>This link will expire in 1 hour.</p>
       <p>If you didn't request this, you can safely ignore this email.</p>
     `,
   });

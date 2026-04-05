@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { users, passwordResetTokens } from "@/db/schema";
-import { eq, and, isNull, gt } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { hashToken } from "@/lib/tokens";
 import { hash } from "bcryptjs";
 
@@ -27,8 +27,7 @@ export async function POST(request: NextRequest) {
   const resetToken = await db.query.passwordResetTokens.findFirst({
     where: and(
       eq(passwordResetTokens.hashedToken, hashedToken),
-      isNull(passwordResetTokens.usedAt),
-      gt(passwordResetTokens.expiresAt, new Date())
+      isNull(passwordResetTokens.usedAt)
     ),
   });
 
