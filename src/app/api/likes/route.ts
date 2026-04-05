@@ -95,22 +95,24 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  // Notify admin users (fire-and-forget)
-  db.select({ email: users.email })
-    .from(users)
-    .where(and(eq(users.role, "admin"), ne(users.id, session.user.id)))
-    .then((rows) => {
-      const emails = rows.map((r) => r.email);
-      if (emails.length > 0) {
-        sendLikeNotificationEmail(
-          emails,
-          session.user.name || "Someone",
-          resourceType,
-          resourceId
-        ).catch((err) => console.error("Like email send failed:", err));
-      }
-    })
-    .catch((err) => console.error("Like email admin query failed:", err));
+  // Notify admin users
+  try {
+    const rows = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(and(eq(users.role, "admin"), ne(users.id, session.user.id)));
+    const emails = rows.map((r) => r.email);
+    if (emails.length > 0) {
+      await sendLikeNotificationEmail(
+        emails,
+        session.user.name || "Someone",
+        resourceType,
+        resourceId
+      );
+    }
+  } catch (err) {
+    console.error("Like notification email failed:", err);
+  }
 
   return NextResponse.json(newLike, { status: 201 });
 }
