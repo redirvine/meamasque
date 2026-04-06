@@ -142,6 +142,59 @@ export const ancestorMemories = sqliteTable("ancestor_memories", {
     .$defaultFn(() => new Date()),
 });
 
+// Places — significant locations
+export const places = sqliteTable("places", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country"),
+  visitedOrLived: text("visited_or_lived", {
+    enum: ["visited", "lived"],
+  }),
+  fromDate: text("from_date"),
+  toDate: text("to_date"),
+  photoId: text("photo_id").references(() => images.id, {
+    onDelete: "set null",
+  }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+// PlacePhotos — junction table for place-image associations
+export const placePhotos = sqliteTable("place_photos", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  placeId: text("place_id")
+    .notNull()
+    .references(() => places.id, { onDelete: "cascade" }),
+  imageId: text("image_id")
+    .notNull()
+    .references(() => images.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// PlaceMemories — text memories attached to places
+export const placeMemories = sqliteTable("place_memories", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  placeId: text("place_id")
+    .notNull()
+    .references(() => places.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 // Plays — acting history
 export const plays = sqliteTable("plays", {
   id: text("id")
@@ -215,7 +268,7 @@ export const comments = sqliteTable("comments", {
     .primaryKey()
     .$defaultFn(() => createId()),
   resourceType: text("resource_type", {
-    enum: ["image", "play", "ancestor"],
+    enum: ["image", "play", "ancestor", "place"],
   }).notNull(),
   resourceId: text("resource_id").notNull(),
   parentId: text("parent_id"),
@@ -237,7 +290,7 @@ export const likes = sqliteTable("likes", {
     .primaryKey()
     .$defaultFn(() => createId()),
   resourceType: text("resource_type", {
-    enum: ["image", "play", "ancestor"],
+    enum: ["image", "play", "ancestor", "place"],
   }).notNull(),
   resourceId: text("resource_id").notNull(),
   userId: text("user_id")

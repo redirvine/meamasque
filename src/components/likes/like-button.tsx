@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Heart } from "lucide-react";
 
 interface LikeButtonProps {
-  resourceType: "image" | "play" | "ancestor";
+  resourceType: "image" | "play" | "ancestor" | "place";
   resourceId: string;
   currentUserId?: string;
   compact?: boolean;

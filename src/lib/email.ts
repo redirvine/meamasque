@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { db } from "@/db";
-import { ancestors, images, categories } from "@/db/schema";
+import { ancestors, places, images, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -14,6 +14,13 @@ async function buildResourceUrl(resourceType: string, resourceId: string): Promi
       columns: { slug: true },
     });
     return `${appUrl}/ancestors/${ancestor?.slug ?? resourceId}`;
+  }
+  if (resourceType === "place") {
+    const place = await db.query.places.findFirst({
+      where: eq(places.id, resourceId),
+      columns: { slug: true },
+    });
+    return `${appUrl}/places/${place?.slug ?? resourceId}`;
   }
   if (resourceType === "play") return `${appUrl}/plays/${resourceId}`;
   if (resourceType === "image") {

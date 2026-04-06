@@ -5,7 +5,7 @@ import { auth } from "../../../../auth";
 import { eq, and, ne } from "drizzle-orm";
 import { sendCommentNotificationEmail } from "@/lib/email";
 
-const VALID_TYPES = ["image", "play", "ancestor"] as const;
+const VALID_TYPES = ["image", "play", "ancestor", "place"] as const;
 type ResourceType = (typeof VALID_TYPES)[number];
 
 export async function GET(request: Request) {

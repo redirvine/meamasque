@@ -20,6 +20,7 @@ const navLinks = [
   { href: "/gallery?category=paintings", label: "Paintings" },
   { href: "/gallery?category=drawings", label: "Drawings" },
   { href: "/plays", label: "Plays" },
+  { href: "/places", label: "Places" },
   { href: "/ancestors", label: "Ancestors" },
 ];
 
@@ -34,6 +35,9 @@ function isActive(
   }
   if (linkHref === "/plays") {
     return pathname.startsWith("/plays");
+  }
+  if (linkHref === "/places") {
+    return pathname.startsWith("/places");
   }
   if (linkHref === "/ancestors") {
     return pathname.startsWith("/ancestors");

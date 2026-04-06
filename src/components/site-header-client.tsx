@@ -19,6 +19,7 @@ export function SiteHeaderClient({ role }: { role: string | null }) {
   const searchParams = useSearchParams();
   const isGallery = pathname === "/gallery" || pathname.startsWith("/gallery/");
   const isAncestors = pathname === "/ancestors" || pathname.startsWith("/ancestors/");
+  const isPlaces = pathname === "/places" || pathname.startsWith("/places/");
   const isPlays = pathname === "/plays" || pathname.startsWith("/plays/");
   const isAdmin = pathname.startsWith("/admin");
   const minimal = !isAdmin;
@@ -28,6 +29,7 @@ export function SiteHeaderClient({ role }: { role: string | null }) {
 
   const pageTitle = categoryLabel
     ?? (isAncestors ? "Ancestors" : null)
+    ?? (isPlaces ? "Places" : null)
     ?? (isPlays ? "Plays" : null);
 
   return (

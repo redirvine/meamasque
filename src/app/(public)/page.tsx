@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, categories, plays, ancestors } from "@/db/schema";
+import { images, categories, plays, ancestors, places } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { CategoryGrid, type CategoryTile } from "./category-grid";
 
@@ -51,6 +51,20 @@ export default async function HomePage() {
     imageUrl: playImg?.thumbnailUrl ?? playImg?.blobUrl ?? null,
   };
 
+  // Places tile: use the first place's photo
+  const firstPlace = await db
+    .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
+    .from(places)
+    .innerJoin(images, eq(places.photoId, images.id))
+    .limit(1);
+
+  const placesTile: CategoryTile = {
+    label: "Places",
+    href: "/places",
+    imageUrl:
+      firstPlace[0]?.thumbnailUrl ?? firstPlace[0]?.blobUrl ?? null,
+  };
+
   // Ancestors tile: use the first ancestor's photo
   const firstAncestor = await db
     .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
@@ -65,9 +79,19 @@ export default async function HomePage() {
       firstAncestor[0]?.thumbnailUrl ?? firstAncestor[0]?.blobUrl ?? null,
   };
 
-  const tiles = [...categoryTiles, playsTile, ancestorsTile].filter(
+  const desiredOrder = [
+    "Paintings", "Drawings", "Mixed Media", "Masks", "Poems", "Plays", "Photos", "Places", "Ancestors",
+  ];
+
+  const allTiles = [...categoryTiles, playsTile, placesTile, ancestorsTile].filter(
     (t) => t.imageUrl
   );
+
+  const tiles = allTiles.sort((a, b) => {
+    const ai = desiredOrder.indexOf(a.label);
+    const bi = desiredOrder.indexOf(b.label);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  });
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
