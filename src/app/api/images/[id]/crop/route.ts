@@ -106,15 +106,14 @@ export async function POST(
 
   logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "image", resourceId: id, detail: `Cropped image '${image.title}'` });
 
-  // Regenerate thumbnail in the background — don't block the crop response
-  generateThumbnail(cropped, id, image.thumbnailUrl).then(async (thumbnailUrl) => {
-    if (thumbnailUrl) {
-      await db
-        .update(images)
-        .set({ thumbnailUrl })
-        .where(eq(images.id, id));
-    }
-  });
+  // Regenerate thumbnail from cropped image
+  const thumbnailUrl = await generateThumbnail(cropped, id, image.thumbnailUrl);
+  if (thumbnailUrl) {
+    await db
+      .update(images)
+      .set({ thumbnailUrl })
+      .where(eq(images.id, id));
+  }
 
-  return NextResponse.json({ blobUrl: updated.blobUrl });
+  return NextResponse.json({ blobUrl: updated.blobUrl, thumbnailUrl });
 }
