@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { db } from "@/db";
 import { images } from "@/db/schema";
 import { auth } from "../../../../../../auth";
@@ -106,14 +107,20 @@ export async function POST(
 
   logAudit({ userId: session.user?.id, userEmail: session.user?.email ?? "", action: "update", resource: "image", resourceId: id, detail: `Cropped image '${image.title}'` });
 
-  // Regenerate thumbnail from cropped image
-  const thumbnailUrl = await generateThumbnail(cropped, id, image.thumbnailUrl);
-  if (thumbnailUrl) {
-    await db
-      .update(images)
-      .set({ thumbnailUrl })
-      .where(eq(images.id, id));
-  }
+  // Regenerate thumbnail after response is sent (keeps function alive on Vercel)
+  after(async () => {
+    try {
+      const thumbnailUrl = await generateThumbnail(cropped, id, image.thumbnailUrl);
+      if (thumbnailUrl) {
+        await db
+          .update(images)
+          .set({ thumbnailUrl })
+          .where(eq(images.id, id));
+      }
+    } catch (err) {
+      console.error("Thumbnail regeneration failed:", err);
+    }
+  });
 
-  return NextResponse.json({ blobUrl: updated.blobUrl, thumbnailUrl });
+  return NextResponse.json({ blobUrl: updated.blobUrl });
 }
