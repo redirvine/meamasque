@@ -69,13 +69,13 @@ export default async function AncestorPage({
     .where(eq(ancestorPhotos.ancestorId, ancestor.id))
     .orderBy(asc(ancestorPhotos.sortOrder));
 
-  // Exclude the primary photo and any additional photos from the works query
+  // Fetch all other images for this ancestor (not the primary photo)
+  const additionalPhotoIds = new Set(additionalPhotos.map((p) => p.id));
   const excludeIds = [
     ...(ancestor.photoId ? [ancestor.photoId] : []),
-    ...additionalPhotos.map((p) => p.id),
   ];
 
-  const works = await db
+  const otherImages = await db
     .select({
       id: images.id,
       title: images.title,
@@ -95,9 +95,31 @@ export default async function AncestorPage({
     )
     .orderBy(desc(images.createdAt));
 
+  // Split other images: "photo-like" (no category or "Photos") merge into additional photos,
+  // everything else stays as categorized works
+  const photoLike = otherImages.filter(
+    (img) => !additionalPhotoIds.has(img.id) && (!img.categoryName || img.categoryName === "Photos")
+  );
+  const works = otherImages.filter(
+    (img) => !additionalPhotoIds.has(img.id) && img.categoryName && img.categoryName !== "Photos"
+  );
+
+  // Merge: additional photos first, then uncategorized/Photos images
+  const mergedPhotos = [
+    ...additionalPhotos,
+    ...photoLike.map((img) => ({
+      id: img.id,
+      title: img.title,
+      blobUrl: img.blobUrl,
+      thumbnailUrl: img.thumbnailUrl,
+      description: img.description,
+      dateCreated: img.dateCreated,
+    })),
+  ];
+
   // Fetch comment counts for all images on this page
   const allImageIds = [
-    ...additionalPhotos.map((p) => p.id),
+    ...mergedPhotos.map((p) => p.id),
     ...works.map((w) => w.id),
   ];
   const imageCommentCounts = allImageIds.length > 0
@@ -217,7 +239,7 @@ export default async function AncestorPage({
           memoryCount={memoryCount}
           ancestorId={ancestor.id}
           ancestorName={ancestor.name}
-          additionalPhotos={additionalPhotos.map((p) => ({
+          additionalPhotos={mergedPhotos.map((p) => ({
             id: p.id,
             title: p.title ?? "",
             blobUrl: p.blobUrl ?? "",
