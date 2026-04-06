@@ -54,16 +54,16 @@ export function CropDialog({
         body: JSON.stringify({ x, y, width, height }),
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error("Crop failed");
+        throw new Error(data.error || "Crop failed");
       }
 
-      const data = await res.json();
       toast.success("Image cropped");
       onCropped(data.blobUrl);
       onOpenChange(false);
-    } catch {
-      toast.error("Failed to crop image");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to crop image");
     } finally {
       setSaving(false);
     }
