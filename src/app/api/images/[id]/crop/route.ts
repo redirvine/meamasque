@@ -101,7 +101,7 @@ export async function POST(
   // Update DB with new blob URL
   const [updated] = await db
     .update(images)
-    .set({ blobUrl: blob.url, updatedAt: new Date() })
+    .set({ blobUrl: blob.url, thumbnailUrl: null, updatedAt: new Date() })
     .where(eq(images.id, id))
     .returning();
 
