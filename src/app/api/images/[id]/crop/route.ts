@@ -55,10 +55,11 @@ export async function POST(
         { status: 500 }
       );
     }
-    const buffer = Buffer.from(await response.arrayBuffer());
+    const rawBuffer = Buffer.from(await response.arrayBuffer());
 
-    // Get image dimensions
-    const metadata = await sharp(buffer).metadata();
+    // Auto-orient based on EXIF first so dimensions match what the browser displays
+    const oriented = await sharp(rawBuffer).rotate().toBuffer();
+    const metadata = await sharp(oriented).metadata();
     if (!metadata.width || !metadata.height) {
       return NextResponse.json(
         { error: "Could not read image dimensions" },
@@ -80,8 +81,8 @@ export async function POST(
       );
     }
 
-    // Crop the image
-    const cropped = await sharp(buffer)
+    // Crop from the already-oriented buffer
+    const cropped = await sharp(oriented)
       .extract({
         left: cropLeft,
         top: cropTop,
