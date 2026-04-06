@@ -104,6 +104,7 @@ export async function POST(
     const blob = await put(filename, cropped, {
       access: "public",
       contentType,
+      addRandomSuffix: true,
     });
 
     // Delete old blob
