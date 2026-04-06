@@ -29,6 +29,7 @@ export default async function PlacePage({
       name: places.name,
       slug: places.slug,
       description: places.description,
+      streetAddress: places.streetAddress,
       city: places.city,
       state: places.state,
       country: places.country,
@@ -105,6 +106,7 @@ export default async function PlacePage({
   const locationParts = [place.city, place.state, place.country].filter(Boolean);
 
   const details = [
+    { label: "Address", value: place.streetAddress },
     { label: "Location", value: locationParts.length > 0 ? locationParts.join(", ") : null },
     { label: "Type", value: place.visitedOrLived ? (place.visitedOrLived === "lived" ? "Lived here" : "Visited") : null },
     { label: "From", value: place.fromDate },

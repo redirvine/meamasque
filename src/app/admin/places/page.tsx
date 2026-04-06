@@ -44,6 +44,7 @@ interface Place {
   name: string;
   slug: string;
   description: string | null;
+  streetAddress: string | null;
   city: string | null;
   state: string | null;
   country: string | null;
@@ -89,6 +90,7 @@ function PlacesAdminPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [country, setCountry] = useState("");
@@ -134,6 +136,7 @@ function PlacesAdminPage() {
     setName("");
     setSlug("");
     setDescription("");
+    setStreetAddress("");
     setCity("");
     setState("");
     setCountry("");
@@ -151,6 +154,7 @@ function PlacesAdminPage() {
     setName(place.name);
     setSlug(place.slug);
     setDescription(place.description ?? "");
+    setStreetAddress(place.streetAddress ?? "");
     setCity(place.city ?? "");
     setState(place.state ?? "");
     setCountry(place.country ?? "");
@@ -205,6 +209,7 @@ function PlacesAdminPage() {
         name,
         slug,
         description: description || null,
+        streetAddress: streetAddress || null,
         city: city || null,
         state: state || null,
         country: country || null,
@@ -397,6 +402,14 @@ function PlacesAdminPage() {
                   placeholder="url-friendly-name"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Street Address</Label>
+              <Input
+                value={streetAddress}
+                onChange={(e) => setStreetAddress(e.target.value)}
+                placeholder="e.g. 123 Main St"
+              />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">

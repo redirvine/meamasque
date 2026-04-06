@@ -10,6 +10,7 @@ const updatePlaceSchema = z.object({
   name: z.string().min(1).optional(),
   slug: z.string().min(1).optional(),
   description: z.string().optional().nullable(),
+  streetAddress: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
   state: z.string().optional().nullable(),
   country: z.string().optional().nullable(),

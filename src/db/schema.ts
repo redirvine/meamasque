@@ -150,6 +150,7 @@ export const places = sqliteTable("places", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
+  streetAddress: text("street_address"),
   city: text("city"),
   state: text("state"),
   country: text("country"),
