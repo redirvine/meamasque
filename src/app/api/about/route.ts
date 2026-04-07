@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { siteAbout } from "@/db/schema";
+import { siteAbout, images } from "@/db/schema";
 import { auth } from "../../../../auth";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 const updateAboutSchema = z.object({
@@ -24,7 +25,17 @@ async function getOrCreateAbout() {
 
 export async function GET() {
   const about = await getOrCreateAbout();
-  return NextResponse.json(about);
+
+  let photoUrl: string | null = null;
+  if (about.photoId) {
+    const img = await db.query.images.findFirst({
+      where: eq(images.id, about.photoId),
+      columns: { blobUrl: true },
+    });
+    photoUrl = img?.blobUrl ?? null;
+  }
+
+  return NextResponse.json({ ...about, photoUrl });
 }
 
 export async function PATCH(request: NextRequest) {

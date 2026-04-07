@@ -16,6 +16,7 @@ interface AboutData {
   bio: string | null;
   artistStatement: string | null;
   photoId: string | null;
+  photoUrl: string | null;
 }
 
 export default function AboutAdminPage() {
@@ -36,16 +37,7 @@ export default function AboutAdminPage() {
         setBio(data.bio ?? "");
         setArtistStatement(data.artistStatement ?? "");
         setPhotoId(data.photoId);
-        // Fetch photo URL if there's a photoId
-        if (data.photoId) {
-          fetch(`/api/images?search=`)
-            .then((r) => r.json())
-            .then((images: { id: string; blobUrl: string }[]) => {
-              const img = images.find((i) => i.id === data.photoId);
-              if (img) setPhotoUrl(img.blobUrl);
-            })
-            .catch(() => {});
-        }
+        setPhotoUrl(data.photoUrl ?? null);
         setLoaded(true);
       });
   }, []);
