@@ -4,7 +4,8 @@ import { db } from "@/db";
 import { places, images, placeMemories, comments, likes } from "@/db/schema";
 import { eq, sql, count, and, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { BookOpen, Heart, MessageCircle, MapPin } from "lucide-react";
+import { BookOpen, Heart, MessageCircle, MapPin, Plus } from "lucide-react";
+import { auth } from "../../../../auth";
 
 export const metadata = {
   title: "Places - Mary Elizabeth Atwood",
@@ -12,6 +13,8 @@ export const metadata = {
 };
 
 export default async function PlacesPage() {
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
   const memoryCountSq = db
     .select({
       placeId: placeMemories.placeId,
@@ -101,7 +104,7 @@ export default async function PlacesPage() {
                 <img
                   src={place.photoThumbnailUrl ?? place.photoUrl}
                   alt={place.name}
-                  className="aspect-[3/2] w-full object-cover object-top"
+                  className="aspect-[3/2] w-full object-cover"
                 />
               ) : (
                 <div className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
@@ -159,6 +162,18 @@ export default async function PlacesPage() {
             </Link>
             </div>
           ))}
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="mt-8 flex justify-center">
+          <Link
+            href="/admin/places?new=true&redirect=/places"
+            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+          >
+            <Plus className="h-4 w-4" />
+            Add Place
+          </Link>
         </div>
       )}
     </div>

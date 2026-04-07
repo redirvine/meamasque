@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,8 +72,12 @@ export default function PlacesAdminPageWrapper() {
 
 function PlacesAdminPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const editParam = searchParams.get("edit");
+  const newParam = searchParams.get("new");
+  const redirectParam = searchParams.get("redirect");
   const didAutoEdit = useRef(false);
+  const didAutoNew = useRef(false);
 
   const [placesList, setPlacesList] = useState<Place[]>([]);
   const [editPlace, setEditPlace] = useState<Place | null>(null);
@@ -131,6 +135,15 @@ function PlacesAdminPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editParam, placesList]);
+
+  // Auto-open create when navigating with ?new=true
+  useEffect(() => {
+    if (newParam === "true" && !didAutoNew.current) {
+      didAutoNew.current = true;
+      resetForm();
+      setShowCreate(true);
+    }
+  }, [newParam]);
 
   const resetForm = () => {
     setName("");
@@ -243,7 +256,11 @@ function PlacesAdminPage() {
       setEditPlace(null);
       setShowCreate(false);
       resetForm();
-      loadPlaces();
+      if (redirectParam) {
+        router.push(redirectParam);
+      } else {
+        loadPlaces();
+      }
     } catch {
       toast.error("Failed to save place");
     } finally {
