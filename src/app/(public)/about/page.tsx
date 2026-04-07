@@ -28,7 +28,7 @@ export default async function AboutPage() {
         <img
           src={photoUrl}
           alt={about?.name ?? "Mary Elizabeth Atwood"}
-          className="w-full rounded-lg object-contain"
+          className="w-2/5 rounded-lg object-contain"
         />
       )}
 
