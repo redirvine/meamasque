@@ -27,27 +27,17 @@ export default async function AboutPage() {
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={photoUrl}
-          alt={about?.name ?? "Mary Elizabeth Atwood"}
-          className="w-2/5 rounded-lg object-contain"
+          alt="Mary Elizabeth Atwood"
+          className="float-left mr-6 mb-4 w-2/5 rounded-lg object-contain"
         />
       )}
 
-      <h1 className="mt-6 text-3xl font-bold">
-        {about?.name ?? "Mary Elizabeth Atwood"}
-      </h1>
-      {about?.bio && (
-        <div className="mt-4 prose prose-gray max-w-none whitespace-pre-wrap text-gray-700">
+      {about?.bio ? (
+        <div className="prose prose-gray max-w-none whitespace-pre-wrap text-gray-700">
           {about.bio}
         </div>
-      )}
-
-      {about?.artistStatement && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-3">Artist Statement</h2>
-          <div className="prose prose-gray max-w-none whitespace-pre-wrap text-gray-700">
-            {about.artistStatement}
-          </div>
-        </div>
+      ) : (
+        <p className="text-gray-500">No information yet.</p>
       )}
     </div>
   );

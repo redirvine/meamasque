@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,17 +11,13 @@ import { ImagePicker } from "@/components/admin/image-picker";
 
 interface AboutData {
   id: string;
-  name: string;
   bio: string | null;
-  artistStatement: string | null;
   photoId: string | null;
   photoUrl: string | null;
 }
 
 export default function AboutAdminPage() {
-  const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const [artistStatement, setArtistStatement] = useState("");
   const [photoId, setPhotoId] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [showImagePicker, setShowImagePicker] = useState(false);
@@ -33,9 +28,7 @@ export default function AboutAdminPage() {
     fetch("/api/about")
       .then((r) => r.json())
       .then((data: AboutData) => {
-        setName(data.name);
         setBio(data.bio ?? "");
-        setArtistStatement(data.artistStatement ?? "");
         setPhotoId(data.photoId);
         setPhotoUrl(data.photoUrl ?? null);
         setLoaded(true);
@@ -49,9 +42,7 @@ export default function AboutAdminPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
           bio: bio || null,
-          artistStatement: artistStatement || null,
           photoId: photoId || null,
         }),
       });
@@ -79,11 +70,7 @@ export default function AboutAdminPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label>Primary Photo</Label>
+            <Label>Photo</Label>
             {photoId && photoUrl ? (
               <div className="relative inline-block">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -116,22 +103,14 @@ export default function AboutAdminPage() {
             )}
           </div>
           <div className="space-y-2">
-            <Label>Bio</Label>
+            <Label>About</Label>
             <Textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              rows={8}
+              rows={12}
             />
           </div>
-          <div className="space-y-2">
-            <Label>Artist Statement</Label>
-            <Textarea
-              value={artistStatement}
-              onChange={(e) => setArtistStatement(e.target.value)}
-              rows={6}
-            />
-          </div>
-          <Button onClick={handleSave} disabled={saving || !name}>
+          <Button onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save"}
           </Button>
         </CardContent>
