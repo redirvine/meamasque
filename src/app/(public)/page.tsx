@@ -51,7 +51,7 @@ export default async function HomePage() {
   }
 
   const aboutTile: CategoryTile = {
-    label: aboutCategoryName,
+    label: "About",
     href: "/about",
     imageUrl: aboutPhotoUrl,
   };
@@ -100,7 +100,7 @@ export default async function HomePage() {
   };
 
   const desiredOrder = [
-    aboutCategoryName, "Paintings", "Drawings", "Mixed Media", "Masks", "Poems", "Plays", "Places", "Ancestors",
+    "About", "Paintings", "Drawings", "Mixed Media", "Masks", "Poems", "Plays", "Places", "Ancestors",
   ];
 
   const allTiles = [aboutTile, ...categoryTiles, playsTile, placesTile, ancestorsTile].filter(
