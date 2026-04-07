@@ -7,6 +7,8 @@ import { z } from "zod";
 const updateAboutSchema = z.object({
   name: z.string().min(1).optional(),
   bio: z.string().optional().nullable(),
+  artistStatement: z.string().optional().nullable(),
+  photoId: z.string().optional().nullable(),
 });
 
 async function getOrCreateAbout() {

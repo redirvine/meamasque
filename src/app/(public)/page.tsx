@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { images, categories, plays, ancestors, places } from "@/db/schema";
+import { images, categories, plays, ancestors, places, siteAbout } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { CategoryGrid, type CategoryTile } from "./category-grid";
 
@@ -13,9 +13,12 @@ function pickRandom<T>(arr: T[]): T | undefined {
 export default async function HomePage() {
   // Fetch all categories and find a random featured image each
   const allCategories = await db.query.categories.findMany();
+  // "Mary Elizabeth Atwood" category links to /about, not gallery
+  const aboutCategoryName = "Mary Elizabeth Atwood";
+
   const categoryTiles = await Promise.all(
     allCategories
-      .filter((c) => c.name !== "Theatre") // Theatre is covered by Plays
+      .filter((c) => c.name !== "Theatre" && c.name !== aboutCategoryName)
       .map(async (cat) => {
         const featuredImages = await db
           .select({ blobUrl: images.blobUrl, thumbnailUrl: images.thumbnailUrl })
@@ -35,6 +38,23 @@ export default async function HomePage() {
         } satisfies CategoryTile;
       })
   );
+
+  // About tile: use the siteAbout primary photo
+  const about = await db.query.siteAbout.findFirst();
+  let aboutPhotoUrl: string | null = null;
+  if (about?.photoId) {
+    const aboutImg = await db.query.images.findFirst({
+      where: eq(images.id, about.photoId),
+      columns: { blobUrl: true, thumbnailUrl: true },
+    });
+    aboutPhotoUrl = aboutImg?.thumbnailUrl ?? aboutImg?.blobUrl ?? null;
+  }
+
+  const aboutTile: CategoryTile = {
+    label: aboutCategoryName,
+    href: "/about",
+    imageUrl: aboutPhotoUrl,
+  };
 
   // Plays tile: use a random featured play's primary image
   const featuredPlays = await db
@@ -80,10 +100,10 @@ export default async function HomePage() {
   };
 
   const desiredOrder = [
-    "Paintings", "Drawings", "Mixed Media", "Masks", "Poems", "Plays", "Photos", "Places", "Ancestors",
+    aboutCategoryName, "Paintings", "Drawings", "Mixed Media", "Masks", "Poems", "Plays", "Places", "Ancestors",
   ];
 
-  const allTiles = [...categoryTiles, playsTile, placesTile, ancestorsTile].filter(
+  const allTiles = [aboutTile, ...categoryTiles, playsTile, placesTile, ancestorsTile].filter(
     (t) => t.imageUrl
   );
 

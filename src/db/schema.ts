@@ -309,5 +309,9 @@ export const siteAbout = sqliteTable("site_about", {
     .$defaultFn(() => createId()),
   name: text("name").notNull().default("Mary Elizabeth Atwood"),
   bio: text("bio"),
+  artistStatement: text("artist_statement"),
+  photoId: text("photo_id").references(() => images.id, {
+    onDelete: "set null",
+  }),
 });
 
