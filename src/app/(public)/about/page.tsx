@@ -23,26 +23,23 @@ export default async function AboutPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex flex-col gap-6 sm:flex-row">
-        {photoUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt={about?.name ?? "Mary Elizabeth Atwood"}
-            className="h-64 w-64 flex-shrink-0 rounded-lg object-cover"
-          />
-        )}
-        <div>
-          <h1 className="text-3xl font-bold">
-            {about?.name ?? "Mary Elizabeth Atwood"}
-          </h1>
-          {about?.bio && (
-            <div className="mt-4 prose prose-gray max-w-none whitespace-pre-wrap text-gray-700">
-              {about.bio}
-            </div>
-          )}
+      {photoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={photoUrl}
+          alt={about?.name ?? "Mary Elizabeth Atwood"}
+          className="w-full rounded-lg object-contain"
+        />
+      )}
+
+      <h1 className="mt-6 text-3xl font-bold">
+        {about?.name ?? "Mary Elizabeth Atwood"}
+      </h1>
+      {about?.bio && (
+        <div className="mt-4 prose prose-gray max-w-none whitespace-pre-wrap text-gray-700">
+          {about.bio}
         </div>
-      </div>
+      )}
 
       {about?.artistStatement && (
         <div className="mt-8">
