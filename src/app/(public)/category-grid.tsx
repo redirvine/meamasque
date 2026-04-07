@@ -15,7 +15,7 @@ function TileImage({ tile }: { tile: CategoryTile }) {
     <img
       src={tile.imageUrl}
       alt={tile.label}
-      className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+      className="aspect-[4/3] w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
     />
   ) : (
     <div className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
