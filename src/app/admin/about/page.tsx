@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,17 @@ interface AboutData {
 }
 
 export default function AboutAdminPage() {
+  return (
+    <Suspense>
+      <AboutAdminPageContent />
+    </Suspense>
+  );
+}
+
+function AboutAdminPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const redirectParam = searchParams.get("redirect");
   const [bio, setBio] = useState("");
   const [photoId, setPhotoId] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -48,6 +60,10 @@ export default function AboutAdminPage() {
       });
       if (!res.ok) throw new Error();
       toast.success("About page updated");
+      if (redirectParam) {
+        router.push(redirectParam);
+        return;
+      }
     } catch {
       toast.error("Failed to save");
     } finally {

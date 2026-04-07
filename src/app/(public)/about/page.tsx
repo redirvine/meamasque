@@ -3,6 +3,9 @@ export const dynamic = "force-dynamic";
 import { db } from "@/db";
 import { siteAbout, images } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
+import { auth } from "../../../../auth";
 
 export const metadata = {
   title: "About - Mary Elizabeth Atwood",
@@ -10,6 +13,8 @@ export const metadata = {
 };
 
 export default async function AboutPage() {
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
   const about = await db.query.siteAbout.findFirst();
 
   let photoUrl: string | null = null;
@@ -38,6 +43,18 @@ export default async function AboutPage() {
         </div>
       ) : (
         <p className="text-gray-500">No information yet.</p>
+      )}
+
+      {isAdmin && (
+        <div className="clear-both mt-8 flex justify-center">
+          <Link
+            href="/admin/about?redirect=/about"
+            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Link>
+        </div>
       )}
     </div>
   );
