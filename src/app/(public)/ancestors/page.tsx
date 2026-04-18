@@ -96,10 +96,10 @@ export default async function AncestorsPage() {
                 <img
                   src={ancestor.photoThumbnailUrl ?? ancestor.photoUrl}
                   alt={ancestor.name}
-                  className="aspect-[3/2] w-full object-cover object-top"
+                  className="aspect-[4/5] w-full object-cover object-top"
                 />
               ) : (
-                <div className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="flex aspect-[4/5] w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                   <User className="h-12 w-12 text-gray-300" />
                 </div>
               )}
