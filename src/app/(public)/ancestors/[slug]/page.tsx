@@ -186,7 +186,7 @@ export default async function AncestorPage({
                 </h1>
                 {isAdmin && (
                   <Link
-                    href={`/admin/ancestors?edit=${ancestor.id}`}
+                    href={`/admin/ancestors?edit=${ancestor.id}&redirect=/ancestors/${slug}`}
                     className="mt-1 flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
                     title="Edit ancestor"
                   >

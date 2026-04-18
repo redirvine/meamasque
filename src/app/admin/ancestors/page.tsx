@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,7 +69,9 @@ export default function AncestorsAdminPageWrapper() {
 
 function AncestorsAdminPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const editParam = searchParams.get("edit");
+  const redirectParam = searchParams.get("redirect");
   const didAutoEdit = useRef(false);
 
   const [ancestors, setAncestors] = useState<Ancestor[]>([]);
@@ -244,6 +246,10 @@ function AncestorsAdminPage() {
         });
         if (!res.ok) throw new Error("Create failed");
         toast.success("Ancestor created");
+      }
+      if (redirectParam) {
+        router.push(redirectParam);
+        return;
       }
       setEditAncestor(null);
       setShowCreate(false);
