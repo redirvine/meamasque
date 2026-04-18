@@ -217,7 +217,7 @@ export function PlaysListing({
                 {headerText?.trim() && (
                   <h2 className="mb-4 text-xl font-bold leading-tight text-gray-900">{headerText}</h2>
                 )}
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{headerDescription}</p>
+                <p className="text-xl text-gray-700 whitespace-pre-wrap">{headerDescription}</p>
               </div>
             )}
             {sidePlays.map((p) => renderCard(p))}

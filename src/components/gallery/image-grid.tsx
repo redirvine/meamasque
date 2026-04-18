@@ -108,7 +108,7 @@ export function ImageGrid({ images, isAdmin = false, currentUserId, redirectPath
                   {categoryDescriptionHeader?.trim() && (
                     <h2 className="mb-2 text-xl font-bold leading-tight text-gray-900">{categoryDescriptionHeader}</h2>
                   )}
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
+                  <p className="text-xl text-gray-700 whitespace-pre-wrap">{categoryDescription}</p>
                 </div>
               )}
             </div>
