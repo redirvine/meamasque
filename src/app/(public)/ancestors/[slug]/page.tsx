@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { ancestors, images, ancestorMemories, ancestorPhotos, categories, comments, likes } from "@/db/schema";
-import { eq, count, desc, asc, ne, and, notInArray, inArray } from "drizzle-orm";
+import { ancestors, images, ancestorMemories, ancestorPhotos, comments, likes } from "@/db/schema";
+import { eq, count, desc, asc, and, notInArray, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -83,10 +83,8 @@ export default async function AncestorPage({
       thumbnailUrl: images.thumbnailUrl,
       dateCreated: images.dateCreated,
       description: images.description,
-      categoryName: categories.name,
     })
     .from(images)
-    .leftJoin(categories, eq(images.categoryId, categories.id))
     .where(
       and(
         eq(images.ancestorId, ancestor.id),
@@ -95,33 +93,23 @@ export default async function AncestorPage({
     )
     .orderBy(desc(images.createdAt));
 
-  // Split other images: "photo-like" (no category or "Photos") merge into additional photos,
-  // everything else stays as categorized works
-  const photoLike = otherImages.filter(
-    (img) => !additionalPhotoIds.has(img.id) && (!img.categoryName || img.categoryName === "Photos")
-  );
-  const works = otherImages.filter(
-    (img) => !additionalPhotoIds.has(img.id) && img.categoryName && img.categoryName !== "Photos"
-  );
-
-  // Merge: additional photos first, then uncategorized/Photos images
+  // Merge: additional photos first, then all other ancestor images (regardless of category)
   const mergedPhotos = [
     ...additionalPhotos,
-    ...photoLike.map((img) => ({
-      id: img.id,
-      title: img.title,
-      blobUrl: img.blobUrl,
-      thumbnailUrl: img.thumbnailUrl,
-      description: img.description,
-      dateCreated: img.dateCreated,
-    })),
+    ...otherImages
+      .filter((img) => !additionalPhotoIds.has(img.id))
+      .map((img) => ({
+        id: img.id,
+        title: img.title,
+        blobUrl: img.blobUrl,
+        thumbnailUrl: img.thumbnailUrl,
+        description: img.description,
+        dateCreated: img.dateCreated,
+      })),
   ];
 
   // Fetch comment counts for all images on this page
-  const allImageIds = [
-    ...mergedPhotos.map((p) => p.id),
-    ...works.map((w) => w.id),
-  ];
+  const allImageIds = mergedPhotos.map((p) => p.id);
   const imageCommentCounts = allImageIds.length > 0
     ? await db
         .select({
@@ -156,14 +144,6 @@ export default async function AncestorPage({
         .groupBy(likes.resourceId)
     : [];
   const likeCountMap = new Map(imageLikeCounts.map((l) => [l.resourceId, l.count]));
-
-  const grouped = new Map<string, typeof works>();
-  for (const work of works) {
-    const key = work.categoryName ?? "Other";
-    const arr = grouped.get(key);
-    if (arr) arr.push(work);
-    else grouped.set(key, [work]);
-  }
 
   const details = [
     { label: "Relationship", value: ancestor.relationship },
@@ -249,21 +229,7 @@ export default async function AncestorPage({
             commentCount: commentCountMap.get(p.id) ?? 0,
             likeCount: likeCountMap.get(p.id) ?? 0,
           }))}
-          photoGroups={Array.from(grouped.entries()).map(
-            ([categoryName, imgs]) => ({
-              categoryName,
-              images: imgs.map((img) => ({
-                id: img.id,
-                title: img.title ?? "",
-                blobUrl: img.blobUrl ?? "",
-                thumbnailUrl: img.thumbnailUrl,
-                dateCreated: img.dateCreated,
-                description: img.description,
-                commentCount: commentCountMap.get(img.id) ?? 0,
-                likeCount: likeCountMap.get(img.id) ?? 0,
-              })),
-            })
-          )}
+          photoGroups={[]}
           isAdmin={isAdmin}
           currentUserId={session?.user?.id}
           redirectPath={`/ancestors/${slug}`}
